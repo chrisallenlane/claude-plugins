@@ -39,7 +39,29 @@ Uses adversarial representation to ensure all options are robustly explored befo
 
 **Output:** Clear list of N options to deliberate.
 
-### 2. Spawn Advocates (Parallel)
+### 2. Fact-Finding
+
+**Before spawning advocates, ensure you have sufficient context.**
+
+**Probe for:**
+- **Constraints**: Budget, timeline, technical limitations, organizational requirements
+- **Context**: Why is this decision being made now? What prompted it?
+- **History**: What has been tried before? What's already been ruled out?
+- **Stakeholders**: Who else is affected? What are their preferences?
+- **Non-negotiables**: Are any criteria must-haves vs nice-to-haves?
+- **Success criteria**: How will you know the decision was correct?
+
+**Ask clarifying questions proactively** - don't assume the initial framing contains everything relevant. Users often omit context they consider obvious.
+
+**Conclude fact-finding when:**
+- You understand the decision's importance and urgency
+- You know the key constraints advocates must work within
+- You could explain the decision context to a colleague
+- The user indicates they're ready to proceed
+
+**Keep it focused** - you're gathering context, not conducting an interview. 3-5 clarifying questions is typical; more than 10 suggests the decision isn't ready for deliberation.
+
+### 3. Spawn Advocates (Parallel)
 
 **For each option, spawn an advocate agent:**
 - Use `Task` tool with `subagent_type: "Advocate"`
@@ -63,7 +85,7 @@ Present your initial argument for why [OPTION] is the best choice.
 
 **Collect initial arguments from all advocates.**
 
-### 3. Rebuttal Round (Parallel)
+### 4. Rebuttal Round (Parallel)
 
 **Share all arguments with all advocates:**
 - Each advocate sees what the others argued
@@ -87,7 +109,7 @@ Here are the arguments made by all advocates:
 Present your rebuttal. Address the strongest points made against your option and counter the arguments made for competing options.
 ```
 
-### 4. Judge's Questions (Optional)
+### 5. Judge's Questions (Optional)
 
 **As judge, you may ask questions to:**
 - Probe weaknesses you've identified
@@ -106,7 +128,7 @@ Respond directly and honestly.
 
 **You may question one advocate, multiple advocates, or all of them.**
 
-### 5. Pre-Judgment Disclosure
+### 6. Pre-Judgment Disclosure
 
 **Before rendering judgment, explain your current thinking:**
 - Which way you're leaning
@@ -125,11 +147,11 @@ This is your final opportunity to make your case. Respond to the judge's reasoni
 
 **Collect final arguments in parallel.**
 
-### 6. Iterate or Conclude
+### 7. Iterate or Conclude
 
 **After final arguments, either:**
 
-**A) Return to Step 4** if:
+**A) Return to Step 5** if:
 - New questions arose from final arguments
 - You need more information to decide
 - An advocate raised a point that needs exploration
@@ -139,9 +161,9 @@ This is your final opportunity to make your case. Respond to the judge's reasoni
 - Further deliberation is unlikely to change the outcome
 - You've reached the iteration limit
 
-**Iteration limit: 10 rounds maximum** (a "round" is one cycle through steps 3-5)
+**Iteration limit: 10 rounds maximum** (a "round" is one cycle through steps 4-6)
 
-### 7. Render Judgment
+### 8. Render Judgment
 
 **Present your decision to the user:**
 
@@ -171,7 +193,7 @@ This is your final opportunity to make your case. Respond to the judge's reasoni
 - [Factor 3]
 ```
 
-### 8. Unable to Decide (Alternative Ending)
+### 9. Unable to Decide (Alternative Ending)
 
 **If you truly cannot decide:**
 - The options are genuinely equivalent
