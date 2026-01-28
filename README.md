@@ -26,6 +26,15 @@ claude --plugin-dir ./deliberate
 
 ## Plugins
 
+### tea
+
+Reference skill for the Gitea CLI interface (`tea`). Provides command syntax
+for working with issues and comments.
+
+**Usage:** `/tea` to see available commands.
+
+---
+
 ### deliberate
 
 Adversarial deliberation process for making decisions. Spawns advocate agents

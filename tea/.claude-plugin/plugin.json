@@ -1,0 +1,10 @@
+{
+  "name": "tea",
+  "version": "1.0.0",
+  "description": "Reference for the Gitea CLI interface (tea)",
+  "author": {
+    "name": "Chris Allen Lane"
+  },
+  "license": "MIT",
+  "keywords": ["gitea", "tea", "cli", "git"]
+}

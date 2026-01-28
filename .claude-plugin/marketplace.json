@@ -15,6 +15,16 @@
       },
       "source": "./deliberate",
       "category": "productivity"
+    },
+    {
+      "name": "tea",
+      "description": "Reference for the Gitea CLI interface (tea)",
+      "version": "1.0.0",
+      "author": {
+        "name": "Chris Allen Lane"
+      },
+      "source": "./tea",
+      "category": "development"
     }
   ]
 }
