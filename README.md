@@ -51,8 +51,9 @@ verdict.
 
 **How it works:**
 1. Parse the decision and identify options
-2. Spawn advocate agents (one per option)
-3. Advocates present arguments in parallel
-4. Rebuttal round
-5. Judge asks probing questions
-6. Render judgment with reasoning and trade-offs
+2. Fact-finding (clarifying questions)
+3. Spawn advocate agents (one per option)
+4. Advocates present arguments in parallel
+5. Rebuttal round
+6. Judge asks probing questions
+7. Render judgment with reasoning and trade-offs
