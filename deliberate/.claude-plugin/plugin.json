@@ -1,0 +1,10 @@
+{
+  "name": "deliberate",
+  "version": "1.0.0",
+  "description": "Adversarial deliberation process for making decisions by spawning advocate agents to argue different options",
+  "author": {
+    "name": "Chris"
+  },
+  "license": "MIT",
+  "keywords": ["decision-making", "deliberation", "adversarial"]
+}
