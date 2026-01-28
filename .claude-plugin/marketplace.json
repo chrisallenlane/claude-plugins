@@ -25,6 +25,16 @@
       },
       "source": "./tea",
       "category": "development"
+    },
+    {
+      "name": "swe",
+      "description": "Software engineering workflow with iterate/scope skills and specialist agents",
+      "version": "1.0.0",
+      "author": {
+        "name": "Chris Allen Lane"
+      },
+      "source": "./swe",
+      "category": "development"
     }
   ]
 }

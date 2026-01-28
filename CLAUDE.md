@@ -51,3 +51,5 @@ claude --plugin-dir ./plugin-name
 **deliberate**: Adversarial decision-making through advocate agents. Judge spawns advocates for each option, runs arguments/rebuttals, renders judgment.
 
 **tea**: Reference skill for Gitea CLI commands.
+
+**swe**: Software engineering workflow with `/iterate` and `/scope` skills, plus specialist agents for Go, Docker, GraphQL, Makefile, Ansible, Zig, and QA/security review.

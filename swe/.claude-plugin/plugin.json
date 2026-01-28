@@ -1,0 +1,10 @@
+{
+  "name": "swe",
+  "version": "1.0.0",
+  "description": "Software engineering workflow with iterate/scope skills and specialist agents",
+  "author": {
+    "name": "Chris Allen Lane"
+  },
+  "license": "MIT",
+  "keywords": ["swe", "workflow", "agents", "qa", "code-review"]
+}
