@@ -56,13 +56,18 @@ Specialist agents spawned by the skills above:
 
 ## Workflow Integration
 
-`/scope` and `/iterate` are complementary:
+This plugin is part of a three-stage workflow:
 
 ```
-/scope  →  Creates detailed ticket  →  /iterate  →  Implements the ticket
+/deliberate  →  /scope  →  /iterate
+   decide        plan      implement
 ```
 
-Use `/scope` first for complex changes that need exploration, then `/iterate` to implement. For straightforward changes, use `/iterate` directly.
+Use `/deliberate` (from the deliberate plugin) to resolve architectural
+questions, `/scope` to explore and create tickets, and `/iterate` to implement.
+
+Enter at any stage. Complex decisions benefit from the full workflow.
+Straightforward changes can go directly to `/iterate`.
 
 ## Requirements
 

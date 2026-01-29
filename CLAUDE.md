@@ -46,10 +46,17 @@ claude --plugin-dir ./plugin-name
 
 **Model names must be lowercase** (`opus`, `sonnet`, `haiku`) - capitalized names are not recognized.
 
-## Current Plugins
+## Workflow
 
-**deliberate**: Adversarial decision-making through advocate agents. Judge spawns advocates for each option, runs arguments/rebuttals, renders judgment.
+The plugins form a three-stage development workflow:
 
-**tea**: Reference skill for Gitea CLI commands.
+```
+/deliberate  →  /scope  →  /iterate
+   decide        plan      implement
+```
 
-**swe**: Software engineering workflow with `/iterate` and `/scope` skills, plus specialist agents for Go, Docker, GraphQL, Makefile, Ansible, Zig, and QA/security review.
+**deliberate**: Adversarial decision-making through advocate agents.
+
+**swe**: Software engineering workflow with `/scope` (planning) and `/iterate` (implementation) skills, plus specialist agents.
+
+**tea**: Reference skill for Gitea CLI commands (supports ticket creation in `/scope`).

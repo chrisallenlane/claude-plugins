@@ -1,6 +1,32 @@
 # Claude Code Plugins
 
-Personal Claude Code plugins by Chris Allen Lane.
+A cohesive software engineering workflow for Claude Code.
+
+## Workflow
+
+These plugins form a three-stage development workflow:
+
+```
+/deliberate  →  /scope  →  /iterate
+   decide        plan      implement
+```
+
+1. **`/deliberate`** - Arrive at technical decisions through adversarial
+   deliberation. Advocate agents argue for each option before a judge renders
+   a verdict.
+
+2. **`/scope`** - Explore the problem space through dialogue and codebase
+   analysis. Creates detailed tickets for implementation.
+
+3. **`/iterate`** - Execute the work through specialist agents: planning →
+   implementation → QA → security review → documentation.
+
+Each stage feeds into the next. Use `/deliberate` to resolve architectural
+questions, `/scope` to break decisions into actionable tickets, and `/iterate`
+to implement them systematically.
+
+For straightforward work, enter the workflow at any stage. Simple features can
+go directly to `/iterate`. Clear requirements can skip `/deliberate`.
 
 ## Installation
 
@@ -14,7 +40,43 @@ Then install plugins:
 
 ```bash
 claude plugin install deliberate@chrisallenlane
+claude plugin install swe@chrisallenlane
 ```
+
+## Plugins
+
+### deliberate
+
+Adversarial decision-making. Spawns advocate agents for each option who argue
+their cases before a judge (Claude) renders a verdict.
+
+**Good for:** Vendor selection, architectural decisions, build vs buy,
+technology choices.
+
+[Documentation](deliberate/README.md)
+
+---
+
+### swe
+
+Software engineering workflow with specialist agents.
+
+**Skills:**
+- `/iterate` - Full development cycle through specialist agents
+- `/scope` - Problem exploration and ticket creation
+
+**Agents:** Specialists for Go, GraphQL, Docker, Makefile, Ansible, Zig, plus
+QA, security, performance, refactoring, and documentation.
+
+[Documentation](swe/README.md)
+
+---
+
+### tea
+
+Reference for the Gitea CLI (`tea`). Supports ticket creation in `/scope`.
+
+**Usage:** `/tea` for command syntax.
 
 ## Development
 
@@ -23,37 +85,3 @@ Test a plugin locally:
 ```bash
 claude --plugin-dir ./deliberate
 ```
-
-## Plugins
-
-### tea
-
-Reference skill for the Gitea CLI interface (`tea`). Provides command syntax
-for working with issues and comments.
-
-**Usage:** `/tea` to see available commands.
-
----
-
-### deliberate
-
-Adversarial deliberation process for making decisions. Spawns advocate agents
-for each option who argue their cases before a judge (Claude) who renders a
-verdict.
-
-**Usage:** `/deliberate` followed by your decision and options.
-
-**Good for:**
-- Vendor/tool/library selection
-- Architectural decisions
-- Build vs buy decisions
-- Technology stack choices
-
-**How it works:**
-1. Parse the decision and identify options
-2. Fact-finding (clarifying questions)
-3. Spawn advocate agents (one per option)
-4. Advocates present arguments in parallel
-5. Rebuttal round
-6. Judge asks probing questions
-7. Render judgment with reasoning and trade-offs

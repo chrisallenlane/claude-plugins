@@ -103,6 +103,18 @@ Advocates argue in good faith: they may emphasize strengths and frame facts
 favorably, but they must not fabricate evidence, deny clear weaknesses, or use
 fallacious reasoning.
 
+## Workflow Integration
+
+This plugin is the first stage of a three-stage workflow:
+
+```
+/deliberate  →  /scope  →  /iterate
+   decide        plan      implement
+```
+
+Use `/deliberate` to resolve architectural questions, then hand off decisions
+to `/scope` (from the swe plugin) to create implementation tickets.
+
 ## License
 
 MIT
