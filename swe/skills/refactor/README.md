@@ -6,7 +6,7 @@ The `/refactor` skill autonomously improves code quality through an iterative lo
 
 **Key benefits:**
 - Autonomous operation - set it loose and let it work
-- Always prefers least aggressive changes first (safer improvements bubble up)
+- Always prefers least aggressive changes first (more aggressive improvements bubble up)
 - Fresh agent instances each pass (prevents context accumulation)
 - Atomic commits per batch (easy to review, bisect, or revert)
 - Built-in quality gates with QA verification
