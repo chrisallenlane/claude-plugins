@@ -47,10 +47,10 @@ Another agent will implement your recommendations using their own discretion.
 ## When to Skip Work
 
 **Report "No refactoring needed" if:**
-- Code is already well-structured (small functions, clear names, minimal duplication, good error handling, low nesting)
-- No duplication or bloat patterns exist
-- Changes would be purely stylistic with no meaningful improvement
-- Linters/formatters already pass
+- Code is already well-structured: functions under ~50 lines, nesting depth ≤3-4 levels, no obvious duplication
+- Linters and formatters already pass
+- No dead code detected
+- Changes would be purely stylistic with no meaningful line reduction
 
 Provide brief explanation of why code is in good shape and exit.
 
@@ -102,7 +102,7 @@ Eliminate ALL forms of code duplication throughout the codebase. Search the enti
 - Parallel code structures -> unify with abstraction
 
 **Similar-but-not-identical patterns (MORE AGGRESSIVE)**
-- Similar-but-not-identical code paths -> identify opportunities to consolidate even if it requires choosing one behavior. Track these as behavior-altering recommendations using TodoWrite and present to user before implementing.
+- Similar-but-not-identical code paths → identify opportunities to consolidate even if it requires choosing one behavior. Flag these as "behavior-altering" recommendations that require explicit approval before implementation.
 
 ### 4. Exit Early / Reduce Nesting (SAFE)
 Avoid `else` statements where possible by "exiting early" using `return`, `continue`, `break`, etc. This flattens deeply nested conditionals and improves readability.
@@ -120,35 +120,159 @@ Inline variables and functions used EXACTLY once when it improves readability an
 ### 7. Rename for Clarity (SAFE)
 Improve names of variables, functions, classes, and modules to clearly express intent. Avoid abbreviations unless they're standard in the domain.
 
-### 8. Extract Method/Function (SAFE to MODERATE RISK)
+Watch for **naming drift**: code evolves but names don't. A function named `validateUser` that now also sends emails, a file called `parser.go` that's grown into a full processing pipeline, a `TempData` struct that became permanent. When a name no longer describes what something actually does, rename it.
+
+### 8. Keep Related Code Together (SAFE)
+Minimize distance between related code. Declare variables close to where they're used, not at the top of a function 100 lines away. Group related operations together rather than interleaving unrelated logic.
+
+```
+// BAD: declaration far from usage
+taxRate, cost := 0.06, 100
+// ... 100 lines of unrelated code ...
+total := purchase(cost, taxRate)
+
+// GOOD: declaration near usage
+taxRate, cost := 0.06, 100
+total := purchase(cost, taxRate)
+```
+
+This reduces cognitive load - you shouldn't have to scroll or remember what a variable contains.
+
+### 9. Group Related Data (SAFE)
+When multiple loose variables naturally form a concept, group them into a struct/type/object. This makes relationships explicit and reduces "variable soup."
+
+```
+// BAD: loose variables
+x, y, z := 1, 2, 3
+DrawPoint(x, y, z)
+
+// GOOD: cohesive structure
+point := Point{X: 1, Y: 2, Z: 3}
+DrawPoint(point)
+```
+
+Signs of ungrouped data: variables with similar prefixes (userID, userName, userEmail), parallel arrays, functions taking many related parameters. This complements pattern 13 (Long Parameter Lists) - that fixes the function signature, this fixes the call site.
+
+### 10. Extract Method/Function (SAFE to MODERATE RISK)
 Break down large functions (>50 lines) into smaller, focused functions when extraction provides clear value:
 - **Prefer DRY-driven extraction**: Extract to eliminate duplication across multiple call sites
 - **Only create helper functions when net benefit is clear**: If extracting barely reduces total code (<10-15 lines net reduction), don't do it unless gaining significant testability or clarity
 - **Exception**: Accept a small net reduction if getting something valuable in exchange (significantly improved testability, better error handling, clearer separation of concerns)
 
-### 9. Single Responsibility Principle (MODERATE RISK)
+### 11. Single Responsibility Principle (MODERATE RISK)
 Ensure functions, classes, and modules have a single, well-defined purpose. Split up code that handles multiple concerns.
 
-### 10. Improve Error Handling (MODERATE RISK)
+### 12. Improve Error Handling (MODERATE RISK)
 Add missing error checks, consolidate error handling patterns, use language-idiomatic error handling, and don't silently swallow errors.
 
-### 11. Long Parameter Lists (MODERATE RISK)
+### 13. Long Parameter Lists (MODERATE RISK)
 Functions with many parameters (>3-4) are hard to understand. Consider extracting parameter objects, using builder pattern, or breaking up the function.
 
-### 12. Use Files Effectively (MODERATE RISK)
+### 14. Consistent Interfaces (MODERATE RISK)
+Similar functions should have similar signatures. When functions do comparable things, their parameter order, naming, and return types should be consistent.
+
+```
+// BAD: inconsistent parameter order
+a := foo("apple", 10)
+b := bar(20, "orange")
+
+// GOOD: consistent parameter order
+a := foo("apple", 10)
+b := bar("orange", 20)
+```
+
+This applies to related functions, methods on similar types, and family of operations. Consistency reduces cognitive load and prevents parameter-order bugs.
+
+### 15. Use Files Effectively (MODERATE RISK)
 Keep files focused and reasonably sized (<500 lines). Split large files by logical concerns, public API vs. implementation, or related functionality.
 
-### 13. Type Safety Improvements (MODERATE RISK)
+### 16. Type Safety Improvements (MODERATE RISK)
 Where applicable, improve type annotations and leverage the type system to prevent bugs.
 
-### 14. Large Classes / God Objects (MODERATE RISK to MORE AGGRESSIVE)
+### 17. Centralize Configuration (MODERATE RISK)
+Configuration should live in one place, not scattered as loose variables passed through call chains. Consolidate:
+- Magic numbers and strings → named constants in a config file/module
+- Repeated default values → single source of truth
+- Configuration passed as loose parameters → config struct/object
+- Environment-dependent values → centralized config loader
+
+Signs of scattered config: the same timeout value in multiple files, URLs hardcoded in various places, feature flags checked inconsistently.
+
+### 18. Large Classes / God Objects (MODERATE RISK to MORE AGGRESSIVE)
 Classes with many unrelated methods (>10-15), many fields (>8-10), or vague names (Manager, Handler, Util) need splitting. Extract cohesive groups of methods/fields into focused classes. Some classes are legitimately large - use judgment.
 
-### 15. Use Namespaces/Modules Effectively (MORE AGGRESSIVE)
+### 19. Use Namespaces/Modules Effectively (MORE AGGRESSIVE)
 Leverage language-specific organization tools. Reduce naming stutter (e.g., `user.get_user_name()` to `user.get_name()`).
 
-### 16. Remove Excessive Abstractions (MORE AGGRESSIVE)
+### 20. Remove Excessive Abstractions (MORE AGGRESSIVE)
 KISS (Keep It Simple, Stupid). Remove unnecessary indirection, over-engineered patterns, or premature abstractions. Simple is better than clever.
+
+### 21. Single-Purpose Files (MORE AGGRESSIVE)
+Files should have one cohesive purpose - one module, one concept, one responsibility. Don't comingle unrelated ideas in the same file. If a file contains multiple unrelated components, types, or functions, split it into focused files. This goes beyond size limits (pattern 15) to conceptual cohesion. Signs a file needs splitting:
+- Multiple unrelated classes/types in one file
+- Functions that serve completely different domains
+- "Util" or "misc" files that accumulate unrelated helpers
+- File name doesn't clearly describe all its contents
+
+### 22. Revisit Legacy Assumptions (MORE AGGRESSIVE)
+Take a broad perspective and question historical decisions that may no longer apply. Architecture that made sense in the past may not make sense now. Look for:
+- Caching layers added for performance problems that no longer exist
+- Compatibility shims for old API versions no clients use anymore
+- Workarounds for dependency bugs that have since been fixed
+- Complexity added for requirements that were later dropped
+- Scaling optimizations for bottlenecks that shifted elsewhere
+- Abstractions built for flexibility that was never needed
+
+Use git history, comments, and code archaeology to understand *why* something exists. If the original reason is gone, the code may be too.
+
+### 23. Establish Application Backbone (MORE AGGRESSIVE)
+Structure applications around well-defined, consistently-named containers passed uniformly to functions:
+
+- `options` - CLI arguments/flags from the parser
+- `config` - application configuration (from file, env, etc.)
+- `state` - runtime application state
+- `db` - database handle
+
+The entry point (`main` or equivalent) builds these up, then passes them in consistent order to all functions that need them. This eliminates loose variables scattered through call chains and makes function signatures predictable.
+
+```
+// BAD: loose variables everywhere
+func processUser(userID int, dbHost string, debug bool, timeout int) { ... }
+
+// GOOD: structured backbone
+func processUser(opts Options, conf Config, db *DB) { ... }
+```
+
+This is the architectural application of patterns 9 (Group Related Data), 14 (Consistent Interfaces), and 17 (Centralize Configuration).
+
+# Output Format
+
+Structure recommendations for the orchestrator as follows:
+
+```
+## Summary
+X issues found: N critical, N recommended, N optional
+Estimated net line change if all applied: -XXX
+
+## SAFEST
+- **[file:line]** [Pattern #] - Brief description
+  - Change: What to do
+  - Impact: Lines removed / complexity reduced
+
+## SAFE
+[Same format]
+
+## MODERATE
+[Same format]
+
+## AGGRESSIVE
+[Same format]
+
+## Behavior-Altering (requires approval)
+[Any recommendations that would change observable behavior]
+```
+
+Organize by risk level (not priority) so the orchestrator can select the least aggressive changes available.
 
 # Scope Prioritization
 
