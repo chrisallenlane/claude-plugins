@@ -291,7 +291,15 @@ When workflow completes, present summary:
 ```
 > /refactor
 
-Starting iterative refactoring of entire codebase...
+Scope: entire codebase
+
+How aggressive should refactoring be?
+> High (up to MODERATE changes)
+
+Any special QA instructions?
+> Run `make test && make lint` after each change
+
+Starting iterative refactoring...
 
 [Pass 1]
 Spawning swe-refactor agent for scan...

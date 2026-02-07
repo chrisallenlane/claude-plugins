@@ -187,7 +187,7 @@ Before starting, the workflow asks if you have custom verification steps beyond 
 These instructions are passed to the QA agent on every verification cycle. If you have no special requirements, standard verification (tests + linters) runs.
 
 ### 4. Scan for Opportunities
-A fresh `swe-refactor` agent scans the codebase across all 23 refactoring patterns, organized by risk level:
+A fresh `swe-refactor` agent scans the codebase across all 24 refactoring patterns, organized by risk level:
 
 | Level | Examples |
 |-------|----------|
@@ -201,9 +201,10 @@ A fresh `swe-refactor` agent scans the codebase across all 23 refactoring patter
 ### 5. Select Least Aggressive
 The orchestrator filters the scan results:
 
-- From all recommendations, select the **least aggressive** ones available
+- From all recommendations, select the **least aggressive** ones available (respecting the ceiling from step 2)
 - Group related changes into an atomic batch (same module, same pattern type)
-- Aggressive changes naturally "bubble up" as gentler options are exhausted
+- More aggressive changes naturally "bubble up" as gentler options are exhausted
+- Stop when reaching the user's ceiling (skip recommendations above that level)
 
 **Example progression:**
 ```
@@ -294,7 +295,15 @@ When no opportunities remain at any risk level:
 ```
 User: /refactor
 
-Starting iterative refactoring of entire codebase...
+Scope: entire codebase
+
+How aggressive should refactoring be?
+> Maximum (all levels)
+
+Any special QA instructions?
+> (none)
+
+Starting iterative refactoring...
 
 [Pass 1]
 Scanning... Found: 8 dead code blocks (SAFEST), 3 DRY violations (SAFE)
