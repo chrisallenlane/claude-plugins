@@ -43,12 +43,22 @@ The `/refactor` skill autonomously improves code quality through an iterative lo
  │  • Or: User-specified path/module            │
  └──────────────────┬───────────────────────────┘
                     ▼
+ ┌──────────────────────────────────────────────┐
+ │  2. GATHER QA INSTRUCTIONS                   │
+ │  ────────────────────────────────────────    │
+ │  Ask user for custom verification steps:     │
+ │  • Visual checks, screenshots                │
+ │  • Manual test commands                      │
+ │  • Specific scenarios to validate            │
+ │  (Optional - standard tests run regardless)  │
+ └──────────────────┬───────────────────────────┘
+                    ▼
         ┌───────────────────────┐
         │  REFACTORING LOOP     │◄─────────────────────────┐
         └───────────┬───────────┘                          │
                     ▼                                      │
  ┌──────────────────────────────────────────────┐          │
- │  2. SCAN FOR OPPORTUNITIES                   │          │
+ │  3. SCAN FOR OPPORTUNITIES                   │          │
  │  ────────────────────────────────────────    │          │
  │  Agent: swe-refactor (fresh instance)        │          │
  │                                              │          │
@@ -62,7 +72,7 @@ The `/refactor` skill autonomously improves code quality through an iterative lo
  └──────────────────┬───────────────────────────┘          │
                     ▼                                      │
  ┌──────────────────────────────────────────────┐          │
- │  3. SELECT LEAST AGGRESSIVE                  │          │
+ │  4. SELECT LEAST AGGRESSIVE                  │          │
  │  ────────────────────────────────────────    │          │
  │  Orchestrator filters recommendations:       │          │
  │                                              │          │
@@ -73,7 +83,7 @@ The `/refactor` skill autonomously improves code quality through an iterative lo
  └──────────────────┬───────────────────────────┘          │
                     ▼                                      │
  ┌──────────────────────────────────────────────┐          │
- │  4. IMPLEMENT BATCH                          │          │
+ │  5. IMPLEMENT BATCH                          │          │
  │  ────────────────────────────────────────    │          │
  │  Agent: Language-specific SME or generalist  │          │
  │                                              │          │
@@ -88,7 +98,7 @@ The `/refactor` skill autonomously improves code quality through an iterative lo
  └──────────────────┬───────────────────────────┘          │
                     ▼                                      │
  ┌──────────────────────────────────────────────┐          │
- │  5. VERIFY CHANGES                           │          │
+ │  6. VERIFY CHANGES                           │          │
  │  ────────────────────────────────────────    │          │
  │  Agent: qa-engineer                          │          │
  │                                              │          │
@@ -109,7 +119,7 @@ The `/refactor` skill autonomously improves code quality through an iterative lo
  └──────────────────┬───────────────────────────┘          │
                     ▼                                      │
  ┌──────────────────────────────────────────────┐          │
- │  6. COMMIT BATCH                             │          │
+ │  7. COMMIT BATCH                             │          │
  │  ────────────────────────────────────────    │          │
  │  • Stage specific files (not git add -A)     │          │
  │  • Verify staged changes                     │          │
@@ -124,7 +134,7 @@ The `/refactor` skill autonomously improves code quality through an iterative lo
 
                                  ▼
  ┌──────────────────────────────────────────────┐
- │  7. COMPLETION SUMMARY                       │
+ │  8. COMPLETION SUMMARY                       │
  │  ────────────────────────────────────────    │
  │  When no opportunities remain:               │
  │                                              │
@@ -149,7 +159,16 @@ By default, the workflow operates on the entire codebase. You can specify a narr
 
 The scope is passed to all spawned agents.
 
-### 2. Scan for Opportunities
+### 2. Gather QA Instructions
+Before starting, the workflow asks if you have custom verification steps beyond the standard test suite. Examples:
+
+- "After each change, start the app and take a screenshot to verify rendering"
+- "Run `make demo` and check the output"
+- "Verify the CLI `--help` output is still valid"
+
+These instructions are passed to the QA agent on every verification cycle. If you have no special requirements, standard verification (tests + linters) runs.
+
+### 3. Scan for Opportunities
 A fresh `swe-refactor` agent scans the codebase across all 23 refactoring patterns, organized by risk level:
 
 | Level | Examples |
@@ -161,7 +180,7 @@ A fresh `swe-refactor` agent scans the codebase across all 23 refactoring patter
 
 **Why full scan every time?** Refactoring creates new opportunities. Consolidating duplicates might reveal higher-order patterns. Dead code removal might expose unused dependencies. Fresh scans catch what previous changes unlocked.
 
-### 3. Select Least Aggressive
+### 4. Select Least Aggressive
 The orchestrator filters the scan results:
 
 - From all recommendations, select the **least aggressive** ones available
@@ -179,7 +198,7 @@ Pass 5: Extract method (MODERATE) - 2 long functions split
 Pass N: No opportunities at any level → Done
 ```
 
-### 4. Implement Batch
+### 5. Implement Batch
 A language-specific SME (or the orchestrator for unsupported languages) implements the refactorings:
 
 **Available specialists:**
@@ -194,7 +213,7 @@ A language-specific SME (or the orchestrator for unsupported languages) implemen
 
 **For mixed-language batches**: Split into per-language batches, or implement directly if changes are mechanical.
 
-### 5. Verify Changes
+### 6. Verify Changes
 The `qa-engineer` agent verifies the refactoring didn't break anything:
 - Runs the full test suite
 - Runs linters and formatters
@@ -208,7 +227,7 @@ The `qa-engineer` agent verifies the refactoring didn't break anything:
 
 **After 3 failures:** Revert the batch, log the failure, continue with next batch. Failed batches appear in the final summary.
 
-### 6. Commit Batch
+### 7. Commit Batch
 Each successful batch gets an atomic commit:
 
 ```bash
@@ -228,7 +247,7 @@ Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
 - Describe what changed and why
 - Keep batches atomic (one logical change)
 
-### 7. Completion Summary
+### 8. Completion Summary
 When no opportunities remain at any risk level:
 
 ```

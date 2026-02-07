@@ -38,7 +38,21 @@ Autonomous refactoring workflow that iteratively improves code quality, always p
 
 **If user specifies scope:** Respect that scope (directory, files, module). Pass scope constraint to all spawned agents.
 
-### 2. Aggression Philosophy
+### 2. Gather QA Instructions
+
+**Ask the user:** "Are there any special verification steps for the QA agent? For example: visual checks, manual testing commands, specific scenarios to validate."
+
+**If provided:** Pass these instructions to the QA agent on every verification cycle, in addition to standard test suite execution.
+
+**Examples of custom QA instructions:**
+- "After each change, start the app, take a screenshot, and verify it renders correctly"
+- "Run `make demo` and check that output matches expected behavior"
+- "Hit the `/health` endpoint and verify 200 response"
+- "Verify the CLI still produces valid output for `./tool --help`"
+
+**If none provided:** QA agent runs standard verification (test suite, linters, formatters).
+
+### 3. Aggression Philosophy
 
 **Always make the least aggressive change available.**
 
@@ -54,11 +68,11 @@ These aren't gates to pass through sequentially. Instead:
 - Aggressive changes naturally "bubble up" as gentler options are exhausted
 - Earlier refactorings may unlock new gentle changes (rescan catches these)
 
-### 3. Iterative Refactoring Loop
+### 4. Iterative Refactoring Loop
 
 For each iteration:
 
-#### 3a. Scan for Opportunities
+#### 4a. Scan for Opportunities
 
 **Spawn fresh `swe-refactor` agent:**
 - Agent performs FULL scan across all aggression levels
@@ -86,7 +100,7 @@ Focus on changes that will produce RED diffs (net code reduction).
 - Aggressive changes naturally surface as gentler ones are exhausted
 - If no recommendations at any level: workflow complete
 
-#### 3b. Plan Implementation
+#### 4b. Plan Implementation
 
 Review recommendations from scan. Group related changes into atomic batches.
 
@@ -101,7 +115,7 @@ Review recommendations from scan. Group related changes into atomic batches.
 - Expected outcome (lines removed, patterns eliminated)
 - Which SME agent is appropriate (based on language/framework)
 
-#### 3c. Implement Changes
+#### 4c. Implement Changes
 
 **Detect appropriate SME and spawn based on primary file type in batch:**
 - Go: `swe-sme-golang`
@@ -130,11 +144,12 @@ Report when complete.
 
 **SME implements and reports back.**
 
-#### 3d. Verify Changes
+#### 4d. Verify Changes
 
 **Spawn `qa-engineer` agent:**
 - Run test suite
 - Run linters/formatters
+- Execute any custom QA instructions gathered in step 2
 - Verify no regressions introduced
 - Report pass/fail with specifics
 
@@ -152,7 +167,7 @@ Report when complete.
 - Continue with next batch
 - Include in final summary as "aborted batch"
 
-#### 3e. Commit Changes
+#### 4e. Commit Changes
 
 **Create atomic commit for successful batch:**
 
@@ -175,16 +190,16 @@ EOF
 - Use `refactor:` prefix in commit message
 - Keep batches atomic (one logical change per commit)
 
-#### 3f. Loop
+#### 4f. Loop
 
-Return to step 3a with fresh agent instance.
+Return to step 4a with fresh agent instance.
 
 **Loop continues until:**
 - No opportunities found at any aggression level (success)
 - User interrupts
 - Critical error
 
-### 4. Completion Summary
+### 5. Completion Summary
 
 When workflow completes, present summary:
 
