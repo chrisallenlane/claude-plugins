@@ -295,6 +295,50 @@ func processUser(opts Options, conf Config, db *DB) { ... }
 
 This is the architectural application of patterns 10 (Group Related Data), 15 (Consistent Interfaces), and 18 (Centralize Configuration).
 
+### 25. Decompose with Namespaces (MORE AGGRESSIVE)
+Aggressively use namespaces/modules/packages to decompose large files into many small, focused files. **Many small single-purpose files are better than multi-purpose large files.**
+
+Proactively create new namespaces when:
+- A file exceeds ~200-300 lines
+- A file contains multiple distinct concepts
+- Functions in a file could be logically grouped into sub-modules
+- Naming stutter appears (e.g., `user_create`, `user_update`, `user_delete` → `user/create`, `user/update`, `user/delete`)
+
+```
+// BAD: monolithic handlers.go with 800 lines
+handlers.go
+  - CreateUser()
+  - UpdateUser()
+  - DeleteUser()
+  - CreateOrder()
+  - UpdateOrder()
+  - DeleteOrder()
+  - CreateProduct()
+  ...
+
+// GOOD: decomposed into focused modules
+handlers/
+  user/
+    create.go
+    update.go
+    delete.go
+  order/
+    create.go
+    update.go
+    delete.go
+  product/
+    ...
+```
+
+Benefits:
+- Easier to navigate (file names tell you what's inside)
+- Smaller diffs (changes touch fewer files)
+- Reduces merge conflicts
+- Enables finer-grained code ownership
+- Naming stutter disappears (the namespace provides context)
+
+This extends patterns 16 (Use Files Effectively), 20 (Use Namespaces/Modules Effectively), and 22 (Single-Purpose Files) with an aggressive decomposition stance.
+
 # Output Format
 
 Structure recommendations for the orchestrator as follows:

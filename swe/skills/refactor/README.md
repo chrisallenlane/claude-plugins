@@ -205,7 +205,7 @@ Before starting, the workflow asks if you have custom verification steps beyond 
 These instructions are passed to the QA agent on every verification cycle. If you have no special requirements, standard verification (tests + linters) runs.
 
 ### 5. Scan for Opportunities
-A fresh `swe-refactor` agent scans the codebase across all 24 refactoring patterns, organized by risk level:
+A fresh `swe-refactor` agent scans the codebase across all 25 refactoring patterns, organized by risk level:
 
 | Level | Examples |
 |-------|----------|
