@@ -48,7 +48,7 @@ The `/refactor` skill autonomously improves code quality through an iterative lo
  │  ────────────────────────────────────────    │
  │  How far up the ladder to climb:             │
  │  • Maximum: All levels including AGGRESSIVE  │
- │  • High: Up to MODERATE (default)            │
+ │  • High: Up to MODERATE                       │
  │  • Low: Only SAFEST and SAFE                 │
  └──────────────────┬───────────────────────────┘
                     ▼
@@ -184,7 +184,7 @@ Choose how far up the aggression ladder to climb:
 - **High**: Go up to MODERATE changes, skip major restructuring
 - **Low**: Only SAFEST and SAFE changes
 
-Default is High (MODERATE ceiling). The workflow still proceeds from least aggressive upward - this just sets where to stop.
+The workflow still proceeds from least aggressive upward - this setting determines where to stop.
 
 ### 3. Gather Focus Areas
 Optionally specify what the refactoring should prioritize:

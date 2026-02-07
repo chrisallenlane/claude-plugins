@@ -48,8 +48,6 @@ Present these options:
 - **Low**: Only SAFEST and SAFE changes (formatters, linters, dead code, simple DRY, renaming)
 - **Let's discuss**: Talk through the situation to determine the right level
 
-**Default if user doesn't specify:** High (MODERATE ceiling).
-
 The workflow still proceeds from least aggressive to more aggressive - this setting determines how far up the ladder to climb before stopping.
 
 ### 3. Gather Focus Areas
