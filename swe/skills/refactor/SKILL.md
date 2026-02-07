@@ -12,6 +12,8 @@ Autonomous refactoring workflow that iteratively improves code quality, always p
 
 **Red diffs over green diffs.** The goal is to make the codebase SMALLER and CLEANER. Every iteration should delete more than it adds. DRY is your superpower.
 
+**Err on the side of trying.** When uncertain whether a refactoring is worthwhile, attempt it anyway. Git makes failed experiments free - the workflow will revert changes that don't pass QA. Missed opportunities are invisible; failed attempts teach you something. Be bold in what you try, knowing that version control provides the safety net.
+
 ## Workflow Overview
 
 ```

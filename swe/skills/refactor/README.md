@@ -394,6 +394,11 @@ The `/refactor` workflow embodies several key principles:
 - Best refactorings delete more than they add
 - DRY is the most powerful tool
 
+**Err on the side of trying:**
+- When uncertain, attempt the refactoring anyway
+- Git makes failed experiments free
+- Missed opportunities are invisible; failed attempts teach you something
+
 **Fresh eyes each pass:**
 - New agent instances prevent accumulated context bias
 - Each scan sees the codebase as it is *now*, not as it was
