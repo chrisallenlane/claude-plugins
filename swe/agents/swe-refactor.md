@@ -117,12 +117,43 @@ Apply language-appropriate correctness patterns:
 ### 6. Inline Single-Use Variables and Functions (SAFE)
 Inline variables and functions used EXACTLY once when it improves readability and reduces total line count. NEVER inline if used more than once. Don't inline if the name provides important documentation or the expression is complex.
 
-### 7. Rename for Clarity (SAFE)
+### 7. Consolidate String Literals and I/O (SAFE)
+Batch sequential output operations and use multiline string syntax where appropriate.
+
+**Sequential I/O calls:**
+```
+// BAD: multiple print calls
+print("Name: ")
+print(name)
+print("\nAge: ")
+print(age)
+
+// GOOD: single formatted call
+printf("Name: %s\nAge: %d\n", name, age)
+```
+
+**String concatenation → multiline literals:**
+```
+// BAD: concatenated strings or repeated literals
+msg := "Line 1\n" +
+       "Line 2\n" +
+       "Line 3\n"
+
+// GOOD: heredoc/multiline literal (syntax varies by language)
+msg := `Line 1
+Line 2
+Line 3
+`
+```
+
+Language-specific syntax: Go uses backticks, Python uses triple quotes, Zig uses `\\` prefix, Bash uses `<<EOF`, etc. Reduces syscalls for I/O and improves readability for multi-line content.
+
+### 8. Rename for Clarity (SAFE)
 Improve names of variables, functions, classes, and modules to clearly express intent. Avoid abbreviations unless they're standard in the domain.
 
 Watch for **naming drift**: code evolves but names don't. A function named `validateUser` that now also sends emails, a file called `parser.go` that's grown into a full processing pipeline, a `TempData` struct that became permanent. When a name no longer describes what something actually does, rename it.
 
-### 8. Keep Related Code Together (SAFE)
+### 9. Keep Related Code Together (SAFE)
 Minimize distance between related code. Declare variables close to where they're used, not at the top of a function 100 lines away. Group related operations together rather than interleaving unrelated logic.
 
 ```
@@ -138,7 +169,7 @@ total := purchase(cost, taxRate)
 
 This reduces cognitive load - you shouldn't have to scroll or remember what a variable contains.
 
-### 9. Group Related Data (SAFE)
+### 10. Group Related Data (SAFE)
 When multiple loose variables naturally form a concept, group them into a struct/type/object. This makes relationships explicit and reduces "variable soup."
 
 ```
@@ -151,24 +182,24 @@ point := Point{X: 1, Y: 2, Z: 3}
 DrawPoint(point)
 ```
 
-Signs of ungrouped data: variables with similar prefixes (userID, userName, userEmail), parallel arrays, functions taking many related parameters. This complements pattern 13 (Long Parameter Lists) - that fixes the function signature, this fixes the call site.
+Signs of ungrouped data: variables with similar prefixes (userID, userName, userEmail), parallel arrays, functions taking many related parameters. This complements pattern 14 (Long Parameter Lists) - that fixes the function signature, this fixes the call site.
 
-### 10. Extract Method/Function (SAFE to MODERATE RISK)
+### 11. Extract Method/Function (SAFE to MODERATE RISK)
 Break down large functions (>50 lines) into smaller, focused functions when extraction provides clear value:
 - **Prefer DRY-driven extraction**: Extract to eliminate duplication across multiple call sites
 - **Only create helper functions when net benefit is clear**: If extracting barely reduces total code (<10-15 lines net reduction), don't do it unless gaining significant testability or clarity
 - **Exception**: Accept a small net reduction if getting something valuable in exchange (significantly improved testability, better error handling, clearer separation of concerns)
 
-### 11. Single Responsibility Principle (MODERATE RISK)
+### 12. Single Responsibility Principle (MODERATE RISK)
 Ensure functions, classes, and modules have a single, well-defined purpose. Split up code that handles multiple concerns.
 
-### 12. Improve Error Handling (MODERATE RISK)
+### 13. Improve Error Handling (MODERATE RISK)
 Add missing error checks, consolidate error handling patterns, use language-idiomatic error handling, and don't silently swallow errors.
 
-### 13. Long Parameter Lists (MODERATE RISK)
+### 14. Long Parameter Lists (MODERATE RISK)
 Functions with many parameters (>3-4) are hard to understand. Consider extracting parameter objects, using builder pattern, or breaking up the function.
 
-### 14. Consistent Interfaces (MODERATE RISK)
+### 15. Consistent Interfaces (MODERATE RISK)
 Similar functions should have similar signatures. When functions do comparable things, their parameter order, naming, and return types should be consistent.
 
 ```
@@ -183,13 +214,13 @@ b := bar("orange", 20)
 
 This applies to related functions, methods on similar types, and family of operations. Consistency reduces cognitive load and prevents parameter-order bugs.
 
-### 15. Use Files Effectively (MODERATE RISK)
+### 16. Use Files Effectively (MODERATE RISK)
 Keep files focused and reasonably sized (<500 lines). Split large files by logical concerns, public API vs. implementation, or related functionality.
 
-### 16. Type Safety Improvements (MODERATE RISK)
+### 17. Type Safety Improvements (MODERATE RISK)
 Where applicable, improve type annotations and leverage the type system to prevent bugs.
 
-### 17. Centralize Configuration (MODERATE RISK)
+### 18. Centralize Configuration (MODERATE RISK)
 Configuration should live in one place, not scattered as loose variables passed through call chains. Consolidate:
 - Magic numbers and strings → named constants in a config file/module
 - Repeated default values → single source of truth
@@ -198,23 +229,23 @@ Configuration should live in one place, not scattered as loose variables passed 
 
 Signs of scattered config: the same timeout value in multiple files, URLs hardcoded in various places, feature flags checked inconsistently.
 
-### 18. Large Classes / God Objects (MODERATE RISK to MORE AGGRESSIVE)
+### 19. Large Classes / God Objects (MODERATE RISK to MORE AGGRESSIVE)
 Classes with many unrelated methods (>10-15), many fields (>8-10), or vague names (Manager, Handler, Util) need splitting. Extract cohesive groups of methods/fields into focused classes. Some classes are legitimately large - use judgment.
 
-### 19. Use Namespaces/Modules Effectively (MORE AGGRESSIVE)
+### 20. Use Namespaces/Modules Effectively (MORE AGGRESSIVE)
 Leverage language-specific organization tools. Reduce naming stutter (e.g., `user.get_user_name()` to `user.get_name()`).
 
-### 20. Remove Excessive Abstractions (MORE AGGRESSIVE)
+### 21. Remove Excessive Abstractions (MORE AGGRESSIVE)
 KISS (Keep It Simple, Stupid). Remove unnecessary indirection, over-engineered patterns, or premature abstractions. Simple is better than clever.
 
-### 21. Single-Purpose Files (MORE AGGRESSIVE)
-Files should have one cohesive purpose - one module, one concept, one responsibility. Don't comingle unrelated ideas in the same file. If a file contains multiple unrelated components, types, or functions, split it into focused files. This goes beyond size limits (pattern 15) to conceptual cohesion. Signs a file needs splitting:
+### 22. Single-Purpose Files (MORE AGGRESSIVE)
+Files should have one cohesive purpose - one module, one concept, one responsibility. Don't comingle unrelated ideas in the same file. If a file contains multiple unrelated components, types, or functions, split it into focused files. This goes beyond size limits (pattern 16) to conceptual cohesion. Signs a file needs splitting:
 - Multiple unrelated classes/types in one file
 - Functions that serve completely different domains
 - "Util" or "misc" files that accumulate unrelated helpers
 - File name doesn't clearly describe all its contents
 
-### 22. Revisit Legacy Assumptions (MORE AGGRESSIVE)
+### 23. Revisit Legacy Assumptions (MORE AGGRESSIVE)
 Take a broad perspective and question historical decisions that may no longer apply. Architecture that made sense in the past may not make sense now. Look for:
 - Caching layers added for performance problems that no longer exist
 - Compatibility shims for old API versions no clients use anymore
@@ -225,7 +256,7 @@ Take a broad perspective and question historical decisions that may no longer ap
 
 Use git history, comments, and code archaeology to understand *why* something exists. If the original reason is gone, the code may be too.
 
-### 23. Establish Application Backbone (MORE AGGRESSIVE)
+### 24. Establish Application Backbone (MORE AGGRESSIVE)
 Structure applications around well-defined, consistently-named containers passed uniformly to functions:
 
 - `options` - CLI arguments/flags from the parser
@@ -243,7 +274,7 @@ func processUser(userID int, dbHost string, debug bool, timeout int) { ... }
 func processUser(opts Options, conf Config, db *DB) { ... }
 ```
 
-This is the architectural application of patterns 9 (Group Related Data), 14 (Consistent Interfaces), and 17 (Centralize Configuration).
+This is the architectural application of patterns 10 (Group Related Data), 15 (Consistent Interfaces), and 18 (Centralize Configuration).
 
 # Output Format
 
