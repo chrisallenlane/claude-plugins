@@ -38,7 +38,21 @@ Autonomous refactoring workflow that iteratively improves code quality, always p
 
 **If user specifies scope:** Respect that scope (directory, files, module). Pass scope constraint to all spawned agents.
 
-### 2. Gather QA Instructions
+### 2. Select Aggression Ceiling
+
+**Ask the user:** "How aggressive should refactoring be?"
+
+Present these options:
+- **Maximum**: Attempt all improvements, including aggressive restructuring (class splits, module reorganization, removing abstractions)
+- **High**: Go up to MODERATE changes (extract methods, SRP, error handling, complex DRY) but skip major restructuring
+- **Low**: Only SAFEST and SAFE changes (formatters, linters, dead code, simple DRY, renaming)
+- **Let's discuss**: Talk through the situation to determine the right level
+
+**Default if user doesn't specify:** High (MODERATE ceiling).
+
+The workflow still proceeds from least aggressive to more aggressive - this setting determines how far up the ladder to climb before stopping.
+
+### 3. Gather QA Instructions
 
 **Ask the user:** "Are there any special verification steps for the QA agent? For example: visual checks, manual testing commands, specific scenarios to validate."
 
@@ -52,9 +66,9 @@ Autonomous refactoring workflow that iteratively improves code quality, always p
 
 **If none provided:** QA agent runs standard verification (test suite, linters, formatters).
 
-### 3. Aggression Philosophy
+### 4. Aggression Philosophy
 
-**Always make the least aggressive change available.**
+**Always make the least aggressive change available, up to the user's chosen ceiling (step 2).**
 
 The aggression levels (from `swe-refactor` agent) are:
 
@@ -65,14 +79,15 @@ The aggression levels (from `swe-refactor` agent) are:
 
 These aren't gates to pass through sequentially. Instead:
 - Each pass, prefer the least aggressive changes available
-- Aggressive changes naturally "bubble up" as gentler options are exhausted
+- More aggressive changes naturally "bubble up" as gentler options are exhausted
+- Stop when reaching the user's ceiling (e.g., if ceiling is High/MODERATE, skip AGGRESSIVE recommendations)
 - Earlier refactorings may unlock new gentle changes (rescan catches these)
 
-### 4. Iterative Refactoring Loop
+### 5. Iterative Refactoring Loop
 
 For each iteration:
 
-#### 4a. Scan for Opportunities
+#### 5a. Scan for Opportunities
 
 **Spawn fresh `swe-refactor` agent:**
 - Agent performs FULL scan across all aggression levels
@@ -100,7 +115,7 @@ Focus on changes that will produce RED diffs (net code reduction).
 - Aggressive changes naturally surface as gentler ones are exhausted
 - If no recommendations at any level: workflow complete
 
-#### 4b. Plan Implementation
+#### 5b. Plan Implementation
 
 Review recommendations from scan. Group related changes into atomic batches.
 
@@ -115,7 +130,7 @@ Review recommendations from scan. Group related changes into atomic batches.
 - Expected outcome (lines removed, patterns eliminated)
 - Which SME agent is appropriate (based on language/framework)
 
-#### 4c. Implement Changes
+#### 5c. Implement Changes
 
 **Detect appropriate SME and spawn based on primary file type in batch:**
 - Go: `swe-sme-golang`
@@ -144,12 +159,12 @@ Report when complete.
 
 **SME implements and reports back.**
 
-#### 4d. Verify Changes
+#### 5d. Verify Changes
 
 **Spawn `qa-engineer` agent:**
 - Run test suite
 - Run linters/formatters
-- Execute any custom QA instructions gathered in step 2
+- Execute any custom QA instructions gathered in step 3
 - Verify no regressions introduced
 - Report pass/fail with specifics
 
@@ -167,7 +182,7 @@ Report when complete.
 - Continue with next batch
 - Include in final summary as "aborted batch"
 
-#### 4e. Commit Changes
+#### 5e. Commit Changes
 
 **Create atomic commit for successful batch:**
 
@@ -190,16 +205,16 @@ EOF
 - Use `refactor:` prefix in commit message
 - Keep batches atomic (one logical change per commit)
 
-#### 4f. Loop
+#### 5f. Loop
 
-Return to step 4a with fresh agent instance.
+Return to step 5a with fresh agent instance.
 
 **Loop continues until:**
 - No opportunities found at any aggression level (success)
 - User interrupts
 - Critical error
 
-### 5. Completion Summary
+### 6. Completion Summary
 
 When workflow completes, present summary:
 

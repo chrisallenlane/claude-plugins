@@ -44,7 +44,16 @@ The `/refactor` skill autonomously improves code quality through an iterative lo
  └──────────────────┬───────────────────────────┘
                     ▼
  ┌──────────────────────────────────────────────┐
- │  2. GATHER QA INSTRUCTIONS                   │
+ │  2. SELECT AGGRESSION CEILING                │
+ │  ────────────────────────────────────────    │
+ │  How far up the ladder to climb:             │
+ │  • Maximum: All levels including AGGRESSIVE  │
+ │  • High: Up to MODERATE (default)            │
+ │  • Low: Only SAFEST and SAFE                 │
+ └──────────────────┬───────────────────────────┘
+                    ▼
+ ┌──────────────────────────────────────────────┐
+ │  3. GATHER QA INSTRUCTIONS                   │
  │  ────────────────────────────────────────    │
  │  Ask user for custom verification steps:     │
  │  • Visual checks, screenshots                │
@@ -58,7 +67,7 @@ The `/refactor` skill autonomously improves code quality through an iterative lo
         └───────────┬───────────┘                          │
                     ▼                                      │
  ┌──────────────────────────────────────────────┐          │
- │  3. SCAN FOR OPPORTUNITIES                   │          │
+ │  4. SCAN FOR OPPORTUNITIES                   │          │
  │  ────────────────────────────────────────    │          │
  │  Agent: swe-refactor (fresh instance)        │          │
  │                                              │          │
@@ -72,7 +81,7 @@ The `/refactor` skill autonomously improves code quality through an iterative lo
  └──────────────────┬───────────────────────────┘          │
                     ▼                                      │
  ┌──────────────────────────────────────────────┐          │
- │  4. SELECT LEAST AGGRESSIVE                  │          │
+ │  5. SELECT LEAST AGGRESSIVE                  │          │
  │  ────────────────────────────────────────    │          │
  │  Orchestrator filters recommendations:       │          │
  │                                              │          │
@@ -83,7 +92,7 @@ The `/refactor` skill autonomously improves code quality through an iterative lo
  └──────────────────┬───────────────────────────┘          │
                     ▼                                      │
  ┌──────────────────────────────────────────────┐          │
- │  5. IMPLEMENT BATCH                          │          │
+ │  6. IMPLEMENT BATCH                          │          │
  │  ────────────────────────────────────────    │          │
  │  Agent: Language-specific SME or generalist  │          │
  │                                              │          │
@@ -98,7 +107,7 @@ The `/refactor` skill autonomously improves code quality through an iterative lo
  └──────────────────┬───────────────────────────┘          │
                     ▼                                      │
  ┌──────────────────────────────────────────────┐          │
- │  6. VERIFY CHANGES                           │          │
+ │  7. VERIFY CHANGES                           │          │
  │  ────────────────────────────────────────    │          │
  │  Agent: qa-engineer                          │          │
  │                                              │          │
@@ -119,7 +128,7 @@ The `/refactor` skill autonomously improves code quality through an iterative lo
  └──────────────────┬───────────────────────────┘          │
                     ▼                                      │
  ┌──────────────────────────────────────────────┐          │
- │  7. COMMIT BATCH                             │          │
+ │  8. COMMIT BATCH                             │          │
  │  ────────────────────────────────────────    │          │
  │  • Stage specific files (not git add -A)     │          │
  │  • Verify staged changes                     │          │
@@ -134,7 +143,7 @@ The `/refactor` skill autonomously improves code quality through an iterative lo
 
                                  ▼
  ┌──────────────────────────────────────────────┐
- │  8. COMPLETION SUMMARY                       │
+ │  9. COMPLETION SUMMARY                       │
  │  ────────────────────────────────────────    │
  │  When no opportunities remain:               │
  │                                              │
@@ -159,7 +168,16 @@ By default, the workflow operates on the entire codebase. You can specify a narr
 
 The scope is passed to all spawned agents.
 
-### 2. Gather QA Instructions
+### 2. Select Aggression Ceiling
+Choose how far up the aggression ladder to climb:
+
+- **Maximum**: Attempt everything, including aggressive restructuring
+- **High**: Go up to MODERATE changes, skip major restructuring
+- **Low**: Only SAFEST and SAFE changes
+
+Default is High (MODERATE ceiling). The workflow still proceeds from least aggressive upward - this just sets where to stop.
+
+### 3. Gather QA Instructions
 Before starting, the workflow asks if you have custom verification steps beyond the standard test suite. Examples:
 
 - "After each change, start the app and take a screenshot to verify rendering"
@@ -168,7 +186,7 @@ Before starting, the workflow asks if you have custom verification steps beyond 
 
 These instructions are passed to the QA agent on every verification cycle. If you have no special requirements, standard verification (tests + linters) runs.
 
-### 3. Scan for Opportunities
+### 4. Scan for Opportunities
 A fresh `swe-refactor` agent scans the codebase across all 23 refactoring patterns, organized by risk level:
 
 | Level | Examples |
@@ -180,7 +198,7 @@ A fresh `swe-refactor` agent scans the codebase across all 23 refactoring patter
 
 **Why full scan every time?** Refactoring creates new opportunities. Consolidating duplicates might reveal higher-order patterns. Dead code removal might expose unused dependencies. Fresh scans catch what previous changes unlocked.
 
-### 4. Select Least Aggressive
+### 5. Select Least Aggressive
 The orchestrator filters the scan results:
 
 - From all recommendations, select the **least aggressive** ones available
@@ -198,7 +216,7 @@ Pass 5: Extract method (MODERATE) - 2 long functions split
 Pass N: No opportunities at any level → Done
 ```
 
-### 5. Implement Batch
+### 6. Implement Batch
 A language-specific SME (or the orchestrator for unsupported languages) implements the refactorings:
 
 **Available specialists:**
@@ -213,7 +231,7 @@ A language-specific SME (or the orchestrator for unsupported languages) implemen
 
 **For mixed-language batches**: Split into per-language batches, or implement directly if changes are mechanical.
 
-### 6. Verify Changes
+### 7. Verify Changes
 The `qa-engineer` agent verifies the refactoring didn't break anything:
 - Runs the full test suite
 - Runs linters and formatters
@@ -227,7 +245,7 @@ The `qa-engineer` agent verifies the refactoring didn't break anything:
 
 **After 3 failures:** Revert the batch, log the failure, continue with next batch. Failed batches appear in the final summary.
 
-### 7. Commit Batch
+### 8. Commit Batch
 Each successful batch gets an atomic commit:
 
 ```bash
@@ -247,7 +265,7 @@ Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
 - Describe what changed and why
 - Keep batches atomic (one logical change)
 
-### 8. Completion Summary
+### 9. Completion Summary
 When no opportunities remain at any risk level:
 
 ```
