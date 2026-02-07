@@ -53,7 +53,16 @@ The `/refactor` skill autonomously improves code quality through an iterative lo
  └──────────────────┬───────────────────────────┘
                     ▼
  ┌──────────────────────────────────────────────┐
- │  3. GATHER QA INSTRUCTIONS                   │
+ │  3. GATHER FOCUS AREAS                       │
+ │  ────────────────────────────────────────    │
+ │  Optional priorities for the scanner:        │
+ │  • "Focus on DRY in the handlers"            │
+ │  • "Prioritize dead code removal"            │
+ │  (Passed to swe-refactor agent each scan)    │
+ └──────────────────┬───────────────────────────┘
+                    ▼
+ ┌──────────────────────────────────────────────┐
+ │  4. GATHER QA INSTRUCTIONS                   │
  │  ────────────────────────────────────────    │
  │  Ask user for custom verification steps:     │
  │  • Visual checks, screenshots                │
@@ -67,7 +76,7 @@ The `/refactor` skill autonomously improves code quality through an iterative lo
         └───────────┬───────────┘                          │
                     ▼                                      │
  ┌──────────────────────────────────────────────┐          │
- │  4. SCAN FOR OPPORTUNITIES                   │          │
+ │  5. SCAN FOR OPPORTUNITIES                   │          │
  │  ────────────────────────────────────────    │          │
  │  Agent: swe-refactor (fresh instance)        │          │
  │                                              │          │
@@ -81,7 +90,7 @@ The `/refactor` skill autonomously improves code quality through an iterative lo
  └──────────────────┬───────────────────────────┘          │
                     ▼                                      │
  ┌──────────────────────────────────────────────┐          │
- │  5. SELECT LEAST AGGRESSIVE                  │          │
+ │  6. SELECT LEAST AGGRESSIVE                  │          │
  │  ────────────────────────────────────────    │          │
  │  Orchestrator filters recommendations:       │          │
  │                                              │          │
@@ -92,7 +101,7 @@ The `/refactor` skill autonomously improves code quality through an iterative lo
  └──────────────────┬───────────────────────────┘          │
                     ▼                                      │
  ┌──────────────────────────────────────────────┐          │
- │  6. IMPLEMENT BATCH                          │          │
+ │  7. IMPLEMENT BATCH                          │          │
  │  ────────────────────────────────────────    │          │
  │  Agent: Language-specific SME or generalist  │          │
  │                                              │          │
@@ -107,7 +116,7 @@ The `/refactor` skill autonomously improves code quality through an iterative lo
  └──────────────────┬───────────────────────────┘          │
                     ▼                                      │
  ┌──────────────────────────────────────────────┐          │
- │  7. VERIFY CHANGES                           │          │
+ │  8. VERIFY CHANGES                           │          │
  │  ────────────────────────────────────────    │          │
  │  Agent: qa-engineer                          │          │
  │                                              │          │
@@ -128,7 +137,7 @@ The `/refactor` skill autonomously improves code quality through an iterative lo
  └──────────────────┬───────────────────────────┘          │
                     ▼                                      │
  ┌──────────────────────────────────────────────┐          │
- │  8. COMMIT BATCH                             │          │
+ │  9. COMMIT BATCH                             │          │
  │  ────────────────────────────────────────    │          │
  │  • Stage specific files (not git add -A)     │          │
  │  • Verify staged changes                     │          │
@@ -143,7 +152,7 @@ The `/refactor` skill autonomously improves code quality through an iterative lo
 
                                  ▼
  ┌──────────────────────────────────────────────┐
- │  9. COMPLETION SUMMARY                       │
+ │  10. COMPLETION SUMMARY                      │
  │  ────────────────────────────────────────    │
  │  When no opportunities remain:               │
  │                                              │
@@ -177,7 +186,16 @@ Choose how far up the aggression ladder to climb:
 
 Default is High (MODERATE ceiling). The workflow still proceeds from least aggressive upward - this just sets where to stop.
 
-### 3. Gather QA Instructions
+### 3. Gather Focus Areas
+Optionally specify what the refactoring should prioritize:
+
+- "Aggressively use namespaces to decompose large files and reduce stutter"
+- "Focus on eliminating duplication in the API handlers"
+- "Prioritize dead code removal - we just removed a major feature"
+
+These focus areas are passed to the scanner, which prioritizes matching opportunities while still scanning for all patterns.
+
+### 4. Gather QA Instructions
 Before starting, the workflow asks if you have custom verification steps beyond the standard test suite. Examples:
 
 - "After each change, start the app and take a screenshot to verify rendering"
@@ -186,7 +204,7 @@ Before starting, the workflow asks if you have custom verification steps beyond 
 
 These instructions are passed to the QA agent on every verification cycle. If you have no special requirements, standard verification (tests + linters) runs.
 
-### 4. Scan for Opportunities
+### 5. Scan for Opportunities
 A fresh `swe-refactor` agent scans the codebase across all 24 refactoring patterns, organized by risk level:
 
 | Level | Examples |
@@ -198,7 +216,7 @@ A fresh `swe-refactor` agent scans the codebase across all 24 refactoring patter
 
 **Why full scan every time?** Refactoring creates new opportunities. Consolidating duplicates might reveal higher-order patterns. Dead code removal might expose unused dependencies. Fresh scans catch what previous changes unlocked.
 
-### 5. Select Least Aggressive
+### 6. Select Least Aggressive
 The orchestrator filters the scan results:
 
 - From all recommendations, select the **least aggressive** ones available (respecting the ceiling from step 2)
@@ -217,7 +235,7 @@ Pass 5: Extract method (MODERATE) - 2 long functions split
 Pass N: No opportunities at any level → Done
 ```
 
-### 6. Implement Batch
+### 7. Implement Batch
 A language-specific SME (or the orchestrator for unsupported languages) implements the refactorings:
 
 **Available specialists:**
@@ -232,7 +250,7 @@ A language-specific SME (or the orchestrator for unsupported languages) implemen
 
 **For mixed-language batches**: Split into per-language batches, or implement directly if changes are mechanical.
 
-### 7. Verify Changes
+### 8. Verify Changes
 The `qa-engineer` agent verifies the refactoring didn't break anything:
 - Runs the full test suite
 - Runs linters and formatters
@@ -246,7 +264,7 @@ The `qa-engineer` agent verifies the refactoring didn't break anything:
 
 **After 3 failures:** Revert the batch, log the failure, continue with next batch. Failed batches appear in the final summary.
 
-### 8. Commit Batch
+### 9. Commit Batch
 Each successful batch gets an atomic commit:
 
 ```bash
@@ -266,7 +284,7 @@ Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
 - Describe what changed and why
 - Keep batches atomic (one logical change)
 
-### 9. Completion Summary
+### 10. Completion Summary
 When no opportunities remain at any risk level:
 
 ```
@@ -299,6 +317,9 @@ Scope: entire codebase
 
 How aggressive should refactoring be?
 > Maximum (all levels)
+
+Any specific focus areas?
+> (none)
 
 Any special QA instructions?
 > (none)
