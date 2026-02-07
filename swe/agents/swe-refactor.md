@@ -82,6 +82,8 @@ Delete unused functions, variables, imports, and commented-out code. If it's not
 
 Eliminate ALL forms of code duplication throughout the codebase. Search the entire codebase for duplication patterns and consolidate them.
 
+**DRY applies to structure, not just content.** If the same function is called 10+ times in sequence (even with different arguments), that's duplicated structure worth consolidating. See also Pattern 7 (Consolidate String Literals and I/O) for the "stuttering" pattern.
+
 **Types of duplication to eliminate (ordered SAFEST to MORE AGGRESSIVE):**
 
 **Simple duplication (SAFEST)**
@@ -120,16 +122,25 @@ Inline variables and functions used EXACTLY once when it improves readability an
 ### 7. Consolidate String Literals and I/O (SAFE)
 Batch sequential output operations and use multiline string syntax where appropriate.
 
+**Stuttering pattern**: Look for 5+ consecutive calls to the same function (print, write, append, push, add, etc.). This is a smell even when arguments differ - the repeated *structure* is the problem, not duplicated *content*. Ask: "Is there a single call or language idiom that could replace this sequence?"
+
 **Sequential I/O calls:**
 ```
-// BAD: multiple print calls
-print("Name: ")
-print(name)
-print("\nAge: ")
-print(age)
+// BAD: 18 calls to print() - stuttering
+try writer.print("Usage: {s} [options]\n", .{name});
+try writer.print("\n", .{});
+try writer.print("Options:\n", .{});
+try writer.print("  --help  Show help\n", .{});
+// ... 14 more lines
 
-// GOOD: single formatted call
-printf("Name: %s\nAge: %d\n", name, age)
+// GOOD: single call with multiline string
+try writer.print(
+    \\Usage: {s} [options]
+    \\
+    \\Options:
+    \\  --help  Show help
+    // ... rest of content
+, .{name});
 ```
 
 **String concatenation → multiline literals:**
@@ -146,7 +157,15 @@ Line 3
 `
 ```
 
-Language-specific syntax: Go uses backticks, Python uses triple quotes, Zig uses `\\` prefix, Bash uses `<<EOF`, etc. Reduces syscalls for I/O and improves readability for multi-line content.
+**Language-specific consolidation idioms:**
+- Zig: multiline strings (`\\` prefix), `@embedFile` for static content
+- Go: backtick strings, `text/template`
+- Python: triple-quoted strings, `textwrap.dedent`
+- JavaScript/TypeScript: template literals
+- Rust: raw strings (`r#"..."#`), `include_str!`
+- Shell: heredocs (`<<EOF`)
+
+Reduces syscalls for I/O and improves readability for multi-line content.
 
 ### 8. Rename for Clarity (SAFE)
 Improve names of variables, functions, classes, and modules to clearly express intent. Avoid abbreviations unless they're standard in the domain.
