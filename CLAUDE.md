@@ -57,6 +57,6 @@ The plugins form a three-stage development workflow:
 
 **deliberate**: Adversarial decision-making through advocate agents.
 
-**swe**: Software engineering workflow with `/scope` (planning) and `/iterate` (implementation) skills, plus specialist agents.
+**swe**: Software engineering workflow with `/scope` (planning), `/iterate` (implementation), and `/refactor` (cleanup) skills, plus specialist agents.
 
 **tea**: Reference skill for Gitea CLI commands (supports ticket creation in `/scope`).

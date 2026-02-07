@@ -64,6 +64,7 @@ Software engineering workflow with specialist agents.
 **Skills:**
 - `/iterate` - Full development cycle through specialist agents
 - `/scope` - Problem exploration and ticket creation
+- `/refactor` - Autonomous iterative codebase improvement
 
 **Agents:** Specialists for Go, GraphQL, Docker, Makefile, Ansible, Zig, plus
 QA, security, performance, refactoring, and documentation.

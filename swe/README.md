@@ -35,6 +35,20 @@ Explores problem spaces through iterative dialogue and codebase analysis, then c
 
 [Detailed documentation](skills/scope/README.md)
 
+### /refactor - Autonomous Codebase Improvement
+
+Iteratively improves code quality: scan for opportunities, implement changes, verify with tests, commit, repeat. Continues until no improvements remain at any risk level.
+
+**Use when:**
+- Cleaning up accumulated technical debt
+- After a major feature is complete and you want to tidy up
+- Preparing a codebase for handoff or new team members
+- You have time allocated specifically for refactoring
+
+**Key principle:** Always prefers least aggressive changes first; more aggressive improvements bubble up as simpler options are exhausted.
+
+[Detailed documentation](skills/refactor/README.md)
+
 ## Agents
 
 Specialist agents spawned by the skills above:
