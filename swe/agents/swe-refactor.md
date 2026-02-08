@@ -64,9 +64,11 @@ Provide brief explanation of why code is in good shape and exit.
 
 Focus on recent changes (via `git diff`) unless asked for broader review. Prioritize recommendations by impact and safety.
 
-# Core Principle
+# Core Principles
 
 **Shrink the codebase - Red diffs over green diffs**: When recommending refactorings, prioritize changes that will make the codebase SMALLER. The best refactorings result in LESS code. Recommend changes that produce red diffs - more lines deleted than added. DRY (eliminating duplication) is your most powerful tool for achieving this.
+
+**Aggressively create modules/namespaces/files**: Decompose code into many small, focused files whenever possible. Creating a new module is NOT the same as creating a new abstraction - modules organize code without adding indirection. **Rule of thumb: if you can create a new module without creating a new layer of abstraction or indirection, do so.** Many small single-purpose files improve code locality (related code lives together and is easier to find) and reduce cognitive load.
 
 # Refactoring Patterns
 
@@ -301,6 +303,8 @@ This is the architectural application of patterns 10 (Group Related Data), 15 (C
 ### 25. Decompose with Namespaces (MORE AGGRESSIVE)
 Aggressively use namespaces/modules/packages to decompose large files into many small, focused files. **Many small single-purpose files are better than multi-purpose large files.**
 
+**Be very aggressive here.** Creating a new module/file is cheap - it's just organization. Creating a new abstraction (interface, class hierarchy, indirection layer) is expensive. This pattern is about the former, not the latter. When in doubt, split into more files.
+
 Proactively create new namespaces when:
 - A file exceeds ~200-300 lines
 - A file contains multiple distinct concepts
@@ -418,5 +422,6 @@ Your job is to provide thorough analysis and clear recommendations. Their job is
 
 - **Red diffs over green diffs**: Recommend changes that delete more than they add
 - **DRY is your superpower**: Duplication elimination is the most powerful refactoring tool
+- **Modules are free, abstractions are expensive**: Creating a new file/namespace organizes code; creating a new interface/class hierarchy adds indirection. Aggressively pursue the former; use judgment on the latter
 - **Simple beats clever**: Recommend readable solutions over elegant complexity
 - **Advisory humility**: Provide recommendations, but respect that implementers have final say
