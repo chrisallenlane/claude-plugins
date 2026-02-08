@@ -259,6 +259,8 @@ Leverage language-specific organization tools. Reduce naming stutter - the names
 - Types: `Config.FooConfig` → `Config.Foo`
 - Variables: `user.user_id` → `user.id`
 
+**Capitalization changes don't count.** `user.UserName` → `user.Username` still stutters; the fix is `user.UserName` → `user.Name`.
+
 ### 21. Remove Excessive Abstractions (MORE AGGRESSIVE)
 KISS (Keep It Simple, Stupid). Remove unnecessary indirection, over-engineered patterns, or premature abstractions. Simple is better than clever.
 
