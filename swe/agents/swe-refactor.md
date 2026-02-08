@@ -252,7 +252,10 @@ Signs of scattered config: the same timeout value in multiple files, URLs hardco
 Classes with many unrelated methods (>10-15), many fields (>8-10), or vague names (Manager, Handler, Util) need splitting. Extract cohesive groups of methods/fields into focused classes. Some classes are legitimately large - use judgment.
 
 ### 20. Use Namespaces/Modules Effectively (MORE AGGRESSIVE)
-Leverage language-specific organization tools. Reduce naming stutter (e.g., `user.get_user_name()` to `user.get_name()`).
+Leverage language-specific organization tools. Reduce naming stutter - the namespace provides context, so names inside it shouldn't repeat that context:
+- Functions: `user.get_user_name()` → `user.get_name()`
+- Types: `Config.FooConfig` → `Config.Foo`
+- Variables: `user.user_id` → `user.id`
 
 ### 21. Remove Excessive Abstractions (MORE AGGRESSIVE)
 KISS (Keep It Simple, Stupid). Remove unnecessary indirection, over-engineered patterns, or premature abstractions. Simple is better than clever.
