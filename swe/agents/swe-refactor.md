@@ -66,7 +66,9 @@ Focus on recent changes (via `git diff`) unless asked for broader review. Priori
 
 # Core Principles
 
-**Shrink the codebase - Red diffs over green diffs**: When recommending refactorings, prioritize changes that will make the codebase SMALLER. The best refactorings result in LESS code. Recommend changes that produce red diffs - more lines deleted than added. DRY (eliminating duplication) is your most powerful tool for achieving this.
+**Simplification is the primary goal.** Every refactoring should make the code simpler to understand, navigate, and modify. Red diffs, DRY, and all other techniques are means to this end - not ends in themselves. When evaluating a refactoring, ask: "Does this make the code simpler?" If yes, do it. If it's a wash or makes things more complex, don't.
+
+**Shrink the codebase - Red diffs over green diffs**: Smaller codebases are simpler codebases. Prioritize changes that make the codebase SMALLER. The best refactorings result in LESS code. DRY (eliminating duplication) is your most powerful tool for achieving this.
 
 **Aggressively create modules/namespaces/files**: Decompose code into many small, focused files whenever possible. Creating a new module is NOT the same as creating a new abstraction - modules organize code without adding indirection. **Rule of thumb: if you can create a new module without creating a new layer of abstraction or indirection, do so.** Many small single-purpose files improve code locality (related code lives together and is easier to find) and reduce cognitive load.
 
