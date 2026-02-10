@@ -23,7 +23,7 @@ Orchestrates a complete development cycle through specialist agents: requirement
 
 ### /scope - Problem Space Exploration
 
-Explores problem spaces through iterative dialogue and codebase analysis, then creates detailed tickets in Gitea/GitHub.
+Explores problem spaces through iterative dialogue and codebase analysis, then creates detailed tickets in your issue tracker.
 
 **Use when:**
 - Planning a complex feature before implementation
@@ -86,4 +86,4 @@ Straightforward changes can go directly to `/iterate`.
 ## Requirements
 
 - `git` repository
-- For ticket creation: `tea` (Gitea) or `gh` (GitHub) CLI
+- For ticket creation: integration with your issue tracker (CLI, MCP server, or API)

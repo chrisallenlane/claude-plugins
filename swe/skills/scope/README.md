@@ -1,6 +1,6 @@
 # /scope - Problem Space Exploration
 
-Exploratory workflow for understanding problem spaces before implementation. Creates detailed tickets in Gitea/Github after thorough codebase exploration and iterative dialogue.
+Exploratory workflow for understanding problem spaces before implementation. Creates detailed tickets in your issue tracker after thorough codebase exploration and iterative dialogue.
 
 ## Purpose
 
@@ -32,7 +32,7 @@ Then describe what you want to explore:
 3. **Refinement**: Iterative dialogue to clarify approach, edge cases, trade-offs
 4. **Synthesis**: Draft ticket content adapted to the type of work (feature/bug/refactor)
 5. **Review**: You review and refine the ticket
-6. **Creation**: Claude creates the ticket in Gitea/Github using `tea` or `gh`
+6. **Creation**: Claude creates the ticket using available integration
 
 ## Example Session
 
@@ -61,8 +61,8 @@ Claude: Perfect. Here's the ticket I've drafted...
 
 User: Looks good
 
-Claude: Creating ticket in Gitea using tea...
-✓ Created: https://gitea.example.com/yourorg/yourrepo/issues/42
+Claude: Creating ticket...
+✓ Created: https://git.example.com/yourorg/yourrepo/issues/42
 ```
 
 ## Ticket Quality
@@ -115,8 +115,8 @@ You can also use `/iterate` directly for straightforward changes that don't need
 ## Requirements
 
 - `git` repository (for issue tracker detection)
-- `tea` CLI (for Gitea) or `gh` CLI (for Github)
-- If neither is installed, Claude will output ticket content for manual creation
+- Issue tracker integration (optional - CLI, MCP server, or API)
+- If not available, Claude will output ticket content for manual creation
 
 ## Differences from Normal Conversation
 

@@ -309,7 +309,7 @@ After presenting the summary, asks if you want to complete the workflow. If yes,
 - Includes Co-Authored-By: Claude line
 
 **Update/close ticket (if applicable):**
-- Detects Gitea (`tea`) or GitHub (`gh`) CLI
+- Detects platform integration
 - Extracts ticket number from branch name or asks user
 - Posts summary comment
 - Optionally closes ticket

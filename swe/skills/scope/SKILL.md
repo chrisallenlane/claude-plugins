@@ -1,6 +1,6 @@
 ---
 name: scope
-description: Exploratory workflow for understanding problem spaces and drafting feature proposals, refactorings, or complex bug-fixes. Creates detailed tickets in Gitea/Github without doing implementation work.
+description: Exploratory workflow for understanding problem spaces and drafting feature proposals, refactorings, or complex bug-fixes. Creates detailed tickets in your issue tracker without doing implementation work.
 model: opus
 ---
 
@@ -122,14 +122,12 @@ Output: Approved ticket content ready to create.
 ### 6. Create Ticket
 
 **Detect issue tracker:**
-- Check git remote for gitea or github
-- If `CLAUDE.md` specifies tracker preference, use that
-- If both are possible, ask user which to use
-- Auto-detect whether to use `tea` or `gh` CLI
+- Check `CLAUDE.md` for tracker preference and integration method
+- Auto-detect from git remote URL if not specified
+- Use available integration (CLI, MCP server, or API)
 
-**Create ticket using appropriate CLI:**
-- For Gitea (tea): `tea issues create`
-- For Github (gh): `gh issue create`
+**Create ticket using available integration:**
+- Use platform integration to create issue
 - Pass title and body
 - Apply any default labels if specified in CLAUDE.md
 
@@ -143,12 +141,10 @@ Output: Created ticket with URL.
 
 **Check in this order:**
 1. Look for explicit tracker specification in `CLAUDE.md` or `README.md`
-2. Run `git remote -v` and check remote URL:
-   - Contains `gitea`: use `tea`
-   - Contains `github`: use `gh`
-3. If both CLIs are available and remote is ambiguous, ask user
+2. Auto-detect from `git remote -v` URL
+3. Use available integration method for the detected platform
 
-**Note:** If user doesn't have `tea` or `gh` installed, output the ticket content and instructions for manual creation.
+**Note:** If no integration is available, output the ticket content and instructions for manual creation.
 
 ## Skill Boundaries
 
@@ -158,7 +154,7 @@ Output: Created ticket with URL.
 - Synthesize understanding into tickets
 - Challenge your assumptions
 - Propose alternatives
-- Create issues in Gitea/Github
+- Create issues in your issue tracker
 
 **This skill will NOT:**
 - Write production code

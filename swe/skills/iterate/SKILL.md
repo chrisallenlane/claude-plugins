@@ -312,9 +312,8 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 #### 11b. Update/Close Issue Tracker Ticket (Conditional)
 
 **Detect issue tracker:**
-- Check if `tea` command exists (Gitea)
-- Check if `gh` command exists (GitHub)
-- Skip if neither available
+- Check for platform integration (CLI, MCP server, or API)
+- Skip if not available
 
 **Determine ticket number:**
 - Try to extract from current branch name (e.g., `feature/123-add-auth` → #123)
@@ -331,11 +330,11 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
   - Key changes made
   - Tests added
   - Documentation updated
-- Use appropriate CLI: `tea comment` or `gh issue comment`
+- Use available integration to comment on issue
 
 **If user chooses to close:**
 - Close the ticket with final comment
-- Use appropriate CLI: `tea close` or `gh issue close`
+- Use available integration to close issue
 
 #### 11c. Sync with Main Branch (Conditional)
 

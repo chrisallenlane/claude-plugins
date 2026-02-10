@@ -71,14 +71,6 @@ QA, security, performance, refactoring, and documentation.
 
 [Documentation](swe/README.md)
 
----
-
-### tea
-
-Reference for the Gitea CLI (`tea`). Supports ticket creation in `/scope`.
-
-**Usage:** `/tea` for command syntax.
-
 ## Development
 
 Test a plugin locally:
