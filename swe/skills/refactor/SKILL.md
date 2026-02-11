@@ -10,9 +10,9 @@ Autonomous refactoring workflow that iteratively improves code quality, always p
 
 ## Philosophy
 
-**Red diffs over green diffs.** The goal is to make the codebase SMALLER and CLEANER. Every iteration should delete more than it adds. DRY is your superpower.
+**Red diffs over green diffs.** The goal is to make the codebase SMALLER and SIMPLER. Every iteration should delete more than it adds.
 
-**Err on the side of trying.** When uncertain whether a refactoring is worthwhile, attempt it anyway. Git makes failed experiments free - the workflow will revert changes that don't pass QA. Missed opportunities are invisible; failed attempts teach you something. Be bold in what you try, knowing that version control provides the safety net.
+**Err on the side of trying.** When uncertain whether a refactoring is worthwhile, attempt it anyway. Git makes failed experiments free - the workflow will revert changes that don't pass QA. Missed opportunities are invisible; failed attempts teach you something. Be bold, knowing that version control provides the safety net.
 
 ## Workflow Overview
 
@@ -43,9 +43,9 @@ Autonomous refactoring workflow that iteratively improves code quality, always p
 **Ask the user:** "How aggressive should refactoring be?"
 
 Present these options:
-- **Maximum**: Attempt all improvements, including aggressive restructuring (class splits, module reorganization, removing abstractions)
-- **High**: Go up to MODERATE changes (extract methods, SRP, error handling, complex DRY) but skip major restructuring
-- **Low**: Only SAFEST and SAFE changes (formatters, linters, dead code, simple DRY, renaming)
+- **Maximum**: Attempt all improvements, including aggressive restructuring (major module reorganization, removing legacy code, consolidating similar-but-not-identical behavior)
+- **High**: Go up to MODERATE changes (complex DRY across modules, removing abstraction layers, splitting files into focused modules) but skip major restructuring
+- **Low**: Only SAFEST and SAFE changes (formatters, linters, dead code, simple DRY, pruning single-use indirection, reducing stutter)
 - **Let's discuss**: Talk through the situation to determine the right level
 
 The workflow still proceeds from least aggressive to more aggressive - this setting determines how far up the ladder to climb before stopping.
@@ -54,15 +54,15 @@ The workflow still proceeds from least aggressive to more aggressive - this sett
 
 **Ask the user:** "Is there anything specific you want the refactoring to focus on?"
 
-**If provided:** Pass these focus areas to the `swe-refactor` agent on every scan. The agent should prioritize finding opportunities that match the user's focus, while still scanning for all patterns.
+**If provided:** Pass these focus areas to the `swe-refactor` agent on every scan. The agent should prioritize finding opportunities that match the user's focus, while still scanning with all three tools (DRY, Prune, Organize).
 
 **Examples of focus areas:**
 - "Aggressively use namespaces to decompose large files and reduce stutter"
 - "Focus on eliminating duplication in the API handlers"
 - "Prioritize dead code removal - we just removed a major feature"
-- "Look for opportunities to consolidate configuration into a central config struct"
+- "Look for legacy assumptions that no longer apply"
 
-**If none provided:** Standard balanced scan across all patterns.
+**If none provided:** Standard balanced scan across all three tools.
 
 ### 4. Gather QA Instructions
 
@@ -82,14 +82,7 @@ The workflow still proceeds from least aggressive to more aggressive - this sett
 
 **Always make the least aggressive change available, up to the user's chosen ceiling (step 2).**
 
-The aggression levels (from `swe-refactor` agent) are:
-
-1. **SAFEST:** Formatters, linters, dead code removal
-2. **SAFE:** DRY (simple), early exit, inlining, renaming
-3. **MODERATE:** Extract methods, SRP, error handling, type safety, complex DRY
-4. **AGGRESSIVE:** Large class splitting, namespace reorganization, removing abstractions
-
-These aren't gates to pass through sequentially. Instead:
+The `swe-refactor` agent returns recommendations organized by risk level: **SAFEST → SAFE → MODERATE → AGGRESSIVE**. These aren't gates to pass through sequentially. Instead:
 - Each pass, prefer the least aggressive changes available
 - More aggressive changes naturally "bubble up" as gentler options are exhausted
 - Stop when reaching the user's ceiling (e.g., if ceiling is High/MODERATE, skip AGGRESSIVE recommendations)
@@ -319,9 +312,9 @@ Starting iterative refactoring...
 [Pass 1]
 Spawning swe-refactor agent for scan...
 Found opportunities across levels:
-  SAFEST: 8 dead code blocks, 2 lint failures
+  SAFEST: 8 dead code blocks (Prune), 2 lint failures
   SAFE: 3 DRY violations
-  MODERATE: 1 extract method opportunity
+  MODERATE: 1 cross-module DRY opportunity
 Selecting least aggressive: dead code + lint (SAFEST)
 Spawning swe-sme-golang for implementation...
 Implementation complete.
@@ -333,9 +326,9 @@ Committed: "refactor: remove dead code and fix lint issues"
 Spawning swe-refactor agent for scan...
 Found opportunities across levels:
   SAFEST: (none)
-  SAFE: 3 DRY violations, 1 new early-exit opportunity
-  MODERATE: 1 extract method opportunity
-Selecting least aggressive: DRY + early-exit (SAFE)
+  SAFE: 3 DRY violations, 1 single-use wrapper (Prune)
+  MODERATE: 1 cross-module DRY opportunity
+Selecting least aggressive: DRY + prune (SAFE)
 Spawning swe-sme-golang for implementation...
 Implementation complete.
 Spawning qa-engineer for verification...
@@ -349,9 +342,9 @@ Committed: "refactor: consolidate duplicate parsing logic"
 [Pass 3]
 Spawning swe-refactor agent for scan...
 Found opportunities across levels:
-  SAFEST: 1 new dead code block (exposed by DRY consolidation)
+  SAFEST: 1 new dead code block exposed by DRY consolidation (Prune)
   SAFE: (none)
-  MODERATE: 1 extract method opportunity
+  MODERATE: 1 cross-module DRY opportunity
 Selecting least aggressive: dead code (SAFEST)
 ...
 
@@ -370,9 +363,7 @@ No opportunities found at any level.
 - Batches aborted: 0
 
 ### Changes by Category
-- Dead code removal: 9 instances
-- Lint fixes: 2 instances
+- Prune (dead code, unused indirection): 11 instances
 - DRY consolidation: 5 instances
-- Early exit refactoring: 2 instances
-- Extract method: 3 instances
+- Lint fixes: 2 instances
 ```
