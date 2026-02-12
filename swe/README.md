@@ -49,6 +49,20 @@ Iteratively improves code quality: scan for opportunities, implement changes, ve
 
 [Detailed documentation](skills/refactor/README.md)
 
+### /test-audit - Test Suite Quality Review
+
+Reviews test quality interactively: scans for brittle, tautological, and useless tests, presents findings for user selection, then fixes or removes the selected issues.
+
+**Use when:**
+- After a burst of agent-written tests
+- When test suite maintenance cost feels disproportionate to value
+- Before trusting a test suite you didn't write
+- Periodically, to keep test quality from drifting
+
+**Key principle:** Tests exist to catch bugs, not to exist. A bad test is worse than no test.
+
+[Detailed documentation](skills/test-audit/README.md)
+
 ## Agents
 
 Specialist agents spawned by the skills above:
@@ -65,6 +79,7 @@ Specialist agents spawned by the skills above:
 | `swe-refactor` | Code quality and refactoring reviewer |
 | `swe-perf-engineer` | Performance testing and optimization |
 | `qa-engineer` | Practical verification and test coverage |
+| `qa-test-auditor` | Test quality reviewer (brittle, tautological, useless tests) |
 | `sec-reviewer` | Security vulnerability analysis |
 | `doc-maintainer` | Documentation updates and verification |
 
