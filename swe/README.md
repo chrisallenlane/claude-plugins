@@ -63,6 +63,20 @@ Reviews test quality interactively: scans for brittle, tautological, and useless
 
 [Detailed documentation](skills/test-audit/README.md)
 
+### /test-mutate - Mutation Testing Workflow
+
+Systematically introduces mutations (small deliberate changes) into source code and checks if tests catch them. Surviving mutations reveal genuine coverage gaps that line coverage misses. Multi-session with progress tracking.
+
+**Use when:**
+- Verifying test quality for critical code (auth, payment, data processing)
+- Finding blind spots that line coverage metrics miss
+- Quality gate before shipping high-stakes changes
+- After refactoring, to ensure tests still catch bugs
+
+**Key principle:** Mutation score > line coverage. Tests that run code without asserting on behavior give false confidence.
+
+[Detailed documentation](skills/test-mutate/README.md)
+
 ## Agents
 
 Specialist agents spawned by the skills above:
@@ -80,6 +94,7 @@ Specialist agents spawned by the skills above:
 | `swe-perf-engineer` | Performance testing and optimization |
 | `qa-engineer` | Practical verification and test coverage |
 | `qa-test-auditor` | Test quality reviewer (brittle, tautological, useless tests) |
+| `qa-test-mutator` | Mutation testing worker (applies mutations, records results) |
 | `sec-reviewer` | Security vulnerability analysis |
 | `doc-maintainer` | Documentation updates and verification |
 
