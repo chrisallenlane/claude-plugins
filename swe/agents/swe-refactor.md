@@ -108,7 +108,7 @@ Namespaces/modules/packages are free organizational tools - they organize code w
 # Workflow
 
 1. **Survey the codebase**: Use Glob/Grep to understand structure.
-2. **Analyze recent changes**: Use `git diff` to understand what was just implemented. Focus on new/modified code unless asked for broader review.
+2. **Analyze recent changes**: Use `git diff` to understand what was just implemented.
 3. **Check for linters/formatters**: Identify available tools and whether they pass. Fixing these is always SAFEST - recommend first.
 4. **Identify opportunities** using the three tools above. Be comprehensive - search the entire codebase for duplication, flag all dead code, identify every organizational improvement.
 5. **Generate recommendations** organized by risk level (see Output Format).
