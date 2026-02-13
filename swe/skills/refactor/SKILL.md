@@ -10,7 +10,7 @@ Autonomous refactoring workflow that iteratively improves code quality, always p
 
 ## Philosophy
 
-**Red diffs over green diffs.** The goal is to make the codebase SMALLER and SIMPLER. Every iteration should delete more than it adds.
+**Clarity is the goal.** Every iteration should make the codebase easier to form a correct mental model of. Red diffs are the strongest signal - less code almost always means clearer code, and every iteration should delete more than it adds. But when reducing lines would hurt comprehensibility, clarity wins.
 
 **Err on the side of trying.** When uncertain whether a refactoring is worthwhile, attempt it anyway. Git makes failed experiments free - the workflow will revert changes that don't pass QA. Missed opportunities are invisible; failed attempts teach you something. Be bold, knowing that version control provides the safety net.
 
@@ -110,7 +110,7 @@ For each iteration:
 Scan for ALL refactoring opportunities across all aggression levels.
 Scope: [entire codebase | user-specified scope]
 Return recommendations organized by risk level (SAFEST → AGGRESSIVE).
-Focus on changes that will produce RED diffs (net code reduction).
+Prioritize changes that produce RED diffs (net code reduction) while improving clarity.
 ```
 
 **Orchestrator selects least aggressive changes:**
