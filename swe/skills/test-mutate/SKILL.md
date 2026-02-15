@@ -332,10 +332,7 @@ EOF
 
 ## Agent Coordination
 
-**Sequential execution:**
-- One `qa-test-mutator` at a time (mutation testing modifies files — can't parallelize)
-- Wait for completion before presenting results
-- Fresh SME instance for writing tests
+**All subagents MUST be executed sequentially — NEVER in parallel.** Mutation testing works by modifying source files and running tests against those modifications. Parallel agents will simultaneously edit the same files, corrupt each other's mutations, and produce meaningless results. This applies to every agent spawn in this workflow: mutator agents, SME agents, and verification steps. One agent at a time, wait for it to finish, then spawn the next.
 
 **State management:**
 - Orchestrator maintains the tracking file
