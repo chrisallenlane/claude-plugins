@@ -96,6 +96,13 @@ Namespaces/modules/packages are free organizational tools - they organize code w
 - `user.user_id` → `user.id`
 - Capitalization changes don't count: `user.UserName` still stutters; the fix is `user.Name`
 
+**Extract nouns into namespaces:** The ideal method/function name is a single verb. When method names contain nouns, that's a signal the noun should be its own namespace:
+- `Widget.get_config()` / `Widget.set_config()` → `Config.get()` / `Config.set()`, with `Widget.config` referencing the `Config` namespace
+- `Server.parse_request()` / `Server.validate_request()` → `Request.parse()` / `Request.validate()`
+- `App.load_plugins()` / `App.init_plugins()` → `Plugins.load()` / `Plugins.init()`
+
+The noun is doing real work — it represents a concept with its own operations. Extracting it creates a focused namespace where methods become simple verbs, and the original namespace references it by composition rather than owning its internals.
+
 **Put like with like:** Group related code together. Co-locate code that changes together and serves the same concept. When naming stutter appears (e.g., `user_create`, `user_update`, `user_delete`), that's a signal to create a namespace (`user/create`, `user/update`, `user/delete`).
 
 **Risk levels:**
