@@ -88,6 +88,36 @@ If the original reason is gone, the code should be too.
 
 Namespaces/modules/packages are free organizational tools - they organize code without adding indirection. Use them aggressively. **If you can create a new module without creating a new abstraction or layer of indirection, do so.**
 
+**The seams of an application are the spaces between nouns.** Every codebase is a collection of concepts (nouns) acted upon by operations (verbs). When a function name contains a noun, it's telling you which concept it belongs to. The natural decomposition boundaries — the seams — are where one noun's operations end and another's begin. Your job is to find those seams and make them explicit through namespaces.
+
+### Noun Analysis
+
+The ideal method/function name is a single verb. When method names contain nouns, that's a signal the noun should be its own namespace. Perform this analysis systematically:
+
+**Step 1: Enumerate.** Build a table of every function/method whose name contains a noun:
+
+| Namespace | Method               | Noun     | Verb     |
+|-----------|----------------------|----------|----------|
+| `Widget`  | `get_config()`       | config   | get      |
+| `Widget`  | `set_config()`       | config   | set      |
+| `Server`  | `parse_request()`    | request  | parse    |
+| `Server`  | `validate_request()` | request  | validate |
+| `Server`  | `send_response()`    | response | send     |
+| `App`     | `load_plugins()`     | plugins  | load     |
+| `App`     | `init_plugins()`     | plugins  | init     |
+
+**Step 2: Check existing namespaces.** For each noun in the table, ask: *does a namespace for this noun already exist?* If so, the method likely belongs there. `Widget.get_config()` in a codebase that already has a `Config` module is a misplaced method — move it to `Config.get()` and have `Widget` reference `Config` by composition.
+
+**Step 3: Evaluate new namespaces.** For each noun that *doesn't* have a namespace, ask: *should it?* A noun that appears with multiple verbs (like `config` with `get` and `set`, or `request` with `parse` and `validate`) is a concept with its own operations. It deserves its own namespace:
+
+- `Widget.get_config()` / `Widget.set_config()` → `Config.get()` / `Config.set()`, with `Widget.config` referencing `Config`
+- `Server.parse_request()` / `Server.validate_request()` → `Request.parse()` / `Request.validate()`
+- `App.load_plugins()` / `App.init_plugins()` → `Plugins.load()` / `Plugins.init()`
+
+A noun that appears with only one verb is weaker signal — it may still warrant extraction if the concept is substantial, but don't force it.
+
+### Other Organizational Heuristics
+
 **Decompose into focused files:** Many small single-purpose files are better than large multi-purpose files. Split when a file exceeds ~200-300 lines, contains multiple distinct concepts, or when functions could be logically grouped into sub-modules.
 
 **Reduce naming stutter:** The namespace provides context, so names inside it shouldn't repeat that context:
@@ -96,18 +126,11 @@ Namespaces/modules/packages are free organizational tools - they organize code w
 - `user.user_id` → `user.id`
 - Capitalization changes don't count: `user.UserName` still stutters; the fix is `user.Name`
 
-**Extract nouns into namespaces:** The ideal method/function name is a single verb. When method names contain nouns, that's a signal the noun should be its own namespace:
-- `Widget.get_config()` / `Widget.set_config()` → `Config.get()` / `Config.set()`, with `Widget.config` referencing the `Config` namespace
-- `Server.parse_request()` / `Server.validate_request()` → `Request.parse()` / `Request.validate()`
-- `App.load_plugins()` / `App.init_plugins()` → `Plugins.load()` / `Plugins.init()`
-
-The noun is doing real work — it represents a concept with its own operations. Extracting it creates a focused namespace where methods become simple verbs, and the original namespace references it by composition rather than owning its internals.
-
 **Put like with like:** Group related code together. Co-locate code that changes together and serves the same concept. When naming stutter appears (e.g., `user_create`, `user_update`, `user_delete`), that's a signal to create a namespace (`user/create`, `user/update`, `user/delete`).
 
 **Risk levels:**
 - SAFE: Reduce naming stutter within existing modules
-- MODERATE: Split large files into focused modules; regroup related code
+- MODERATE: Split large files into focused modules; extract nouns with multiple verbs into new namespaces; regroup related code
 - AGGRESSIVE: Major module reorganization; creating new package/namespace hierarchy
 
 ---
@@ -117,9 +140,10 @@ The noun is doing real work — it represents a concept with its own operations.
 1. **Survey the codebase**: Use Glob/Grep to understand structure.
 2. **Analyze recent changes**: Use `git diff` to understand what was just implemented.
 3. **Check for linters/formatters**: Identify available tools and whether they pass. Fixing these is always SAFEST - recommend first.
-4. **Identify opportunities** using the three tools above. Be comprehensive - search the entire codebase for duplication, flag all dead code, identify every organizational improvement.
-5. **Generate recommendations** organized by risk level (see Output Format).
-6. **Complete**: Provide summary of findings.
+4. **Noun analysis**: Enumerate all functions/methods with nouns in their names. Build the noun table (see Tool 3). Check each noun against existing namespaces, then evaluate whether new namespaces are warranted.
+5. **Identify opportunities** using the three tools above. Be comprehensive - search the entire codebase for duplication, flag all dead code, identify every organizational improvement.
+6. **Generate recommendations** organized by risk level (see Output Format).
+7. **Complete**: Provide summary of findings.
 
 ## When to Skip
 
@@ -131,6 +155,11 @@ Report "No refactoring needed" if the code is already well-structured, linters p
 ## Summary
 X issues found across N files
 Estimated net line change if all applied: -XXX
+
+## Noun Analysis
+| Namespace | Method | Noun | Verb | Recommendation                                              |
+|-----------|--------|------|------|-------------------------------------------------------------|
+| ...       | ...    | ...  | ...  | Move to existing `X` / Create new `X` namespace / No action |
 
 ## SAFEST
 - **[file:line]** Brief description (DRY/Prune/Organize)
