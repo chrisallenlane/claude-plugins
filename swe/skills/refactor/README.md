@@ -130,10 +130,10 @@ The `/refactor` skill autonomously improves code quality. It spawns an analysis 
  │  Fresh swe-refactor agent                    │
  │                                              │
  │  New blueprint? → Loop to step 5             │
- │  No changes?   → EXIT ─────────────────► DONE
+ │  No changes?   ──────────────────────────────┐
  └──────────────────────────────────────────────┘
-
-                       ▼
+                                                │
+                       ▼                        │
  ┌──────────────────────────────────────────────┐
  │  8. COMPLETION SUMMARY                       │
  │  ────────────────────────────────────────    │
@@ -141,6 +141,13 @@ The `/refactor` skill autonomously improves code quality. It spawns an analysis 
  │  • Net lines changed (target: negative)      │
  │  • Blueprint items completed vs skipped      │
  │  • Any skipped items with reasons            │
+ └──────────────────┬───────────────────────────┘
+                    ▼
+ ┌──────────────────────────────────────────────┐
+ │  9. UPDATE DOCUMENTATION                     │
+ │  ────────────────────────────────────────    │
+ │  Run /doc-review to fix stale docs           │
+ │  (module renames, moved functions, etc.)     │
  └──────────────────────────────────────────────┘
 ```
 
@@ -243,6 +250,9 @@ If the rescan produces a new blueprint, the workflow loops back. If not, it's do
 (none)
 ```
 
+### 9. Update Documentation
+After the summary, the workflow runs `/doc-review` to bring project documentation up to date. Refactoring renames modules, moves functions, and changes project structure — documentation that references the old structure becomes stale. The doc-review agent audits all documentation files and fixes issues it finds, committing separately from the refactoring commits.
+
 ## Examples
 
 ### Example 1: Full Codebase Cleanup
@@ -293,6 +303,10 @@ Rescanning... No refactoring needed.
 ## Refactoring Complete
 - 7 commits, -198 net lines
 - 5/5 blueprint items completed
+
+Running /doc-review...
+  Updated README.md, CLAUDE.md
+  Committed: "docs: update documentation after refactoring"
 ```
 
 ### Example 2: Scoped Refactoring

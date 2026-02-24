@@ -34,6 +34,7 @@ Autonomous refactoring workflow that analyzes codebase architecture, produces a 
 │  7. Rescan for cascading improvements (optional)    │
 │     └─ If new blueprint → loop to step 5            │
 │  8. Completion summary                              │
+│  9. Update documentation (/doc-review)              │
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -241,6 +242,17 @@ When workflow completes, present summary:
 - [Item description]: [reason for failure]
 ```
 
+### 9. Update Documentation
+
+After the refactoring summary, run the `/doc-review` workflow to bring project documentation up to date. Refactoring often renames modules, moves functions, and changes the project structure — documentation that references the old structure becomes stale.
+
+Invoke the skill directly:
+```
+/doc-review
+```
+
+This spawns a doc-maintainer agent that audits all project documentation and fixes issues it finds. Any changes are committed separately from the refactoring commits.
+
 ## Agent Coordination
 
 **Fresh instances for context management:**
@@ -357,4 +369,11 @@ No refactoring needed.
 - Net lines changed: -198
 - Blueprint items completed: 5/5
 - Rescans performed: 2
+
+Running /doc-review to update documentation...
+
+Spawning doc-maintainer agent...
+  Updated README.md (renamed parser references → request)
+  Updated CLAUDE.md (updated module list)
+  Committed: "docs: update documentation after refactoring"
 ```
