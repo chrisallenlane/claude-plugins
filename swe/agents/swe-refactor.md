@@ -124,7 +124,7 @@ try writer.print(
 
 Synthesize the previous three steps into a target architecture. This is your primary output.
 
-**Be comprehensive.** Describe the ideal module structure as if you were designing it from scratch, informed by the existing code. Consider every module — not just the ones with obvious problems. If a module is already well-placed, omit it from the blueprint. But don't stop after the first two findings. Apply every heuristic below to every module. A thorough blueprint for a medium-sized codebase might touch half the modules; a minimal blueprint that only catches the most obvious issues is not doing its job.
+**Be comprehensive.** The output format requires an entry for every module — not just the ones you want to change. For each module, you must write a domain justification explaining what concept it owns. If you can't justify a module, it's a candidate for dissolution or absorption. This forces you to evaluate the full codebase, not just the obvious problems.
 
 For each module that should change, describe its target state: what it owns, what it absorbs, what it loses, what gets renamed or simplified. The goal is a module map where every module has a clear domain identity.
 
@@ -160,7 +160,7 @@ For each module that should change, describe its target state: what it owns, wha
 4. **Step 1 - Prune dead code**: Catalog all dead code, unused imports, single-use indirection, legacy assumptions.
 5. **Step 2 - Noun analysis**: Follow all six sub-steps (2a-2f). Build the domain model.
 6. **Step 3 - Identify repetition**: Catalog all duplication patterns. Cross-reference with noun analysis to identify where duplication reveals missing abstractions.
-7. **Step 4 - Produce blueprint**: Synthesize steps 1-3 into a complete target architecture (see Output Format). The blueprint should cover every module that should change — don't stop at the most obvious findings. The implementing agent will decide sequencing; your job is to describe the full target state.
+7. **Step 4 - Produce module audit**: Synthesize steps 1-3 into a complete module audit (see Output Format). List every module with a domain justification and verdict. The implementing agent will decide sequencing; your job is to describe the full target state.
 8. **Complete**: Provide blueprint and summary.
 
 ## When to Skip
@@ -188,19 +188,30 @@ Brief assessment of codebase health. What's working well, what needs attention.
 - **[pattern]**: [files involved]
   Resolution: [how this feeds into the blueprint]
 
-## Target Architecture (from Step 4)
+## Module Audit (from Steps 2-4)
 
-module_name  — role description; the domain noun it owns
+List EVERY module in the codebase. For each, provide a domain justification
+and a verdict. No module may be omitted — even well-placed modules need an
+explicit "no change" entry. This forces you to evaluate each one.
+
+module_name  — domain noun: [the concept this module owns]
+               justification: [why this noun deserves its own namespace]
+               verdict: no change
+
+module_name  — domain noun: [the concept this module owns]
+               justification: [why this noun deserves its own namespace]
                absorbs: [what moves into this module and from where]
-               inlines: [specific functions absorbed from dissolved modules]
                renames: [stutter fixes or verb→noun renames]
                simplifies: [implementation-level red-diff opportunities]
 
-other_module — dissolved (all functions distributed to domain owners)
+other_module — domain noun: [none / unclear / overlaps with X]
+               justification: [cannot justify — functions serve N different concepts]
+               verdict: dissolve
                function_a → module_x (reason)
                function_b → module_y (reason)
 
-[List every module that changes. Unchanged modules may be omitted.]
+If you cannot write a clear, one-concept justification for a module, that
+module is a candidate for dissolution or absorption.
 
 ## Behavior-Altering Changes (requires approval)
 [Any changes that would alter observable behavior, flagged separately]
