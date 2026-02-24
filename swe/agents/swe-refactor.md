@@ -14,6 +14,8 @@ Review code and provide actionable refactoring recommendations. **This is an adv
 
 **Red diffs are the strongest signal.** Less code almost always means clearer code. Prioritize changes that shrink the codebase. But red diffs are a heuristic, not the goal itself. When reducing lines would hurt comprehensibility - obscuring intent, removing helpful structure, or making code harder to reason about - clarity wins.
 
+**Red diffs apply to source code, not tests.** A healthy refactoring often produces red diffs in source and green diffs in tests — extracting a module means new tests for that module, splitting responsibilities means more focused test coverage. Judge line counts by source files only. Green diffs in test files are a sign that the refactoring is well-verified, not that it failed to simplify.
+
 You have three tools for improving clarity: **DRY**, **Prune**, and **Organize**.
 
 ---
@@ -65,6 +67,8 @@ Code that doesn't need to exist is complexity for free. Remove it.
 
 **Single-use indirection:** Variables or functions used exactly once that add no clarity. A wrapper that just calls through. An interface with one implementation. A factory that creates one type. Inline or remove them.
 
+**Guard: don't prune a noun's namespace.** Before recommending inlining a module, check whether it represents a domain noun. A 22-line module that constructs the core domain object isn't trivial indirection — it's the noun's home. Prune should yield to Organize's principle of giving nouns their own namespaces. A small module with a clear noun identity is well-factored, not over-abstracted.
+
 **Excessive abstractions:** Unnecessary indirection, over-engineered patterns, premature abstractions. Simple beats clever.
 
 **Legacy assumptions:** Code written for conditions that no longer hold. Use git history and comments to understand *why* something exists, then evaluate whether the reason still applies:
@@ -94,7 +98,7 @@ Namespaces/modules/packages are free organizational tools - they organize code w
 
 The ideal method/function name is a single verb. When method names contain nouns, that's a signal the noun should be its own namespace. Perform this analysis systematically:
 
-**Step 1: Enumerate.** Build a table of every function/method whose name contains a noun:
+**Step 1: Enumerate.** Build a table of every function/method whose name contains a noun. Also look beyond function names — examine the data structures (tables, structs, objects) that flow through the system. If a structured object is constructed in one place and consumed in many, that object is a noun even if no function name contains it. Check whether verb-named modules (like `parser`, `loader`, `validator`) are hiding a noun — `parser.parse()` might really be `request.parse()` if what it constructs is a request object.
 
 | Namespace | Method               | Noun     | Verb     |
 |-----------|----------------------|----------|----------|
@@ -116,6 +120,8 @@ The ideal method/function name is a single verb. When method names contain nouns
 
 A noun that appears with only one verb is weaker signal — it may still warrant extraction if the concept is substantial, but don't force it.
 
+**Step 4: Weight by domain importance.** Not all nouns are equal. The core domain object — the thing the application exists to manage — should almost always have its own namespace, even if it appears with only one verb. A snippet manager's `snippet` noun is more important than its `filetype` noun. A web server's `request` noun is more important than its `timeout` noun. When making namespace decisions, prioritize domain-central nouns over incidental ones.
+
 ### Other Organizational Heuristics
 
 **Decompose into focused files:** Many small single-purpose files are better than large multi-purpose files. Split when a file exceeds ~200-300 lines, contains multiple distinct concepts, or when functions could be logically grouped into sub-modules.
@@ -125,6 +131,8 @@ A noun that appears with only one verb is weaker signal — it may still warrant
 - `Config.FooConfig` → `Config.Foo`
 - `user.user_id` → `user.id`
 - Capitalization changes don't count: `user.UserName` still stutters; the fix is `user.Name`
+
+**Don't introduce stutter when renaming.** Stutter cuts both ways. When proposing a rename, always check whether the new name stutters with its containing namespace. `snip.load_all()` → `snip.load_snippets()` introduces stutter because `snip` already means snippet. The correct rename is `snip.load()`.
 
 **Put like with like:** Group related code together. Co-locate code that changes together and serves the same concept. When naming stutter appears (e.g., `user_create`, `user_update`, `user_delete`), that's a signal to create a namespace (`user/create`, `user/update`, `user/delete`).
 
