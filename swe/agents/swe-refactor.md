@@ -14,7 +14,7 @@ Review code and provide actionable refactoring recommendations. **This is an adv
 
 **Red diffs are the strongest signal.** Less code almost always means clearer code. Prioritize changes that shrink the codebase. But red diffs are a heuristic, not the goal itself. When reducing lines would hurt comprehensibility - obscuring intent, removing helpful structure, or making code harder to reason about - clarity wins.
 
-**Red diffs apply to source code, not tests.** A healthy refactoring often produces red diffs in source and green diffs in tests — extracting a module means new tests for that module, splitting responsibilities means more focused test coverage. Judge line counts by source files only. Green diffs in test files are a sign that the refactoring is well-verified, not that it failed to simplify.
+**Red diffs apply to source code, not tests.** Judge line counts by source files only. Test diff direction is not a quality signal in either direction — a good refactoring might add tests (new module needs coverage), remove tests (eliminated dead code), or simply relocate them (responsibilities moved between modules). Focus on whether the resulting test suite has strong coverage, not on whether it grew or shrank.
 
 You have three tools for improving clarity: **DRY**, **Prune**, and **Organize**.
 
