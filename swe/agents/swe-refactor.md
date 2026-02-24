@@ -98,7 +98,7 @@ Namespaces/modules/packages are free organizational tools - they organize code w
 
 The ideal method/function name is a single verb. When method names contain nouns, that's a signal the noun should be its own namespace. Perform this analysis systematically:
 
-**Step 1: Enumerate.** Build a table of every function/method whose name contains a noun. Also look beyond function names — examine the data structures (tables, structs, objects) that flow through the system. If a structured object is constructed in one place and consumed in many, that object is a noun even if no function name contains it. Check whether verb-named modules (like `parser`, `loader`, `validator`) are hiding a noun — `parser.parse()` might really be `request.parse()` if what it constructs is a request object.
+**Step 1: Enumerate from code.** Build a table of every function/method whose name contains a noun. Also look beyond function names — examine the data structures (tables, structs, objects) that flow through the system. If a structured object is constructed in one place and consumed in many, that object is a noun even if no function name contains it.
 
 | Namespace | Method               | Noun     | Verb     |
 |-----------|----------------------|----------|----------|
@@ -110,9 +110,11 @@ The ideal method/function name is a single verb. When method names contain nouns
 | `App`     | `load_plugins()`     | plugins  | load     |
 | `App`     | `init_plugins()`     | plugins  | init     |
 
-**Step 2: Check existing namespaces.** For each noun in the table, ask: *does a namespace for this noun already exist?* If so, the method likely belongs there. `Widget.get_config()` in a codebase that already has a `Config` module is a misplaced method — move it to `Config.get()` and have `Widget` reference `Config` by composition.
+**Step 2: Brainstorm from purpose.** Step 1 finds nouns that are already visible in the code. This step finds nouns that *should* exist but might be absent or hidden. Ask: "What does this application do? What are the 3-5 most important domain concepts?" Read the README, project description, or top-level module to understand the application's purpose, then list the core nouns. For each one, check whether it has a namespace in the code. A snippet manager should have a `snippet` namespace. A web server should have `request` and `response` namespaces. An ORM should have `query` and `schema` namespaces. If a core domain noun is missing from the module structure, that's a high-priority finding — add it to the noun table for evaluation in later steps.
 
-**Step 3: Evaluate new namespaces.** For each noun that *doesn't* have a namespace, ask: *should it?* A noun that appears with multiple verbs (like `config` with `get` and `set`, or `request` with `parse` and `validate`) is a concept with its own operations. It deserves its own namespace:
+**Step 3: Check existing namespaces.** For each noun in the table (from both steps 1 and 2), ask: *does a namespace for this noun already exist?* If so, the method likely belongs there. `Widget.get_config()` in a codebase that already has a `Config` module is a misplaced method — move it to `Config.get()` and have `Widget` reference `Config` by composition.
+
+**Step 4: Evaluate new namespaces.** For each noun that *doesn't* have a namespace, ask: *should it?* A noun that appears with multiple verbs (like `config` with `get` and `set`, or `request` with `parse` and `validate`) is a concept with its own operations. It deserves its own namespace:
 
 - `Widget.get_config()` / `Widget.set_config()` → `Config.get()` / `Config.set()`, with `Widget.config` referencing `Config`
 - `Server.parse_request()` / `Server.validate_request()` → `Request.parse()` / `Request.validate()`
@@ -120,7 +122,9 @@ The ideal method/function name is a single verb. When method names contain nouns
 
 A noun that appears with only one verb is weaker signal — it may still warrant extraction if the concept is substantial, but don't force it.
 
-**Step 4: Weight by domain importance.** Not all nouns are equal. The core domain object — the thing the application exists to manage — should almost always have its own namespace, even if it appears with only one verb. A snippet manager's `snippet` noun is more important than its `filetype` noun. A web server's `request` noun is more important than its `timeout` noun. When making namespace decisions, prioritize domain-central nouns over incidental ones.
+**Step 5: Weight by domain importance.** Not all nouns are equal. The core domain object — the thing the application exists to manage — should almost always have its own namespace, even if it appears with only one verb. A snippet manager's `snippet` noun is more important than its `filetype` noun. A web server's `request` noun is more important than its `timeout` noun. When making namespace decisions, prioritize domain-central nouns over incidental ones.
+
+**Step 6: Audit module names.** For each module named with a verb or mechanism (`parser`, `loader`, `validator`, `formatter`, `serializer`), check what it *produces*. If the primary output is a domain noun from Step 5, the module is named for its technique rather than its concept — rename it for what it constructs. `parser.parse()` returning a snippet should be `snippet.parse()` or `snippet.new()`. Not every verb-named module needs renaming — `loader` is fine if it loads files, because "file" isn't the core domain noun. The test is specifically whether the output is a domain-central object.
 
 ### Other Organizational Heuristics
 
@@ -148,7 +152,7 @@ A noun that appears with only one verb is weaker signal — it may still warrant
 1. **Survey the codebase**: Use Glob/Grep to understand structure.
 2. **Analyze recent changes**: Use `git diff` to understand what was just implemented.
 3. **Check for linters/formatters**: Identify available tools and whether they pass. Fixing these is always SAFEST - recommend first.
-4. **Noun analysis**: Enumerate all functions/methods with nouns in their names. Build the noun table (see Tool 3). Check each noun against existing namespaces, then evaluate whether new namespaces are warranted.
+4. **Noun analysis**: Follow all six steps in Tool 3's Noun Analysis section. Enumerate nouns from code (Step 1), brainstorm domain nouns from purpose (Step 2), check existing namespaces (Step 3), evaluate new namespaces (Step 4), weight by domain importance (Step 5), and audit verb-named modules (Step 6).
 5. **Identify opportunities** using the three tools above. Be comprehensive - search the entire codebase for duplication, flag all dead code, identify every organizational improvement.
 6. **Generate recommendations** organized by risk level (see Output Format).
 7. **Complete**: Provide summary of findings.
