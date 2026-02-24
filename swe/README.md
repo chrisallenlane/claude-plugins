@@ -37,7 +37,7 @@ Explores problem spaces through iterative dialogue and codebase analysis, then c
 
 ### /refactor - Autonomous Codebase Improvement
 
-Iteratively improves code quality: scan for opportunities, implement changes, verify with tests, commit, repeat. Continues until no improvements remain at any risk level.
+Analyzes codebase architecture, produces a target blueprint, then iteratively implements it through specialist agents with QA verification at each step. Rescans for cascading improvements until no further changes remain.
 
 **Use when:**
 - Cleaning up accumulated technical debt
@@ -45,7 +45,7 @@ Iteratively improves code quality: scan for opportunities, implement changes, ve
 - Preparing a codebase for handoff or new team members
 - You have time allocated specifically for refactoring
 
-**Key principle:** Always prefers least aggressive changes first; more aggressive improvements bubble up as simpler options are exhausted.
+**Key principle:** Organization is the goal. Every module should own a clear domain noun, and every function should live where a reader expects to find it.
 
 [Detailed documentation](skills/refactor/README.md)
 

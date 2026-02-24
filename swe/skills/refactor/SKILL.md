@@ -1,32 +1,38 @@
 ---
 name: refactor
-description: Autonomous iterative refactoring workflow. Scans codebase, implements changes through SMEs, verifies with QA, commits atomically, and loops until no improvements remain. Prefers least aggressive changes first.
+description: Autonomous refactoring workflow. Analyzes codebase architecture, produces a target blueprint, implements changes through SMEs, verifies with QA, commits atomically. Optionally rescans for cascading improvements.
 model: opus
 ---
 
-# Refactor - Iterative Codebase Improvement
+# Refactor - Blueprint-Driven Codebase Improvement
 
-Autonomous refactoring workflow that iteratively improves code quality, always preferring the least aggressive change available, until no further opportunities exist.
+Autonomous refactoring workflow that analyzes codebase architecture, produces a target blueprint, and iteratively implements it.
 
 ## Philosophy
 
-**Clarity is the goal.** Every iteration should make the codebase easier to form a correct mental model of. Red diffs are the strongest signal - less code almost always means clearer code, and every iteration should delete more than it adds. But when reducing lines would hurt comprehensibility, clarity wins.
+**Clarity through organization is the goal.** Every module should have a clear identity - a domain noun it owns. Functions should live where a reader expects to find them. DRY and Prune serve this organizational goal, not the other way around.
 
 **Err on the side of trying.** When uncertain whether a refactoring is worthwhile, attempt it anyway. Git makes failed experiments free - the workflow will revert changes that don't pass QA. Missed opportunities are invisible; failed attempts teach you something. Be bold, knowing that version control provides the safety net.
+
+**Red diffs are good within modules.** Once a function is in the right place, simplify its implementation. Less code is better when it doesn't sacrifice comprehensibility. But don't let line-count savings override architectural decisions.
 
 ## Workflow Overview
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                  REFACTORING LOOP                   │
+│              REFACTORING WORKFLOW                    │
 ├─────────────────────────────────────────────────────┤
-│  1. Spawn fresh swe-refactor agent (full scan)      │
-│  2. Select least aggressive changes available       │
-│  3. If none remain → exit                           │
-│  4. Spawn SME agent (implement batch)               │
-│  5. Spawn QA agent (verify)                         │
-│     ├─ PASS → commit, goto 1                        │
-│     └─ FAIL → retry (max 3), then abort batch       │
+│  1. Determine scope                                 │
+│  2. Gather QA instructions                          │
+│  3. Spawn swe-refactor agent (full analysis)        │
+│     → returns dead code list + target blueprint     │
+│  4. Implement dead code removal                     │
+│  5. Implement blueprint items iteratively           │
+│     ├─ For each item: SME → QA → commit             │
+│     └─ On persistent failure: skip item             │
+│  6. Rescan for cascading improvements (optional)    │
+│     └─ If new blueprint → loop to step 4            │
+│  7. Completion summary                              │
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -38,33 +44,7 @@ Autonomous refactoring workflow that iteratively improves code quality, always p
 
 **If user specifies scope:** Respect that scope (directory, files, module). Pass scope constraint to all spawned agents.
 
-### 2. Select Aggression Ceiling
-
-**Ask the user:** "How aggressive should refactoring be?"
-
-Present these options:
-- **Maximum**: Attempt all improvements, including aggressive restructuring (major module reorganization, removing legacy code, consolidating similar-but-not-identical behavior)
-- **High**: Go up to MODERATE changes (complex DRY across modules, removing abstraction layers, splitting files into focused modules) but skip major restructuring
-- **Low**: Only SAFEST and SAFE changes (formatters, linters, dead code, simple DRY, pruning single-use indirection, reducing stutter)
-- **Let's discuss**: Talk through the situation to determine the right level
-
-The workflow still proceeds from least aggressive to more aggressive - this setting determines how far up the ladder to climb before stopping.
-
-### 3. Gather Focus Areas
-
-**Ask the user:** "Is there anything specific you want the refactoring to focus on?"
-
-**If provided:** Pass these focus areas to the `swe-refactor` agent on every scan. The agent should prioritize finding opportunities that match the user's focus, while still scanning with all three tools (DRY, Prune, Organize).
-
-**Examples of focus areas:**
-- "Aggressively use namespaces to decompose large files and reduce stutter"
-- "Focus on eliminating duplication in the API handlers"
-- "Prioritize dead code removal - we just removed a major feature"
-- "Look for legacy assumptions that no longer apply"
-
-**If none provided:** Standard balanced scan across all three tools.
-
-### 4. Gather QA Instructions
+### 2. Gather QA Instructions
 
 **Ask the user:** "Are there any special verification steps for the QA agent? For example: visual checks, manual testing commands, specific scenarios to validate."
 
@@ -78,66 +58,67 @@ The workflow still proceeds from least aggressive to more aggressive - this sett
 
 **If none provided:** QA agent runs standard verification (test suite, linters, formatters).
 
-### 5. Aggression Philosophy
-
-**Always make the least aggressive change available, up to the user's chosen ceiling (step 2).**
-
-The `swe-refactor` agent returns recommendations organized by risk level: **SAFEST → SAFE → MODERATE → AGGRESSIVE**. These aren't gates to pass through sequentially. Instead:
-- Each pass, prefer the least aggressive changes available
-- More aggressive changes naturally "bubble up" as gentler options are exhausted
-- Stop when reaching the user's ceiling (e.g., if ceiling is High/MODERATE, skip AGGRESSIVE recommendations)
-- Earlier refactorings may unlock new gentle changes (rescan catches these)
-
-### 6. Iterative Refactoring Loop
-
-For each iteration:
-
-#### 6a. Scan for Opportunities
+### 3. Analyze Codebase
 
 **Spawn fresh `swe-refactor` agent:**
-- Agent performs FULL scan across all aggression levels
-- Pass scope if user specified one
-- Agent returns structured recommendations organized by risk level
-- Fresh instance each pass (context management)
 
-**Why full scan every time:**
-- Refactoring creates new opportunities (consolidating duplicates may reveal higher-order patterns)
-- Cascading improvements are the goal
-- Fresh scan catches what previous changes unlocked
+The agent performs four sequential analysis steps:
+1. Catalogs dead code for removal
+2. Builds a domain model via noun analysis
+3. Catalogs repetition patterns
+4. Produces a target architecture blueprint
 
 **Prompt the agent with:**
 ```
-Scan for ALL refactoring opportunities across all aggression levels.
+Perform a full analysis of this codebase.
 Scope: [entire codebase | user-specified scope]
-Return recommendations organized by risk level (SAFEST → AGGRESSIVE).
-Prioritize changes that produce RED diffs (net code reduction) while improving clarity.
+Produce a target architecture blueprint showing where everything should live.
 ```
 
-**Orchestrator selects least aggressive changes:**
-- From the full scan, select the LEAST aggressive recommendations available
-- Batch and implement those
-- Rescan - previous changes may have unlocked new gentle options
-- Aggressive changes naturally surface as gentler ones are exhausted
-- If no recommendations at any level: workflow complete
+The agent returns:
+- A dead code list (to implement first)
+- A noun analysis table (domain model)
+- A repetition catalog (DRY candidates, resolved in the blueprint)
+- A target architecture blueprint (the primary output)
+- Any linter/formatter issues
+- Any behavior-altering changes requiring approval
 
-#### 6b. Plan Implementation
+**If the agent reports "No refactoring needed":** Workflow complete.
 
-Review recommendations from scan. Group related changes into atomic batches.
+**Why fresh instances:** Refactoring creates new opportunities. A fresh agent sees the codebase as it is *now*, not as it was before previous changes. No accumulated context or assumptions.
 
-**Batching criteria:**
-- Changes to the same module/package
-- Logically related refactorings (e.g., all DRY violations of the same pattern)
-- Changes that must be done together to maintain consistency
+### 4. Implement Dead Code Removal
 
-**For each batch, prepare:**
-- Clear list of changes to make
-- Files affected
-- Expected outcome (lines removed, patterns eliminated)
-- Which SME agent is appropriate (based on language/framework)
+If the analysis identified dead code, implement removal first. This is uncontroversial and simplifies everything that follows.
 
-#### 6c. Implement Changes
+- Batch all dead code removals together
+- Spawn appropriate SME (or implement directly for mechanical deletions)
+- Verify with QA
+- Commit atomically
 
-**Detect appropriate SME and spawn based on primary file type in batch:**
+If no dead code was found, skip to step 5.
+
+### 5. Implement Blueprint
+
+Work through the target architecture blueprint iteratively. Each blueprint item describes a module's target state - what it owns, what it absorbs, what gets renamed or simplified.
+
+#### 5a. Order Blueprint Items
+
+Sequence items for safety:
+1. Linter/formatter fixes
+2. Renames and stutter fixes (lowest risk)
+3. Function moves within existing modules
+4. Module absorptions (A absorbs functions from B)
+5. Module dissolutions (all of C's functions distributed elsewhere)
+6. New module creation
+
+Within each category, prefer items that don't depend on other items.
+
+#### 5b. For Each Blueprint Item
+
+**Check for behavior-altering changes.** If the blueprint item was flagged as behavior-altering by the analysis agent, present it to the user for approval before proceeding. Skip if not approved.
+
+**Detect appropriate SME and spawn based on primary file type:**
 - Go: `swe-sme-golang`
 - Dockerfile: `swe-sme-docker`
 - Makefile: `swe-sme-makefile`
@@ -145,31 +126,33 @@ Review recommendations from scan. Group related changes into atomic batches.
 - Ansible: `swe-sme-ansible`
 - Zig: `swe-sme-zig`
 
-**For languages without a dedicated SME** (Python, JavaScript, Rust, etc.): implement directly as orchestrator, following language idioms and project conventions.
+**For languages without a dedicated SME** (Python, JavaScript, Rust, Lua, etc.): implement directly as orchestrator, following language idioms and project conventions.
 
-**For mixed-language batches**: split into per-language batches, or implement directly if changes are mechanical (e.g., dead code removal across file types).
+**For mixed-language items**: split into per-language batches, or implement directly if changes are mechanical.
 
 **Prompt the SME with:**
 ```
-Implement the following refactorings:
-[List of specific changes from batch]
+Implement the following architectural change:
 
-These changes should:
-- Follow existing project conventions
-- Maintain all existing behavior
-- Result in net code reduction where possible
+Target state for [module]:
+[paste the blueprint item]
 
+This is part of a larger reorganization. Move the listed functions/code
+into this module, update all references, and simplify implementations
+where possible.
+
+Follow existing project conventions. Maintain all existing behavior.
 Report when complete.
 ```
 
 **SME implements and reports back.**
 
-#### 6d. Verify Changes
+#### 5c. Verify Changes
 
 **Spawn `qa-engineer` agent:**
 - Run test suite
 - Run linters/formatters
-- Execute any custom QA instructions gathered in step 4
+- Execute any custom QA instructions gathered in step 2
 - Verify no regressions introduced
 - Report pass/fail with specifics
 
@@ -179,45 +162,48 @@ Report when complete.
 1. Return failure details to SME for repair
 2. SME attempts fix
 3. Re-verify with QA
-4. Track failure count for this batch
+4. Track failure count for this item
 
-**After 3 consecutive failures for a batch:**
-- Revert all changes for that batch (`git checkout -- .`)
+**After 3 consecutive failures for an item:**
+- Revert all changes for that item (`git checkout -- .`)
 - Log the failure (what was attempted, why it failed)
-- Continue with next batch
-- Include in final summary as "aborted batch"
+- Continue with next blueprint item
+- Include in final summary as "skipped item"
 
-#### 6e. Commit Changes
+#### 5d. Commit Changes
 
-**Create atomic commit for successful batch:**
+**Create atomic commit for successful item:**
 
 ```bash
-git add [specific files modified in this batch]
+git add [specific files modified]
 git diff --staged  # verify only intended changes
 git commit -m "$(cat <<'EOF'
 refactor: [brief description of changes]
 
 [Details of what was refactored and why]
 
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 EOF
 )"
 ```
 
 **Commit guidelines:**
-- Stage only files modified by the current batch (not `git add -A`)
+- Stage only files modified by the current item (not `git add -A`)
 - Verify staged changes before committing
 - Use `refactor:` prefix in commit message
-- Keep batches atomic (one logical change per commit)
+- Keep items atomic (one logical change per commit)
 
-#### 6f. Loop
+#### 5e. Next Item
 
-Return to step 6a with fresh agent instance.
+Proceed to the next blueprint item. Continue until all items are implemented or skipped.
 
-**Loop continues until:**
-- No opportunities found at any aggression level (success)
-- User interrupts
-- Critical error
+### 6. Rescan for Cascading Improvements
+
+After the entire blueprint is implemented, rescan the codebase for cascading improvements.
+
+**Why rescan:** Reorganizing code often reveals new opportunities. A module that absorbed functions from three sources may now have internal duplication. Dead code that was reachable through dissolved modules may now be unreachable.
+
+**Spawn a fresh `swe-refactor` agent** (new instance, fresh context). If it produces a new blueprint with meaningful changes, return to step 4. If it reports "No refactoring needed," the workflow is complete.
 
 ### 7. Completion Summary
 
@@ -228,24 +214,23 @@ When workflow completes, present summary:
 
 ### Statistics
 - Commits made: N
-- Net lines changed: -XXX (target: negative)
-- Batches completed: N
-- Batches aborted: N
+- Net lines changed: -XXX (target: negative in source)
+- Blueprint items completed: N
+- Blueprint items skipped: N
+- Rescans performed: N
 
-### Changes by Category
-- Dead code removal: N instances
-- DRY consolidation: N instances
-- [etc.]
+### Blueprint Status
+- [module]: completed / skipped (reason)
 
-### Aborted Batches (if any)
-- [Batch description]: [reason for failure]
+### Skipped Items (if any)
+- [Item description]: [reason for failure]
 ```
 
 ## Agent Coordination
 
 **Fresh instances for context management:**
-- Spawn NEW `swe-refactor` agent for each scan pass
-- This prevents context accumulation in the scanner
+- Spawn NEW `swe-refactor` agent for each analysis pass
+- This prevents context accumulation in the analyzer
 - Orchestrator (you) maintains only summary state
 
 **Sequential execution:**
@@ -254,16 +239,17 @@ When workflow completes, present summary:
 - No parallel agent execution
 
 **State to maintain (as orchestrator):**
-- Completed batches (brief log)
-- Aborted batches (with reasons)
-- Failure count per active batch
+- Current blueprint and progress through it
+- Completed items (brief log)
+- Skipped items (with reasons)
+- Failure count per active item
 - Running totals for summary
 
 ## Abort Conditions
 
-**Abort current batch:**
+**Abort current item:**
 - 3 consecutive QA failures
-- Revert changes, log failure, continue with next batch
+- Revert changes, log failure, continue with next item
 
 **Abort entire workflow:**
 - User interrupts
@@ -272,18 +258,18 @@ When workflow completes, present summary:
 
 **Agent failures:**
 - Spawn failure: retry once, then abort workflow with error
-- Malformed output: log issue, skip batch, continue
+- Malformed output: log issue, skip item, continue
 - Timeout: treat as failure, apply retry logic
 
 **Do NOT abort for:**
-- Individual batch failures (skip and continue)
+- Individual item failures (skip and continue)
 - Warnings from linters (fix or note, don't abort)
 
 ## Integration with Other Skills
 
 **Relationship to `/iterate`:**
 - `/iterate` is a feature development workflow that optionally invokes `swe-refactor` for code review after implementation
-- `/refactor` is a dedicated refactoring workflow that uses `swe-refactor` as its core scanner in an autonomous loop
+- `/refactor` is a dedicated refactoring workflow that uses `swe-refactor` as its core analyzer in an autonomous loop
 - Same agent, different workflows: one-shot review vs. iterative improvement
 
 **Relationship to `/scope`:**
@@ -298,72 +284,59 @@ When workflow completes, present summary:
 
 Scope: entire codebase
 
-How aggressive should refactoring be?
-> High (up to MODERATE changes)
-
-Any specific focus areas?
-> Prioritize DRY - there's a lot of copy-paste in the handlers
-
 Any special QA instructions?
 > Run `make test && make lint` after each change
 
-Starting iterative refactoring...
+Starting analysis...
 
-[Pass 1]
-Spawning swe-refactor agent for scan...
-Found opportunities across levels:
-  SAFEST: 8 dead code blocks (Prune), 2 lint failures
-  SAFE: 3 DRY violations
-  MODERATE: 1 cross-module DRY opportunity
-Selecting least aggressive: dead code + lint (SAFEST)
-Spawning swe-sme-golang for implementation...
-Implementation complete.
-Spawning qa-engineer for verification...
-All tests pass.
-Committed: "refactor: remove dead code and fix lint issues"
+Spawning swe-refactor agent...
 
-[Pass 2]
-Spawning swe-refactor agent for scan...
-Found opportunities across levels:
-  SAFEST: (none)
-  SAFE: 3 DRY violations, 1 single-use wrapper (Prune)
-  MODERATE: 1 cross-module DRY opportunity
-Selecting least aggressive: DRY + prune (SAFE)
-Spawning swe-sme-golang for implementation...
-Implementation complete.
-Spawning qa-engineer for verification...
-Test failure: TestParseConfig
-Returning to swe-sme-golang for repair (attempt 1/3)...
-Repair complete.
-Spawning qa-engineer for verification...
-All tests pass.
-Committed: "refactor: consolidate duplicate parsing logic"
+Analysis complete:
+  Dead code: 4 instances across 3 files
+  Blueprint: 5 modules affected, 2 dissolutions
+  Behavior-altering: none
 
-[Pass 3]
-Spawning swe-refactor agent for scan...
-Found opportunities across levels:
-  SAFEST: 1 new dead code block exposed by DRY consolidation (Prune)
-  SAFE: (none)
-  MODERATE: 1 cross-module DRY opportunity
-Selecting least aggressive: dead code (SAFEST)
-...
+Implementing dead code removal...
+  Spawning swe-sme-golang...
+  QA verification: PASS
+  Committed: "refactor: remove dead code (4 instances)"
 
-[Passes 4-7...]
+Implementing blueprint item 1/5: rename parser.go → request.go
+  Spawning swe-sme-golang...
+  QA verification: PASS
+  Committed: "refactor: rename parser to request (domain noun)"
 
-[Pass 8]
-Spawning swe-refactor agent for scan...
-No opportunities found at any level.
+Implementing blueprint item 2/5: request.go absorbs validate() from server.go
+  Spawning swe-sme-golang...
+  QA verification: FAIL - TestServerValidate broken
+  Returning to swe-sme-golang for repair (attempt 1/3)...
+  QA verification: PASS
+  Committed: "refactor: move validation into request module"
+
+Implementing blueprint item 3/5: dissolve helpers.go
+  Spawning swe-sme-golang...
+  QA verification: PASS
+  Committed: "refactor: dissolve helpers; distribute to domain owners"
+
+[Items 4-5...]
+
+Blueprint complete. Rescanning...
+
+Spawning fresh swe-refactor agent...
+Found: 2 new dead code blocks exposed by reorganization.
+No further architectural changes needed.
+
+Implementing dead code removal...
+  Committed: "refactor: remove dead code exposed by reorganization"
+
+Rescanning...
+No refactoring needed.
 
 ## Refactoring Complete
 
 ### Statistics
 - Commits made: 7
-- Net lines changed: -312
-- Batches completed: 7
-- Batches aborted: 0
-
-### Changes by Category
-- Prune (dead code, unused indirection): 11 instances
-- DRY consolidation: 5 instances
-- Lint fixes: 2 instances
+- Net lines changed: -198
+- Blueprint items completed: 5/5
+- Rescans performed: 2
 ```
