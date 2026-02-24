@@ -44,7 +44,16 @@ The `/refactor` skill autonomously improves code quality. It spawns an analysis 
  └──────────────────┬───────────────────────────┘
                     ▼
  ┌──────────────────────────────────────────────┐
- │  2. GATHER QA INSTRUCTIONS                   │
+ │  2. SELECT AGGRESSION LEVEL                  │
+ │  ────────────────────────────────────────    │
+ │  How much disruption is acceptable:          │
+ │  • Maximum: Full architectural restructuring │
+ │  • High: Moderate structural changes         │
+ │  • Low: Safe changes only                    │
+ └──────────────────┬───────────────────────────┘
+                    ▼
+ ┌──────────────────────────────────────────────┐
+ │  3. GATHER QA INSTRUCTIONS                   │
  │  ────────────────────────────────────────    │
  │  Ask user for custom verification steps:     │
  │  • Visual checks, screenshots                │
@@ -54,7 +63,7 @@ The `/refactor` skill autonomously improves code quality. It spawns an analysis 
  └──────────────────┬───────────────────────────┘
                     ▼
  ┌──────────────────────────────────────────────┐
- │  3. ANALYZE CODEBASE                         │
+ │  4. ANALYZE CODEBASE                         │
  │  ────────────────────────────────────────    │
  │  Agent: swe-refactor (fresh instance)        │
  │                                              │
@@ -70,7 +79,7 @@ The `/refactor` skill autonomously improves code quality. It spawns an analysis 
  └──────────────────┬───────────────────────────┘
                     ▼
  ┌──────────────────────────────────────────────┐
- │  4. IMPLEMENT DEAD CODE REMOVAL              │
+ │  5. IMPLEMENT DEAD CODE REMOVAL              │
  │  ────────────────────────────────────────    │
  │  Batch all dead code removals together       │
  │  Agent: SME or orchestrator                  │
@@ -82,7 +91,7 @@ The `/refactor` skill autonomously improves code quality. It spawns an analysis 
         └───────────┬───────────┘                    │
                     ▼                                │
  ┌──────────────────────────────────────────────┐    │
- │  5. IMPLEMENT BLUEPRINT ITEM                 │    │
+ │  6. IMPLEMENT BLUEPRINT ITEM                 │    │
  │  ────────────────────────────────────────    │    │
  │  Ordered by safety:                          │    │
  │  1. Linter/formatter fixes                   │    │
@@ -96,7 +105,7 @@ The `/refactor` skill autonomously improves code quality. It spawns an analysis 
  └──────────────────┬───────────────────────────┘    │
                     ▼                                │
  ┌──────────────────────────────────────────────┐    │
- │  6. VERIFY CHANGES                           │    │
+ │  VERIFY CHANGES                              │    │
  │  ────────────────────────────────────────    │    │
  │  Agent: qa-engineer                          │    │
  │                                              │    │
@@ -113,14 +122,14 @@ The `/refactor` skill autonomously improves code quality. It spawns an analysis 
  └──────────────────────────────────────────────┘    │
                     ▼                                │
            All items done?                           │
-           ├─ No  → Back to step 5 ─────────────────┘
+           ├─ No  → Back to step 6 ─────────────────┘
            └─ Yes ▼
  ┌──────────────────────────────────────────────┐
  │  7. RESCAN FOR CASCADING IMPROVEMENTS        │
  │  ────────────────────────────────────────    │
  │  Fresh swe-refactor agent                    │
  │                                              │
- │  New blueprint? → Loop to step 4             │
+ │  New blueprint? → Loop to step 5             │
  │  No changes?   → EXIT ─────────────────► DONE
  └──────────────────────────────────────────────┘
 
@@ -148,7 +157,17 @@ By default, the workflow operates on the entire codebase. You can specify a narr
 
 The scope is passed to all spawned agents.
 
-### 2. Gather QA Instructions
+### 2. Select Aggression Level
+The workflow asks how much disruption is acceptable:
+
+- **Maximum**: Full architectural restructuring — dissolve modules, create new namespaces, reorganize the module hierarchy
+- **High**: Moderate structural changes — move functions between modules, rename modules, absorb small modules into larger ones, but don't reorganize the top-level structure
+- **Low**: Safe changes only — rename for clarity, fix stutter, move misplaced functions, remove dead code, but don't create or dissolve modules
+- **Let's discuss**: Talk through the situation to determine the right level
+
+This level is passed to the analysis agent so it can calibrate the scope of its blueprint.
+
+### 3. Gather QA Instructions
 Before starting, the workflow asks if you have custom verification steps beyond the standard test suite. Examples:
 
 - "After each change, start the app and take a screenshot to verify rendering"
@@ -157,7 +176,7 @@ Before starting, the workflow asks if you have custom verification steps beyond 
 
 These instructions are passed to the QA agent on every verification cycle. If you have no special requirements, standard verification (tests + linters) runs.
 
-### 3. Analyze Codebase
+### 4. Analyze Codebase
 A fresh `swe-refactor` agent performs four sequential analysis steps:
 
 | Step | What it does |
@@ -171,10 +190,10 @@ The blueprint describes each module's target state: what it owns, what it absorb
 
 **Why fresh instances?** Refactoring creates new opportunities. A fresh agent sees the codebase as it is *now*, not as it was before previous changes.
 
-### 4. Implement Dead Code Removal
+### 5. Implement Dead Code Removal
 Dead code removal happens first because it's uncontroversial and simplifies everything that follows. All dead code identified in the analysis is batched together, implemented, verified by QA, and committed.
 
-### 5. Implement Blueprint
+### 6. Implement Blueprint
 The orchestrator works through blueprint items in safety order:
 
 1. **Linter/formatter fixes** - mechanical, lowest risk
@@ -196,13 +215,7 @@ Each item goes through: SME implementation -> QA verification -> atomic commit.
 
 **For other languages** (Python, JavaScript, Rust, Lua, etc.): The orchestrator implements directly, following language idioms.
 
-### 6. Verify Changes
-The `qa-engineer` agent verifies each change didn't break anything:
-- Runs the full test suite
-- Runs linters and formatters
-- Checks for regressions
-
-**On failure:** Returns to SME for repair, max 3 attempts. After 3 failures: revert the item, log the failure, continue with the next item.
+After each item, the `qa-engineer` agent verifies the change didn't break anything (test suite, linters, formatters). On failure, the SME gets up to 3 repair attempts. After 3 failures: revert the item, log the failure, continue with the next item.
 
 ### 7. Rescan for Cascading Improvements
 After the blueprint is fully implemented, a fresh analysis agent rescans the codebase. Reorganization often reveals new opportunities: internal duplication in modules that absorbed functions from multiple sources, dead code that was only reachable through dissolved modules, etc.
@@ -237,6 +250,9 @@ If the rescan produces a new blueprint, the workflow loops back. If not, it's do
 User: /refactor
 
 Scope: entire codebase
+
+How aggressive should the refactoring be?
+> Maximum
 
 Any special QA instructions?
 > Run `make test && make lint` after each change
@@ -282,6 +298,9 @@ Rescanning... No refactoring needed.
 ### Example 2: Scoped Refactoring
 ```
 User: /refactor src/api/
+
+How aggressive should the refactoring be?
+> High
 
 Any special QA instructions?
 > (none)

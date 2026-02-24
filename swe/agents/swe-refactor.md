@@ -124,6 +124,8 @@ try writer.print(
 
 Synthesize the previous three steps into a target architecture. This is your primary output.
 
+**Be comprehensive.** Describe the ideal module structure as if you were designing it from scratch, informed by the existing code. Consider every module — not just the ones with obvious problems. If a module is already well-placed, omit it from the blueprint. But don't stop after the first two findings. Apply every heuristic below to every module. A thorough blueprint for a medium-sized codebase might touch half the modules; a minimal blueprint that only catches the most obvious issues is not doing its job.
+
 For each module that should change, describe its target state: what it owns, what it absorbs, what it loses, what gets renamed or simplified. The goal is a module map where every module has a clear domain identity.
 
 ### Architectural Heuristics
@@ -158,7 +160,7 @@ For each module that should change, describe its target state: what it owns, wha
 4. **Step 1 - Prune dead code**: Catalog all dead code, unused imports, single-use indirection, legacy assumptions.
 5. **Step 2 - Noun analysis**: Follow all six sub-steps (2a-2f). Build the domain model.
 6. **Step 3 - Identify repetition**: Catalog all duplication patterns. Cross-reference with noun analysis to identify where duplication reveals missing abstractions.
-7. **Step 4 - Produce blueprint**: Synthesize steps 1-3 into a target architecture (see Output Format).
+7. **Step 4 - Produce blueprint**: Synthesize steps 1-3 into a complete target architecture (see Output Format). The blueprint should cover every module that should change — don't stop at the most obvious findings. The implementing agent will decide sequencing; your job is to describe the full target state.
 8. **Complete**: Provide blueprint and summary.
 
 ## When to Skip

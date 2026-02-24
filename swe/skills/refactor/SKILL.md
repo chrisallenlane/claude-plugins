@@ -23,16 +23,17 @@ Autonomous refactoring workflow that analyzes codebase architecture, produces a 
 │              REFACTORING WORKFLOW                    │
 ├─────────────────────────────────────────────────────┤
 │  1. Determine scope                                 │
-│  2. Gather QA instructions                          │
-│  3. Spawn swe-refactor agent (full analysis)        │
+│  2. Select aggression level                         │
+│  3. Gather QA instructions                          │
+│  4. Spawn swe-refactor agent (full analysis)        │
 │     → returns dead code list + target blueprint     │
-│  4. Implement dead code removal                     │
-│  5. Implement blueprint items iteratively           │
+│  5. Implement dead code removal                     │
+│  6. Implement blueprint items iteratively           │
 │     ├─ For each item: SME → QA → commit             │
 │     └─ On persistent failure: skip item             │
-│  6. Rescan for cascading improvements (optional)    │
-│     └─ If new blueprint → loop to step 4            │
-│  7. Completion summary                              │
+│  7. Rescan for cascading improvements (optional)    │
+│     └─ If new blueprint → loop to step 5            │
+│  8. Completion summary                              │
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -44,7 +45,19 @@ Autonomous refactoring workflow that analyzes codebase architecture, produces a 
 
 **If user specifies scope:** Respect that scope (directory, files, module). Pass scope constraint to all spawned agents.
 
-### 2. Gather QA Instructions
+### 2. Select Aggression Level
+
+**Ask the user:** "How aggressive should the refactoring be?"
+
+Present these options:
+- **Maximum**: Full architectural restructuring — dissolve modules, create new namespaces, reorganize the module hierarchy
+- **High**: Moderate structural changes — move functions between modules, rename modules, absorb small modules into larger ones, but don't reorganize the top-level structure
+- **Low**: Safe changes only — rename for clarity, fix stutter, move misplaced functions, remove dead code, but don't create or dissolve modules
+- **Let's discuss**: Talk through the situation to determine the right level
+
+Pass this level to the `swe-refactor` agent so it can calibrate the scope of its blueprint.
+
+### 3. Gather QA Instructions
 
 **Ask the user:** "Are there any special verification steps for the QA agent? For example: visual checks, manual testing commands, specific scenarios to validate."
 
@@ -58,7 +71,7 @@ Autonomous refactoring workflow that analyzes codebase architecture, produces a 
 
 **If none provided:** QA agent runs standard verification (test suite, linters, formatters).
 
-### 3. Analyze Codebase
+### 4. Analyze Codebase
 
 **Spawn fresh `swe-refactor` agent:**
 
@@ -72,7 +85,9 @@ The agent performs four sequential analysis steps:
 ```
 Perform a full analysis of this codebase.
 Scope: [entire codebase | user-specified scope]
-Produce a target architecture blueprint showing where everything should live.
+Aggression level: [Maximum | High | Low]
+Produce a comprehensive target architecture blueprint showing where
+everything should live. Cover every module that should change.
 ```
 
 The agent returns:
@@ -87,7 +102,7 @@ The agent returns:
 
 **Why fresh instances:** Refactoring creates new opportunities. A fresh agent sees the codebase as it is *now*, not as it was before previous changes. No accumulated context or assumptions.
 
-### 4. Implement Dead Code Removal
+### 5. Implement Dead Code Removal
 
 If the analysis identified dead code, implement removal first. This is uncontroversial and simplifies everything that follows.
 
@@ -96,13 +111,13 @@ If the analysis identified dead code, implement removal first. This is uncontrov
 - Verify with QA
 - Commit atomically
 
-If no dead code was found, skip to step 5.
+If no dead code was found, skip to step 6.
 
-### 5. Implement Blueprint
+### 6. Implement Blueprint
 
 Work through the target architecture blueprint iteratively. Each blueprint item describes a module's target state - what it owns, what it absorbs, what gets renamed or simplified.
 
-#### 5a. Order Blueprint Items
+#### 6a. Order Blueprint Items
 
 Sequence items for safety:
 1. Linter/formatter fixes
@@ -114,7 +129,7 @@ Sequence items for safety:
 
 Within each category, prefer items that don't depend on other items.
 
-#### 5b. For Each Blueprint Item
+#### 6b. For Each Blueprint Item
 
 **Check for behavior-altering changes.** If the blueprint item was flagged as behavior-altering by the analysis agent, present it to the user for approval before proceeding. Skip if not approved.
 
@@ -147,12 +162,12 @@ Report when complete.
 
 **SME implements and reports back.**
 
-#### 5c. Verify Changes
+#### 6c. Verify Changes
 
 **Spawn `qa-engineer` agent:**
 - Run test suite
 - Run linters/formatters
-- Execute any custom QA instructions gathered in step 2
+- Execute any custom QA instructions gathered in step 3
 - Verify no regressions introduced
 - Report pass/fail with specifics
 
@@ -170,7 +185,7 @@ Report when complete.
 - Continue with next blueprint item
 - Include in final summary as "skipped item"
 
-#### 5d. Commit Changes
+#### 6d. Commit Changes
 
 **Create atomic commit for successful item:**
 
@@ -193,19 +208,19 @@ EOF
 - Use `refactor:` prefix in commit message
 - Keep items atomic (one logical change per commit)
 
-#### 5e. Next Item
+#### 6e. Next Item
 
 Proceed to the next blueprint item. Continue until all items are implemented or skipped.
 
-### 6. Rescan for Cascading Improvements
+### 7. Rescan for Cascading Improvements
 
 After the entire blueprint is implemented, rescan the codebase for cascading improvements.
 
 **Why rescan:** Reorganizing code often reveals new opportunities. A module that absorbed functions from three sources may now have internal duplication. Dead code that was reachable through dissolved modules may now be unreachable.
 
-**Spawn a fresh `swe-refactor` agent** (new instance, fresh context). If it produces a new blueprint with meaningful changes, return to step 4. If it reports "No refactoring needed," the workflow is complete.
+**Spawn a fresh `swe-refactor` agent** (new instance, fresh context). If it produces a new blueprint with meaningful changes, return to step 5. If it reports "No refactoring needed," the workflow is complete.
 
-### 7. Completion Summary
+### 8. Completion Summary
 
 When workflow completes, present summary:
 
@@ -283,6 +298,9 @@ When workflow completes, present summary:
 > /refactor
 
 Scope: entire codebase
+
+How aggressive should the refactoring be?
+> Maximum
 
 Any special QA instructions?
 > Run `make test && make lint` after each change
