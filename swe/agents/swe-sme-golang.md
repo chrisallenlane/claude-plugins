@@ -87,20 +87,39 @@ Proactively ensure every Go project has proper formatting and linting tooling se
 
 **Check during implementation:**
 1. Does `Makefile` exist with `fmt` and `lint` targets?
-2. Does `tools.go` (or `tools/tools.go`) exist to pin tool versions?
-3. Are tools configured to run via `go run` (project-scoped, not system-wide)?
+2. Are tool dependencies declared in `go.mod` (via `tool` directive or `tools.go`)?
+3. Are tools configured to run via `go tool` (project-scoped, not system-wide)?
 
 **If missing, set up the infrastructure before implementing the feature.**
 
 ## Tools Setup Pattern
 
-### 1. Create `tools.go` for dev dependencies
+### 1. Declare tool dependencies in `go.mod`
 
-Create `tools/tools.go` (or `tools.go` in project root if `tools/` doesn't exist):
+**Go 1.24+ (preferred):** Use the native `tool` directive in `go.mod`:
+
+```
+tool (
+	github.com/segmentio/golines
+	mvdan.cc/gofumpt
+	github.com/golangci/golangci-lint/cmd/golangci-lint
+)
+```
+
+Then run `go mod tidy` to resolve and pin versions.
+
+Tools are invoked with `go tool`:
+
+```bash
+go tool golines -w --max-len=80 .
+go tool gofumpt -w .
+go tool golangci-lint run
+```
+
+**Pre-1.24 fallback:** Use a `tools.go` file with blank imports and a build tag:
 
 ```go
 //go:build tools
-// +build tools
 
 package tools
 
@@ -111,7 +130,7 @@ import (
 )
 ```
 
-Then run `go mod tidy` to add these to `go.mod` with pinned versions.
+Then `go mod tidy` and invoke with `go run <package>`.
 
 **Why this pattern?**
 - Pins tool versions in `go.mod` (reproducible builds)
@@ -133,15 +152,15 @@ Then run `go mod tidy` to add these to `go.mod` with pinned versions.
 ```makefile
 .PHONY: fmt
 fmt: ## Format code with 80-column wrapping
-	go run github.com/segmentio/golines -w --max-len=80 .
-	go run mvdan.cc/gofumpt -w .
+	go tool golines -w --max-len=80 .
+	go tool gofumpt -w .
 ```
 
 **`lint` target:**
 ```makefile
 .PHONY: lint
 lint: ## Run linters
-	go run github.com/golangci/golangci-lint/cmd/golangci-lint run
+	go tool golangci-lint run
 ```
 
 **Why these tools?**
@@ -179,7 +198,7 @@ linters-settings:
 - When user explicitly requests formatting/linting setup
 
 **Report to user:**
-- "Setting up formatting/linting infrastructure (tools.go + Makefile targets)"
+- "Setting up formatting/linting infrastructure (tool deps in go.mod + Makefile targets)"
 - Run `make fmt` after setup to format existing code
 - Commit the infrastructure files along with your implementation
 
@@ -347,17 +366,24 @@ if err := conf.Validate(); err != nil {
 }
 ```
 
-### Platform-Specific Config Paths
+### Config Path Resolution
 
-**Linux/Unix (XDG Base Directory):**
-```
-~/.config/<app-name>/conf.toml
+**Use `os.UserConfigDir()` for portable config paths:**
+
+```go
+func defaultConfigPath(appName string) (string, error) {
+    configDir, err := os.UserConfigDir()
+    if err != nil {
+        return "", fmt.Errorf("failed to resolve config dir: %w", err)
+    }
+    return filepath.Join(configDir, appName, "conf.toml"), nil
+}
 ```
 
-**Windows:**
-```
-%APPDATA%\<app-name>\conf.toml
-```
+This returns the platform-appropriate directory:
+- Linux: `$XDG_CONFIG_HOME` (defaults to `~/.config`)
+- macOS: `~/Library/Application Support`
+- Windows: `%AppData%`
 
 **Override with flag:**
 ```
@@ -418,7 +444,7 @@ fmt:
 
 .PHONY: lint
 lint:
-    revive -exclude vendor/... ./...
+    go tool golangci-lint run
 
 .PHONY: vet
 vet:
@@ -459,20 +485,18 @@ go mod verify      # Verify checksums
 
 ## Linting
 
-**Use `revive` as the primary linter:**
+**Use `golangci-lint` as the project linter:**
 
 ```bash
-go install github.com/mgechev/revive@latest
-revive -exclude vendor/... ./...
+go tool golangci-lint run
 ```
 
-**Why revive:**
-- Fast (pure Go)
-- Configurable
-- Covers most common issues
-- Good defaults
-
-**Exclude vendor directory to avoid linting third-party code.**
+**Why golangci-lint:**
+- Industry-standard meta-linter for Go
+- Runs many linters in a single pass (govet, errcheck, staticcheck, revive, unused, gosimple, ineffassign, etc.)
+- Sensible defaults out of the box
+- Configurable via `.golangci.yml` when needed
+- Declared as a tool dependency in `go.mod` — no system-wide install required
 
 # Go Idioms and Best Practices
 
@@ -612,13 +636,13 @@ func Load(path string) (Config, error) {
 
 **Check for:**
 - Makefile with build, test, lint, vet, check targets
-- Linter configured (revive recommended)
+- Linter configured (golangci-lint recommended)
 - Test coverage targets available
 - Vendoring workflow documented
 
 **Missing tooling:**
 - Suggest setting up Makefile
-- Install revive if not present
+- Add golangci-lint as a tool dependency if not present
 - Configure go.mod for vendoring
 
 ## 3. Code Quality
@@ -687,7 +711,7 @@ You have authority to act autonomously in **Implementation Mode**:
 - QA: Practical verification, integration tests, coverage analysis
 
 **Tooling setup:**
-- You: Set up formatting/linting infrastructure (tools.go + Makefile targets) proactively during implementation
+- You: Set up formatting/linting infrastructure (tool deps in go.mod + Makefile targets) proactively during implementation
 - QA: Runs fmt/lint targets during coverage & quality phase
 
 # Common Issues and Solutions
