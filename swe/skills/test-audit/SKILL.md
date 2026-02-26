@@ -1,6 +1,6 @@
 ---
 name: test-audit
-description: Audit test suite quality. Identifies brittle, tautological, and useless tests, then selectively fixes or removes them.
+description: Audit test suite quality. Identifies brittle, tautological, and otherwise harmful tests, then selectively fixes or removes them. Reports redundant tests as informational.
 model: opus
 ---
 
@@ -10,7 +10,7 @@ Reviews test suite quality, presents findings for user selection, and implements
 
 ## Philosophy
 
-**Tests exist to catch bugs, not to exist.** A test that can't fail, tests the wrong thing, or breaks whenever you refactor is actively harmful. It costs maintenance time, slows the suite, and creates false confidence. Deleting a bad test is an improvement.
+**Tests exist to catch bugs and prevent regressions.** A test that literally can't fail or tests the wrong thing is harmful. But a simple test that guards against real changes has value — even if it looks trivial. Prefer fixing bad tests over deleting them. Only delete a test when it is genuinely self-fulfilling (structurally cannot fail) or completely orphaned from real code.
 
 ## Workflow Overview
 
@@ -69,12 +69,13 @@ Scope: [partition or full scope]
 Look for:
 - Tautological tests (can't fail)
 - Brittle tests (coupled to implementation)
-- Redundant tests (duplicate coverage)
+- Redundant tests (duplicate coverage — informational only, no action recommended)
 - False confidence tests (don't verify what they claim)
 - Missing coverage (important gaps only)
 - Test smells (structural problems)
 
 Return structured findings with recommended actions (DELETE, REWRITE, ADD, SIMPLIFY).
+Redundant tests should be reported as informational only (no action recommended).
 ```
 
 **If no agent reports issues:** Present "No test quality issues found" to user and exit.
@@ -97,10 +98,13 @@ Display the agent's findings as a numbered list, grouped by category. Format cle
 4. [REWRITE] api_test.go:TestCreateUserError — Exact error string match; should test error type
 5. [REWRITE] handler_test.go:TestNotFound — Asserts on full JSON response body; should check status + key fields
 
+### Redundant (1 noted — informational, no action)
+- [INFO] math_test.go:TestAddVariants — 5 cases all hitting same code path; consider adding edge-case tests
+
 ### Missing Coverage (1 found)
 6. [ADD] auth.go:ValidateToken — No tests for expired/malformed tokens; only tests happy path
 
-Select which items to address (e.g., "1-5, 6" or "all"):
+Select which items to address (e.g., "1-6" or "all"):
 ```
 
 **Use `AskUserQuestion`** with multi-select to let the user choose. If there are more than ~10 findings, batch them by category and present in rounds.
@@ -109,13 +113,6 @@ Select which items to address (e.g., "1-5, 6" or "all"):
 
 For each selected recommendation, group by action type and implement:
 
-#### DELETE actions
-Handle directly as orchestrator:
-- Remove the test function/block
-- If removing the last test in a file, delete the file
-- If removing a test invalidates imports/setup, clean those up too
-
-#### REWRITE / SIMPLIFY actions
 **Detect appropriate SME and spawn based on project language:**
 - Go: `swe-sme-golang`
 - Dockerfile: `swe-sme-docker`
@@ -126,27 +123,26 @@ Handle directly as orchestrator:
 
 **For languages without a dedicated SME:** implement directly as orchestrator.
 
+**Send all selected findings (DELETE, REWRITE, SIMPLIFY, ADD) to the SME in a single prompt.** The SME has domain expertise to judge whether a deletion is appropriate or whether the test should be rewritten instead. The SME has final authority on deletions.
+
 **Prompt the SME with:**
 ```
-Rewrite/simplify the following tests based on these findings:
+The test auditor identified the following issues. Implement the recommended changes.
+
+DELETE findings (remove these tests — but if you believe a test has value, rewrite it instead of deleting):
+[List of selected DELETE items with rationale]
+
+REWRITE/SIMPLIFY findings (fix these tests):
 [List of selected REWRITE/SIMPLIFY items with rationale]
 
-Focus on testing observable behavior rather than implementation details.
-Follow the project's existing test conventions.
-Keep tests simple and readable.
-```
-
-#### ADD actions (missing coverage)
-**Spawn appropriate SME agent** (same detection as above).
-
-**Prompt the SME with:**
-```
-Add the following missing tests:
+ADD findings (write new tests):
 [List of selected ADD items with description of what to verify]
 
-Write focused tests that verify behavior, not implementation.
-Follow the project's existing test conventions.
-Keep tests minimal — test one thing per test.
+Guidelines:
+- Focus on testing observable behavior rather than implementation details.
+- Follow the project's existing test conventions.
+- Keep tests simple and readable.
+- For DELETE items: if the test covers real behavior that could regress, rewrite it rather than deleting it. Only delete tests that are genuinely self-fulfilling or completely orphaned.
 ```
 
 ### 5. Verify
@@ -244,8 +240,8 @@ Spawning qa-test-auditor agent for analysis...
 4. [REWRITE] api_test.go:TestCreateUserError — Exact error string match
 5. [REWRITE] handler_test.go:TestNotFound — Asserts on full response body
 
-### Redundant (1 found)
-6. [DELETE] math_test.go:TestAddVariants — 5 cases all hitting same code path
+### Redundant (1 found — informational, no action)
+6. [INFO] math_test.go:TestAddVariants — 5 cases all hitting same code path
 
 ### Missing Coverage (1 found)
 7. [ADD] auth.go:ValidateToken — No tests for expired/malformed tokens
@@ -253,7 +249,7 @@ Spawning qa-test-auditor agent for analysis...
 Select which items to address:
 > 1-5, 7
 
-Deleting 4 tests (items 1-3, 6)...
+Deleting 3 tests (items 1-3)...
 Spawning swe-sme-golang for rewrites (items 4-5) and new tests (item 7)...
 Implementation complete.
 Running test suite...
@@ -262,10 +258,10 @@ All tests pass.
 ## Test Audit Complete
 
 ### Changes
-- Tests deleted: 4
+- Tests deleted: 3
 - Tests rewritten: 2
 - Tests added: 3 (happy + 2 error cases for ValidateToken)
-- Net test count change: +1
+- Net test count change: +2
 
 Commit these changes?
 > Yes
