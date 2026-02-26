@@ -111,8 +111,6 @@ Select which items to address (e.g., "1-6" or "all"):
 
 ### 4. Implement Selected Changes
 
-For each selected recommendation, group by action type and implement:
-
 **Detect appropriate SME and spawn based on project language:**
 - Go: `swe-sme-golang`
 - Dockerfile: `swe-sme-docker`
@@ -123,20 +121,28 @@ For each selected recommendation, group by action type and implement:
 
 **For languages without a dedicated SME:** implement directly as orchestrator.
 
-**Send all selected findings (DELETE, REWRITE, SIMPLIFY, ADD) to the SME in a single prompt.** The SME has domain expertise to judge whether a deletion is appropriate or whether the test should be rewritten instead. The SME has final authority on deletions.
+#### Parallelization
 
-**Prompt the SME with:**
+**Group findings by file**, then spawn one SME agent per file **in parallel**. Findings affecting the same file must go to the same agent to avoid edit conflicts. Findings in different files are independent and should always run concurrently.
+
+- If all findings are in one file, spawn a single agent.
+- If findings span N files, spawn up to N agents in parallel, one per file.
+- ADD findings (new test files): group by the target test file. If adding tests to an existing file that also has REWRITE/DELETE findings, bundle them together. If adding a new file, that's its own agent.
+
+The SME has domain expertise to judge whether a deletion is appropriate or whether the test should be rewritten instead. The SME has final authority on deletions.
+
+**Prompt each SME agent with:**
 ```
-The test auditor identified the following issues. Implement the recommended changes.
+The test auditor identified the following issues in [file]. Implement the recommended changes.
 
 DELETE findings (remove these tests — but if you believe a test has value, rewrite it instead of deleting):
-[List of selected DELETE items with rationale]
+[List of DELETE items for this file]
 
 REWRITE/SIMPLIFY findings (fix these tests):
-[List of selected REWRITE/SIMPLIFY items with rationale]
+[List of REWRITE/SIMPLIFY items for this file]
 
 ADD findings (write new tests):
-[List of selected ADD items with description of what to verify]
+[List of ADD items for this file]
 
 Guidelines:
 - Focus on testing observable behavior rather than implementation details.
@@ -195,17 +201,17 @@ EOF
 
 ## Agent Coordination
 
-**Sequential execution:**
-- One agent at a time
-- Wait for completion before spawning next
+**Analysis phase:** Sequential. Spawn `qa-test-auditor` agent(s) for scanning. For large scopes, partition and run auditors in parallel (see step 2).
+
+**Implementation phase:** Parallel by file. Group findings by file, spawn one SME per file, run all SME agents concurrently. Wait for all to complete before proceeding to verification.
 
 **Fresh instances:**
-- Spawn fresh `qa-test-auditor` for each scan
-- Spawn fresh SME for implementation
+- Spawn fresh `qa-test-auditor` for each scan partition
+- Spawn fresh SME for each file
 
 **State to maintain (as orchestrator):**
 - User's selected findings
-- Implementation results (success/failure per finding)
+- Implementation results (success/failure per agent/file)
 - Running totals for summary
 
 ## Abort Conditions
@@ -249,9 +255,14 @@ Spawning qa-test-auditor agent for analysis...
 Select which items to address:
 > 1-5, 7
 
-Deleting 3 tests (items 1-3)...
-Spawning swe-sme-golang for rewrites (items 4-5) and new tests (item 7)...
-Implementation complete.
+Findings span 5 files. Spawning 5 swe-sme-golang agents in parallel...
+  - user_test.go: 1 finding (DELETE)
+  - config_test.go: 1 finding (DELETE)
+  - model_test.go: 1 finding (DELETE)
+  - api_test.go: 1 finding (REWRITE)
+  - handler_test.go: 1 finding (REWRITE)
+  + auth_test.go: 1 finding (ADD)
+All agents complete.
 Running test suite...
 All tests pass.
 
