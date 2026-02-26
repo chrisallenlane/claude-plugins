@@ -49,7 +49,7 @@ docs: review and update project documentation
 
 [Brief description of changes made]
 
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+Co-Authored-By: Claude <noreply@anthropic.com>
 EOF
 )"
 ```

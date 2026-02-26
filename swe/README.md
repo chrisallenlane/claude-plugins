@@ -104,6 +104,17 @@ Systematically introduces mutations (small deliberate changes) into source code 
 
 [Detailed documentation](skills/test-mutate/README.md)
 
+### /doc-review - Documentation Quality Audit
+
+Spawns a doc-maintainer agent to comprehensively review all project documentation for correctness, completeness, and freshness. Fixes issues autonomously within its authority.
+
+**Use when:**
+- After refactoring or architectural changes that may have staled documentation
+- As a standalone documentation audit
+- Called automatically by `/refactor` and `/arch-review` after completion
+
+**Key principle:** Documentation should reflect the actual state of the codebase, not an aspirational one.
+
 ## Agents
 
 Specialist agents spawned by the skills above:

@@ -273,7 +273,7 @@ Mutation score: X% → Y%
 - Added tests targeting N surviving mutations
 - [brief description of what the new tests verify]
 
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+Co-Authored-By: Claude <noreply@anthropic.com>
 EOF
 )"
 ```

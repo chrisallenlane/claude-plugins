@@ -192,7 +192,7 @@ test: audit and clean up test suite
 [Brief description: deleted N tautological/brittle tests, rewrote N tests
 to focus on behavior, added N missing coverage tests]
 
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+Co-Authored-By: Claude <noreply@anthropic.com>
 EOF
 )"
 ```
