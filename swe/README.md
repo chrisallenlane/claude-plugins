@@ -77,6 +77,19 @@ Reviews test quality interactively: scans for brittle, tautological, and useless
 
 [Detailed documentation](skills/test-audit/README.md)
 
+### /release-review - Pre-Release Readiness Check
+
+Comprehensive pre-flight check before cutting a release. Scans for debug artifacts, version mismatches, changelog gaps, git hygiene issues, breaking API changes, and license compliance. Runs test suite and build verification. Checks documentation freshness. Interactive — presents findings and lets you decide what to fix.
+
+**Use when:**
+- Preparing to tag and release a new version
+- Final quality gate before shipping to users
+- Validating that a codebase is ready for distribution
+
+**Key principle:** Surface issues, don't silently fix them. Releases deserve human review.
+
+[Detailed documentation](skills/release-review/README.md)
+
 ### /test-mutate - Mutation Testing Workflow
 
 Systematically introduces mutations (small deliberate changes) into source code and checks if tests catch them. Surviving mutations reveal genuine coverage gaps that line coverage misses. Multi-session with progress tracking.
@@ -110,6 +123,7 @@ Specialist agents spawned by the skills above:
 | `qa-engineer` | Practical verification and test coverage |
 | `qa-test-auditor` | Test quality reviewer (brittle, tautological, useless tests) |
 | `qa-test-mutator` | Mutation testing worker (applies mutations, records results) |
+| `qa-release-eng` | Pre-release scanner (debug artifacts, versioning, changelog, git hygiene, breaking changes, licenses) |
 | `sec-reviewer` | Security vulnerability analysis |
 | `doc-maintainer` | Documentation updates and verification |
 
