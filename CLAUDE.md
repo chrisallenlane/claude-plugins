@@ -57,4 +57,4 @@ The plugins form a three-stage development workflow:
 
 **deliberate**: Adversarial decision-making through advocate agents.
 
-**swe**: Software engineering workflow with `/scope` (planning), `/iterate` (implementation), `/refactor` (cleanup), `/test-audit` (test quality review), and `/test-mutate` (mutation testing) skills, plus specialist agents.
+**swe**: Software engineering workflow with `/scope` (planning), `/iterate` (implementation), `/refactor` (tactical cleanup), `/arch-review` (architectural restructuring), `/test-audit` (test quality review), and `/test-mutate` (mutation testing) skills, plus specialist agents.

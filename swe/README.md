@@ -35,19 +35,33 @@ Explores problem spaces through iterative dialogue and codebase analysis, then c
 
 [Detailed documentation](skills/scope/README.md)
 
-### /refactor - Autonomous Codebase Improvement
+### /refactor - Iterative Code Quality Improvement
 
-Analyzes codebase architecture, produces a target blueprint, then iteratively implements it through specialist agents with QA verification at each step. Rescans for cascading improvements until no further changes remain.
+Iteratively scans for tactical code quality improvements (DRY, dead code, naming, complexity), implements through specialist agents with QA verification, and loops until no improvements remain. Works within existing architecture.
 
 **Use when:**
 - Cleaning up accumulated technical debt
 - After a major feature is complete and you want to tidy up
-- Preparing a codebase for handoff or new team members
-- You have time allocated specifically for refactoring
+- Routine DRY, dead code, naming, and complexity fixes
+- You want a quick, low-risk cleanup pass
+
+**Key principle:** Clarity through red diffs. Always make the least aggressive change available first, and work upward.
+
+[Detailed documentation](skills/refactor/README.md)
+
+### /arch-review - Blueprint-Driven Architectural Improvement
+
+Analyzes codebase architecture via noun analysis, produces a target blueprint, then iteratively implements it through specialist agents with QA verification. Rescans for cascading improvements.
+
+**Use when:**
+- Module boundaries are unclear or responsibilities overlap
+- The codebase has grown organically and needs structural rethinking
+- Utility grab-bags ("helpers", "utils") need dissolution
+- Preparing a codebase for a major new feature that needs clean abstractions
 
 **Key principle:** Organization is the goal. Every module should own a clear domain noun, and every function should live where a reader expects to find it.
 
-[Detailed documentation](skills/refactor/README.md)
+[Detailed documentation](skills/arch-review/README.md)
 
 ### /test-audit - Test Suite Quality Review
 
@@ -90,7 +104,8 @@ Specialist agents spawned by the skills above:
 | `swe-sme-makefile` | Makefile and build system specialist |
 | `swe-sme-ansible` | Ansible automation specialist |
 | `swe-sme-zig` | Zig implementation specialist |
-| `swe-refactor` | Code quality and refactoring reviewer |
+| `swe-refactor` | Tactical code quality reviewer (DRY, dead code, naming, complexity) |
+| `swe-arch-review` | Architecture reviewer (noun analysis, module boundaries, blueprints) |
 | `swe-perf-engineer` | Performance testing and optimization |
 | `qa-engineer` | Practical verification and test coverage |
 | `qa-test-auditor` | Test quality reviewer (brittle, tautological, useless tests) |
