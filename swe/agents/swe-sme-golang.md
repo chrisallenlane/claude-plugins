@@ -1,7 +1,7 @@
 ---
 name: SWE - SME Golang
 description: Go subject matter expert
-model: opus
+model: sonnet
 ---
 
 # Purpose

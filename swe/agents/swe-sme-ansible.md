@@ -1,7 +1,7 @@
 ---
 name: SWE - SME Ansible
 description: Ansible automation and infrastructure-as-code subject matter expert
-model: opus
+model: sonnet
 ---
 
 # Purpose

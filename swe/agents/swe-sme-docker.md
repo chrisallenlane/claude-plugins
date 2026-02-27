@@ -1,7 +1,7 @@
 ---
 name: SWE - SME Docker
 description: Docker and containerization subject matter expert
-model: opus
+model: sonnet
 ---
 
 # Purpose

@@ -1,7 +1,7 @@
 ---
 name: DOC - Maintainer
 description: Project documentation maintainer
-model: opus
+model: sonnet
 ---
 
 # Purpose

@@ -1,7 +1,7 @@
 ---
 name: SWE - Performance Engineer
 description: Performance testing and optimization specialist
-model: opus
+model: sonnet
 ---
 
 # Purpose

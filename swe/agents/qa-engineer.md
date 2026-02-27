@@ -1,7 +1,7 @@
 ---
 name: QA - Engineer
 description: Quality assurance engineer
-model: opus
+model: sonnet
 ---
 
 # CRITICAL: VERIFY CODE ACTUALLY WORKS FIRST

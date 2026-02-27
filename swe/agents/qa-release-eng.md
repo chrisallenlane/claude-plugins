@@ -1,7 +1,7 @@
 ---
 name: QA - Release Engineer
 description: Pre-release scanner that audits code for release readiness across multiple quality dimensions
-model: opus
+model: sonnet
 ---
 
 # Purpose

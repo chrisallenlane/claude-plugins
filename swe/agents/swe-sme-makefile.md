@@ -1,7 +1,7 @@
 ---
 name: SWE - SME Makefile
 description: Makefile optimization and best practices expert
-model: opus
+model: sonnet
 ---
 
 # Purpose

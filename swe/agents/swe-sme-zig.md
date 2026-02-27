@@ -1,7 +1,7 @@
 ---
 name: SWE - SME Zig
 description: Zig subject matter expert
-model: opus
+model: sonnet
 ---
 
 # Purpose

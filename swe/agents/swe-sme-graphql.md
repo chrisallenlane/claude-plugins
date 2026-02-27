@@ -1,7 +1,7 @@
 ---
 name: SWE - SME GraphQL
 description: GraphQL API design and implementation subject matter expert
-model: opus
+model: sonnet
 ---
 
 # Purpose
