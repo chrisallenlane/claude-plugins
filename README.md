@@ -64,6 +64,8 @@ Software engineering workflow with specialist agents.
 **Skills:**
 - `/iterate` - Full development cycle through specialist agents
 - `/scope` - Problem exploration and ticket creation
+- `/fix` - Bug-fixing workflow with diagnosis, reproduction, and targeted fixes
+- `/project` - Multi-ticket orchestration with cross-cutting quality passes
 - `/refactor` - Autonomous iterative codebase improvement
 - `/arch-review` - Interactive architectural review and restructuring
 - `/test-audit` - Interactive test suite quality review

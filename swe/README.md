@@ -104,6 +104,29 @@ Systematically introduces mutations (small deliberate changes) into source code 
 
 [Detailed documentation](skills/test-mutate/README.md)
 
+### /fix - Automated Bug-Fixing Workflow
+
+Coordinates specialist agents through a bug-fixing cycle: clarify bug, reproduce with failing test, diagnose root cause, implement fix, verify, review, and document. Uses `swe-diagnostician` for root-cause analysis and the appropriate SME for implementation.
+
+**Use when:**
+- Fixing a bug that warrants thorough investigation
+- You want test-driven reproduction before implementing a fix
+- The bug may have related failure modes worth investigating
+- You want regression tests alongside the fix
+
+**Key principle:** Diagnose before you fix. Understand why a bug exists, not just what to change.
+
+### /project - Multi-Ticket Orchestration
+
+Orchestrates a batch of tickets as a cohesive project. Creates a project branch, implements each ticket sequentially using `/iterate` in autonomous mode, runs cross-cutting quality passes (`/test-audit`, `/refactor`, `/doc-review`), and presents results for final human review.
+
+**Use when:**
+- Implementing a batch of related tickets from your issue tracker
+- You want autonomous execution with a single review point at the end
+- Multiple tickets share a milestone, tag, or feature area
+
+**Key principle:** Maximize autonomy, minimize accumulated error. Pull the andon cord immediately when something goes wrong.
+
 ### /doc-review - Documentation Quality Audit
 
 Spawns a doc-maintainer agent to comprehensively review all project documentation for correctness, completeness, and freshness. Fixes issues autonomously within its authority.
@@ -130,6 +153,7 @@ Specialist agents spawned by the skills above:
 | `swe-sme-zig` | Zig implementation specialist |
 | `swe-refactor` | Tactical code quality reviewer (DRY, dead code, naming, complexity) |
 | `swe-arch-review` | Architecture reviewer (noun analysis, module boundaries, blueprints) |
+| `swe-diagnostician` | Bug root-cause analyst (execution tracing, git archaeology, diagnosis reports) |
 | `swe-perf-engineer` | Performance testing and optimization |
 | `qa-engineer` | Practical verification and test coverage |
 | `qa-test-auditor` | Test quality reviewer (brittle, tautological, useless tests) |
