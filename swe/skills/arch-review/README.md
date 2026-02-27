@@ -45,16 +45,7 @@ The `/arch-review` skill analyzes codebase architecture and collaborates with th
  └──────────────────┬───────────────────────────┘
                     ▼
  ┌──────────────────────────────────────────────┐
- │  2. SELECT AGGRESSION LEVEL                  │
- │  ────────────────────────────────────────    │
- │  How much disruption is acceptable:          │
- │  • Maximum: Full architectural restructuring │
- │  • High: Moderate structural changes         │
- │  • Low: Safe changes only                    │
- └──────────────────┬───────────────────────────┘
-                    ▼
- ┌──────────────────────────────────────────────┐
- │  3. GATHER QA INSTRUCTIONS                   │
+ │  2. GATHER QA INSTRUCTIONS                   │
  │  ────────────────────────────────────────    │
  │  Ask user for custom verification steps:     │
  │  • Visual checks, screenshots                │
@@ -64,7 +55,7 @@ The `/arch-review` skill analyzes codebase architecture and collaborates with th
  └──────────────────┬───────────────────────────┘
                     ▼
  ┌──────────────────────────────────────────────┐
- │  4. ANALYZE CODEBASE                         │
+ │  3. ANALYZE CODEBASE                         │
  │  ────────────────────────────────────────    │
  │  Agent: swe-arch-review (fresh instance)     │
  │                                              │
@@ -80,16 +71,16 @@ The `/arch-review` skill analyzes codebase architecture and collaborates with th
  └──────────────────┬───────────────────────────┘
                     ▼
  ┌──────────────────────────────────────────────┐
- │  5. PRESENT ANALYSIS TO USER                 │
+ │  4. PRESENT ANALYSIS TO USER                 │
  │  ────────────────────────────────────────    │
  │  Show the user:                              │
- │  • Noun analysis table (domain model)        │
+ │  • Noun frequency table + evaluations        │
  │  • Proposed changes (blueprint items)        │
  │  • No-change items (with justifications)     │
  └──────────────────┬───────────────────────────┘
                     ▼
  ┌──────────────────────────────────────────────┐
- │  6. ITERATE ON PLAN WITH USER                │
+ │  5. ITERATE ON PLAN WITH USER                │
  │  ────────────────────────────────────────    │
  │  User may:                                   │
  │  • Add, remove, or modify items              │
@@ -100,7 +91,7 @@ The `/arch-review` skill analyzes codebase architecture and collaborates with th
  └──────────────────┬───────────────────────────┘
                     ▼
  ┌──────────────────────────────────────────────┐
- │  7. ASK USER HOW TO PROCEED                  │
+ │  6. ASK USER HOW TO PROCEED                  │
  │  ────────────────────────────────────────    │
  │  User decides next steps:                    │
  │  • Implement changes now                     │
@@ -111,7 +102,7 @@ The `/arch-review` skill analyzes codebase architecture and collaborates with th
  └──────────────────┬───────────────────────────┘
                     ▼
  ┌──────────────────────────────────────────────┐
- │  8. IMPLEMENT DEAD CODE REMOVAL              │
+ │  7. IMPLEMENT DEAD CODE REMOVAL              │
  │  ────────────────────────────────────────    │
  │  Batch all dead code removals together       │
  │  Agent: SME or orchestrator                  │
@@ -123,7 +114,7 @@ The `/arch-review` skill analyzes codebase architecture and collaborates with th
         └───────────┬───────────┘                    │
                     ▼                                │
  ┌──────────────────────────────────────────────┐    │
- │  9. IMPLEMENT BLUEPRINT ITEM                 │    │
+ │  8. IMPLEMENT BLUEPRINT ITEM                 │    │
  │  ────────────────────────────────────────    │    │
  │  Ordered by safety:                          │    │
  │  1. Linter/formatter fixes                   │    │
@@ -154,23 +145,23 @@ The `/arch-review` skill analyzes codebase architecture and collaborates with th
  └──────────────────────────────────────────────┘    │
                     ▼                                │
            All items done?                           │
-           ├─ No  → Back to step 9 ─────────────────┘
+           ├─ No  → Back to step 8 ─────────────────┘
            └─ Yes ▼
  ┌──────────────────────────────────────────────┐
- │  10. RESCAN FOR CASCADING IMPROVEMENTS       │
+ │  9. RESCAN FOR CASCADING IMPROVEMENTS        │
  │  ────────────────────────────────────────    │
  │  Fresh swe-arch-review agent                 │
  │                                              │
  │  New findings? → Present to user,            │
  │                  iterate, ask how to proceed  │
- │                  → Loop to step 8 if          │
+ │                  → Loop to step 7 if          │
  │                    implementing               │
  │  No changes?   ─────────────────────────────┐
  └──────────────────────────────────────────────┘
                                                 │
                        ▼                        │
  ┌──────────────────────────────────────────────┐
- │  11. COMPLETION SUMMARY                      │
+ │  10. COMPLETION SUMMARY                      │
  │  ────────────────────────────────────────    │
  │  • Total commits made                        │
  │  • Net lines changed (target: negative)      │
@@ -179,7 +170,7 @@ The `/arch-review` skill analyzes codebase architecture and collaborates with th
  └──────────────────┬───────────────────────────┘
                     ▼
  ┌──────────────────────────────────────────────┐
- │  12. UPDATE DOCUMENTATION                    │
+ │  11. UPDATE DOCUMENTATION                    │
  │  ────────────────────────────────────────    │
  │  Run /doc-review to fix stale docs           │
  │  (module renames, moved functions, etc.)     │
@@ -198,17 +189,7 @@ By default, the workflow operates on the entire codebase. You can specify a narr
 
 The scope is passed to all spawned agents.
 
-### 2. Select Aggression Level
-The workflow asks how much disruption is acceptable:
-
-- **Maximum**: Full architectural restructuring — dissolve modules, create new namespaces, reorganize the module hierarchy
-- **High**: Moderate structural changes — move functions between modules, rename modules, absorb small modules into larger ones, but don't reorganize the top-level structure
-- **Low**: Safe changes only — rename for clarity, fix stutter, move misplaced functions, remove dead code, but don't create or dissolve modules
-- **Let's discuss**: Talk through the situation to determine the right level
-
-This level is passed to the analysis agent so it can calibrate the scope of its blueprint.
-
-### 3. Gather QA Instructions
+### 2. Gather QA Instructions
 Before starting, the workflow asks if you have custom verification steps beyond the standard test suite. Examples:
 
 - "After each change, start the app and take a screenshot to verify rendering"
@@ -217,7 +198,7 @@ Before starting, the workflow asks if you have custom verification steps beyond 
 
 These instructions are passed to the QA agent on every verification cycle. If you have no special requirements, standard verification (tests + linters) runs.
 
-### 4. Analyze Codebase
+### 3. Analyze Codebase
 A fresh `swe-arch-review` agent performs four sequential analysis steps:
 
 | Step | What it does |
@@ -231,25 +212,25 @@ The blueprint describes each module's target state: what it owns, what it absorb
 
 **Why fresh instances?** Architectural changes create new opportunities. A fresh agent sees the codebase as it is *now*, not as it was before previous changes.
 
-### 5. Present Analysis to User
+### 4. Present Analysis to User
 After the analysis agent returns, present its findings in full:
 
 - **Noun analysis table**: The domain model — what nouns were found, where they live, and where they should live
 - **Proposed changes**: Blueprint items grouped by category — dead code removal, renames, moves, absorptions, dissolutions, new modules
 - **No-change items**: Modules the agent evaluated and explicitly decided to leave alone, with domain justifications
 
-### 6. Iterate on Plan with User
+### 5. Iterate on Plan with User
 The user shapes the plan before anything is implemented. They may add, remove, or modify items, ask questions about specific recommendations, or adjust priorities. Continue until the user is satisfied.
 
-### 7. Ask User How to Proceed
+### 6. Ask User How to Proceed
 Once the plan is finalized, ask the user how they'd like to proceed. The user decides — implementation, tickets, or something else.
 
-### 8-9. Implement Changes
+### 7-8. Implement Changes
 If the user chose to proceed with implementation:
 
-Dead code removal happens first (step 8) because it simplifies everything that follows. All dead code is batched together, implemented, verified by QA, and committed.
+Dead code removal happens first (step 7) because it simplifies everything that follows. All dead code is batched together, implemented, verified by QA, and committed.
 
-The orchestrator then works through blueprint items in safety order (step 9):
+The orchestrator then works through blueprint items in safety order (step 8):
 
 1. **Linter/formatter fixes** - mechanical, lowest risk
 2. **Renames and stutter fixes** - low risk, no structural change
@@ -272,12 +253,12 @@ Each item goes through: SME implementation -> QA verification -> atomic commit.
 
 After each item, the `qa-engineer` agent verifies the change didn't break anything (test suite, linters, formatters). On failure, the SME gets up to 3 repair attempts. After 3 failures: revert the item, log the failure, continue with the next item.
 
-### 10. Rescan for Cascading Improvements
+### 9. Rescan for Cascading Improvements
 After the blueprint is fully implemented, a fresh analysis agent rescans the codebase. Reorganization often reveals new opportunities: internal duplication in modules that absorbed functions from multiple sources, dead code that was only reachable through dissolved modules, etc.
 
-If the rescan finds new opportunities, present them to the user following the same interactive cycle (steps 5-7). If the user chooses to implement, loop back through steps 8-9. If no changes are found, proceed to the completion summary.
+If the rescan finds new opportunities, present them to the user following the same interactive cycle (steps 4-6). If the user chooses to implement, loop back through steps 7-8. If no changes are found, proceed to the completion summary.
 
-### 11. Completion Summary
+### 10. Completion Summary
 ```
 ## Arch Review Complete
 
@@ -298,7 +279,7 @@ If the rescan finds new opportunities, present them to the user following the sa
 (none)
 ```
 
-### 12. Update Documentation
+### 11. Update Documentation
 After the summary, the workflow runs `/doc-review` to bring project documentation up to date. Architectural changes rename modules, move functions, and change project structure — documentation that references the old structure becomes stale. The doc-review agent audits all documentation files and fixes issues it finds, committing separately from the refactoring commits.
 
 ## Tips for Effective Use

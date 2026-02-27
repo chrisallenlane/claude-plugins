@@ -23,21 +23,20 @@ Interactive workflow that analyzes codebase architecture, produces a target blue
 │           ARCH REVIEW WORKFLOW                       │
 ├─────────────────────────────────────────────────────┤
 │  1. Determine scope                                  │
-│  2. Select aggression level                          │
-│  3. Gather QA instructions                           │
-│  4. Spawn swe-arch-review agent (full analysis)      │
+│  2. Gather QA instructions                           │
+│  3. Spawn swe-arch-review agent (full analysis)      │
 │     → returns dead code list + target blueprint      │
-│  5. Present analysis to user                         │
-│  6. Iterate on plan with user                        │
-│  7. Ask user how to proceed                          │
-│  8. Implement dead code removal                      │
-│  9. Implement blueprint items iteratively             │
+│  4. Present analysis to user                         │
+│  5. Iterate on plan with user                        │
+│  6. Ask user how to proceed                          │
+│  7. Implement dead code removal                      │
+│  8. Implement blueprint items iteratively             │
 │     ├─ For each item: SME → QA → commit              │
 │     └─ On persistent failure: skip item              │
-│ 10. Rescan for cascading improvements                │
+│  9. Rescan for cascading improvements                │
 │     └─ If new findings → present, iterate, proceed   │
-│ 11. Completion summary                               │
-│ 12. Update documentation (/doc-review)               │
+│ 10. Completion summary                               │
+│ 11. Update documentation (/doc-review)               │
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -49,19 +48,7 @@ Interactive workflow that analyzes codebase architecture, produces a target blue
 
 **If user specifies scope:** Respect that scope (directory, files, module). Pass scope constraint to all spawned agents.
 
-### 2. Select Aggression Level
-
-**Ask the user:** "How aggressive should the architectural review be?"
-
-Present these options:
-- **Maximum**: Full architectural restructuring — dissolve modules, create new namespaces, reorganize the module hierarchy
-- **High**: Moderate structural changes — move functions between modules, rename modules, absorb small modules into larger ones, but don't reorganize the top-level structure
-- **Low**: Safe changes only — rename for clarity, fix stutter, move misplaced functions, remove dead code, but don't create or dissolve modules
-- **Let's discuss**: Talk through the situation to determine the right level
-
-Pass this level to the `swe-arch-review` agent so it can calibrate the scope of its blueprint.
-
-### 3. Gather QA Instructions
+### 2. Gather QA Instructions
 
 **Ask the user:** "Are there any special verification steps for the QA agent? For example: visual checks, manual testing commands, specific scenarios to validate."
 
@@ -75,7 +62,7 @@ Pass this level to the `swe-arch-review` agent so it can calibrate the scope of 
 
 **If none provided:** QA agent runs standard verification (test suite, linters, formatters).
 
-### 4. Analyze Codebase
+### 3. Analyze Codebase
 
 **Spawn fresh `swe-arch-review` agent:**
 
@@ -87,18 +74,18 @@ The agent performs four sequential analysis steps:
 
 **Prompt the agent with:**
 ```
-Perform a full analysis of this codebase.
+Perform a full architectural analysis of this codebase.
 Scope: [entire codebase | user-specified scope]
-Aggression level: [Maximum | High | Low]
 Produce a comprehensive target architecture blueprint showing where
-everything should live. Cover every module that should change.
+everything should live. Cover every module — existing and proposed.
 ```
 
 The agent returns:
+- A noun frequency table (the primary analytical artifact)
+- A per-noun namespace evaluation
 - A dead code list (to implement first)
-- A noun analysis table (domain model)
 - A repetition catalog (DRY candidates, resolved in the blueprint)
-- A target architecture blueprint (the primary output)
+- A target architecture blueprint (existing modules + proposed new modules)
 - Any linter/formatter issues
 - Any behavior-altering changes requiring approval
 
@@ -106,19 +93,19 @@ The agent returns:
 
 **Why fresh instances:** Refactoring creates new opportunities. A fresh agent sees the codebase as it is *now*, not as it was before previous changes. No accumulated context or assumptions.
 
-### 5. Present Analysis to User
+### 4. Present Analysis to User
 
 After the analysis agent returns, present its findings to the user. The user needs to see the full picture before deciding what to do.
 
 **Present three things:**
 
-**a) Noun analysis table.** Show the domain model table from the agent's output. This is the analytical foundation — the user should understand the nouns the agent identified and why they matter.
+**a) Noun analysis.** Show the noun frequency table and the per-noun namespace evaluations. This is the analytical foundation — the user should understand what nouns the agent identified, how frequently they appear, and why they do or don't deserve their own namespace.
 
-**b) Proposed changes.** Show the blueprint items — modules to change, absorb, dissolve, or rename. For each item, include the agent's rationale. Group by category (dead code removal, renames, moves, absorptions, dissolutions, new modules).
+**b) Proposed changes.** Show the blueprint items — modules to change, absorb, dissolve, or rename, plus proposed new modules. For each item, include the agent's rationale. Group by category (dead code removal, renames, moves, absorptions, dissolutions, new modules).
 
 **c) No-change items.** Show the modules the agent evaluated and explicitly decided to leave alone, with their domain justifications. This is important context — the user may disagree and want to add items, or may spot a module the agent missed entirely.
 
-### 6. Iterate on Plan with User
+### 5. Iterate on Plan with User
 
 The user now has the full analysis. Give them the opportunity to shape the plan before anything is implemented.
 
@@ -127,18 +114,18 @@ The user now has the full analysis. Give them the opportunity to shape the plan 
 - Add items the agent missed
 - Modify proposed changes (e.g., "move that function to module X instead of Y")
 - Ask questions about specific recommendations ("why did you flag this as dead code?")
-- Adjust the scope or aggression level based on what they see
+- Adjust the scope based on what they see
 - Reprioritize items
 
 **Continue iterating until the user is satisfied with the plan.** Don't rush this — architectural decisions are consequential and benefit from deliberation.
 
-### 7. Ask User How to Proceed
+### 6. Ask User How to Proceed
 
 Once the plan is finalized, ask the user how they'd like to proceed. Don't assume implementation is the goal — the user may have other intentions.
 
 The user will tell you what they want. Follow their direction.
 
-### 8. Implement Dead Code Removal
+### 7. Implement Dead Code Removal
 
 If the finalized plan includes dead code removal and the user chose to proceed with implementation, implement removal first. This simplifies everything that follows.
 
@@ -147,13 +134,13 @@ If the finalized plan includes dead code removal and the user chose to proceed w
 - Verify with QA
 - Commit atomically
 
-If no dead code removal is in the plan, skip to step 9.
+If no dead code removal is in the plan, skip to step 8.
 
-### 9. Implement Blueprint
+### 8. Implement Blueprint
 
 Work through the finalized blueprint iteratively. Each blueprint item describes a module's target state - what it owns, what it absorbs, what gets renamed or simplified.
 
-#### 9a. Order Blueprint Items
+#### 8a. Order Blueprint Items
 
 Sequence items for safety:
 1. Linter/formatter fixes
@@ -165,7 +152,7 @@ Sequence items for safety:
 
 Within each category, prefer items that don't depend on other items.
 
-#### 9b. For Each Blueprint Item
+#### 8b. For Each Blueprint Item
 
 **Detect appropriate SME and spawn based on primary file type:**
 - Go: `swe-sme-golang`
@@ -196,12 +183,12 @@ Report when complete.
 
 **SME implements and reports back.**
 
-#### 9c. Verify Changes
+#### 8c. Verify Changes
 
 **Spawn `qa-engineer` agent:**
 - Run test suite
 - Run linters/formatters
-- Execute any custom QA instructions gathered in step 3
+- Execute any custom QA instructions gathered in step 2
 - Verify no regressions introduced
 - Report pass/fail with specifics
 
@@ -219,7 +206,7 @@ Report when complete.
 - Continue with next blueprint item
 - Include in final summary as "skipped item"
 
-#### 9d. Commit Changes
+#### 8d. Commit Changes
 
 **Create atomic commit for successful item:**
 
@@ -242,11 +229,11 @@ EOF
 - Use `refactor:` prefix in commit message
 - Keep items atomic (one logical change per commit)
 
-#### 9e. Next Item
+#### 8e. Next Item
 
 Proceed to the next blueprint item. Continue until all items are implemented or skipped.
 
-### 10. Rescan for Cascading Improvements
+### 9. Rescan for Cascading Improvements
 
 After the entire blueprint is implemented, rescan the codebase for cascading improvements.
 
@@ -254,9 +241,9 @@ After the entire blueprint is implemented, rescan the codebase for cascading imp
 
 **Spawn a fresh `swe-arch-review` agent** (new instance, fresh context). If it reports "No refactoring needed," proceed to the completion summary.
 
-**If it finds new opportunities:** Follow the same interactive cycle — present the findings to the user (step 5), iterate on the plan (step 6), ask how to proceed (step 7), and implement if directed (steps 8-9). Do not implement rescan findings autonomously.
+**If it finds new opportunities:** Follow the same interactive cycle — present the findings to the user (step 4), iterate on the plan (step 5), ask how to proceed (step 6), and implement if directed (steps 7-8). Do not implement rescan findings autonomously.
 
-### 11. Completion Summary
+### 10. Completion Summary
 
 When workflow completes, present summary:
 
@@ -277,7 +264,7 @@ When workflow completes, present summary:
 - [Item description]: [reason for failure]
 ```
 
-### 12. Update Documentation
+### 11. Update Documentation
 
 After the summary, run the `/doc-review` workflow to bring project documentation up to date. Architectural changes often rename modules, move functions, and change the project structure — documentation that references the old structure becomes stale.
 
@@ -350,9 +337,6 @@ This spawns a doc-maintainer agent that audits all project documentation and fix
 
 Scope: entire codebase
 
-How aggressive should the architectural review be?
-> Maximum
-
 Any special QA instructions?
 > Run `make test && make lint` after each change
 
@@ -362,15 +346,34 @@ Spawning swe-arch-review agent...
 
 Analysis complete. Here's what I found:
 
-## Noun Analysis
+## Noun Frequency
 
-| Namespace   | Method             | Noun     | Verb     | Recommendation          |
-|-------------|--------------------|----------|----------|-------------------------|
-| `Server`    | `parse_request()`  | request  | parse    | Move to `Request`       |
-| `Server`    | `validate_request()`| request | validate | Move to `Request`       |
-| `Server`    | `send_response()`  | response | send     | Move to `Response`      |
-| `App`       | `load_plugins()`   | plugins  | load     | Move to `Plugins`       |
-| `App`       | `init_plugins()`   | plugins  | init     | Move to `Plugins`       |
+| Noun     | Count | Has Namespace? | Modules Where It Appears |
+|----------|-------|----------------|--------------------------|
+| request  | 14    | No             | Server, App, Middleware   |
+| config   | 9     | No             | Widget, App, Server       |
+| response | 7     | No             | Server, App, Middleware   |
+| plugins  | 5     | No             | App                       |
+| helper   | 4     | Yes (helpers)  | helpers                   |
+
+## Noun Evaluation
+
+request  — has namespace: no
+           should have namespace: yes
+           justification: highest frequency noun, spread across 3 modules.
+           action: create namespace
+
+config   — has namespace: no
+           should have namespace: no change needed
+           justification: already well-scoped within each module.
+           action: no change
+
+response — has namespace: no
+           should have namespace: yes
+           justification: response construction scattered across 3 modules.
+           action: create namespace
+
+[...]
 
 ## Proposed Changes
 
