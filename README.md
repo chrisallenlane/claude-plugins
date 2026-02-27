@@ -65,7 +65,7 @@ Software engineering workflow with specialist agents.
 - `/iterate` - Full development cycle through specialist agents
 - `/scope` - Problem exploration and ticket creation
 - `/refactor` - Autonomous iterative codebase improvement
-- `/arch-review` - Blueprint-driven architectural restructuring
+- `/arch-review` - Interactive architectural review and restructuring
 - `/test-audit` - Interactive test suite quality review
 - `/test-mutate` - Mutation testing workflow (verify tests catch bugs)
 - `/release-review` - Pre-release readiness check

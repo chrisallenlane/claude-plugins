@@ -2,11 +2,12 @@
 
 ## Overview
 
-The `/arch-review` skill autonomously improves codebase architecture. It spawns an analysis agent that builds a domain model via noun analysis and produces a target architecture blueprint, then iteratively implements that blueprint through specialist agents with QA verification at each step. When the blueprint is fully implemented, it rescans for cascading improvements.
+The `/arch-review` skill analyzes codebase architecture and collaborates with the user to improve it. It spawns an analysis agent that builds a domain model via noun analysis and produces a target architecture blueprint, then presents those findings to the user for review and refinement. The user decides what to implement and how to proceed — changes are made through specialist agents with QA verification at each step.
 
 **Key benefits:**
 - Blueprint-driven - implements a coherent architectural target, not a grab-bag of independent fixes
 - Noun analysis identifies the natural decomposition boundaries in the domain
+- Interactive review - user sees and shapes the plan before any changes are made
 - Fresh agent instances each pass (prevents context accumulation)
 - Atomic commits per item (easy to review, bisect, or revert)
 - Built-in quality gates with QA verification
@@ -79,7 +80,38 @@ The `/arch-review` skill autonomously improves codebase architecture. It spawns 
  └──────────────────┬───────────────────────────┘
                     ▼
  ┌──────────────────────────────────────────────┐
- │  5. IMPLEMENT DEAD CODE REMOVAL              │
+ │  5. PRESENT ANALYSIS TO USER                 │
+ │  ────────────────────────────────────────    │
+ │  Show the user:                              │
+ │  • Noun analysis table (domain model)        │
+ │  • Proposed changes (blueprint items)        │
+ │  • No-change items (with justifications)     │
+ └──────────────────┬───────────────────────────┘
+                    ▼
+ ┌──────────────────────────────────────────────┐
+ │  6. ITERATE ON PLAN WITH USER                │
+ │  ────────────────────────────────────────    │
+ │  User may:                                   │
+ │  • Add, remove, or modify items              │
+ │  • Ask questions about recommendations       │
+ │  • Adjust scope or priorities                │
+ │                                              │
+ │  Continue until user is satisfied            │
+ └──────────────────┬───────────────────────────┘
+                    ▼
+ ┌──────────────────────────────────────────────┐
+ │  7. ASK USER HOW TO PROCEED                  │
+ │  ────────────────────────────────────────    │
+ │  User decides next steps:                    │
+ │  • Implement changes now                     │
+ │  • Create tickets for later                  │
+ │  • Something else                            │
+ │                                              │
+ │  Not implementing? ─────────────────────► DONE
+ └──────────────────┬───────────────────────────┘
+                    ▼
+ ┌──────────────────────────────────────────────┐
+ │  8. IMPLEMENT DEAD CODE REMOVAL              │
  │  ────────────────────────────────────────    │
  │  Batch all dead code removals together       │
  │  Agent: SME or orchestrator                  │
@@ -91,7 +123,7 @@ The `/arch-review` skill autonomously improves codebase architecture. It spawns 
         └───────────┬───────────┘                    │
                     ▼                                │
  ┌──────────────────────────────────────────────┐    │
- │  6. IMPLEMENT BLUEPRINT ITEM                 │    │
+ │  9. IMPLEMENT BLUEPRINT ITEM                 │    │
  │  ────────────────────────────────────────    │    │
  │  Ordered by safety:                          │    │
  │  1. Linter/formatter fixes                   │    │
@@ -122,20 +154,23 @@ The `/arch-review` skill autonomously improves codebase architecture. It spawns 
  └──────────────────────────────────────────────┘    │
                     ▼                                │
            All items done?                           │
-           ├─ No  → Back to step 6 ─────────────────┘
+           ├─ No  → Back to step 9 ─────────────────┘
            └─ Yes ▼
  ┌──────────────────────────────────────────────┐
- │  7. RESCAN FOR CASCADING IMPROVEMENTS        │
+ │  10. RESCAN FOR CASCADING IMPROVEMENTS       │
  │  ────────────────────────────────────────    │
  │  Fresh swe-arch-review agent                 │
  │                                              │
- │  New blueprint? → Loop to step 5             │
- │  No changes?   ──────────────────────────────┐
+ │  New findings? → Present to user,            │
+ │                  iterate, ask how to proceed  │
+ │                  → Loop to step 8 if          │
+ │                    implementing               │
+ │  No changes?   ─────────────────────────────┐
  └──────────────────────────────────────────────┘
                                                 │
                        ▼                        │
  ┌──────────────────────────────────────────────┐
- │  8. COMPLETION SUMMARY                       │
+ │  11. COMPLETION SUMMARY                      │
  │  ────────────────────────────────────────    │
  │  • Total commits made                        │
  │  • Net lines changed (target: negative)      │
@@ -144,7 +179,7 @@ The `/arch-review` skill autonomously improves codebase architecture. It spawns 
  └──────────────────┬───────────────────────────┘
                     ▼
  ┌──────────────────────────────────────────────┐
- │  9. UPDATE DOCUMENTATION                     │
+ │  12. UPDATE DOCUMENTATION                    │
  │  ────────────────────────────────────────    │
  │  Run /doc-review to fix stale docs           │
  │  (module renames, moved functions, etc.)     │
@@ -196,11 +231,25 @@ The blueprint describes each module's target state: what it owns, what it absorb
 
 **Why fresh instances?** Architectural changes create new opportunities. A fresh agent sees the codebase as it is *now*, not as it was before previous changes.
 
-### 5. Implement Dead Code Removal
-Dead code removal happens first because it's uncontroversial and simplifies everything that follows. All dead code identified in the analysis is batched together, implemented, verified by QA, and committed.
+### 5. Present Analysis to User
+After the analysis agent returns, present its findings in full:
 
-### 6. Implement Blueprint
-The orchestrator works through blueprint items in safety order:
+- **Noun analysis table**: The domain model — what nouns were found, where they live, and where they should live
+- **Proposed changes**: Blueprint items grouped by category — dead code removal, renames, moves, absorptions, dissolutions, new modules
+- **No-change items**: Modules the agent evaluated and explicitly decided to leave alone, with domain justifications
+
+### 6. Iterate on Plan with User
+The user shapes the plan before anything is implemented. They may add, remove, or modify items, ask questions about specific recommendations, or adjust priorities. Continue until the user is satisfied.
+
+### 7. Ask User How to Proceed
+Once the plan is finalized, ask the user how they'd like to proceed. The user decides — implementation, tickets, or something else.
+
+### 8-9. Implement Changes
+If the user chose to proceed with implementation:
+
+Dead code removal happens first (step 8) because it simplifies everything that follows. All dead code is batched together, implemented, verified by QA, and committed.
+
+The orchestrator then works through blueprint items in safety order (step 9):
 
 1. **Linter/formatter fixes** - mechanical, lowest risk
 2. **Renames and stutter fixes** - low risk, no structural change
@@ -223,12 +272,12 @@ Each item goes through: SME implementation -> QA verification -> atomic commit.
 
 After each item, the `qa-engineer` agent verifies the change didn't break anything (test suite, linters, formatters). On failure, the SME gets up to 3 repair attempts. After 3 failures: revert the item, log the failure, continue with the next item.
 
-### 7. Rescan for Cascading Improvements
+### 10. Rescan for Cascading Improvements
 After the blueprint is fully implemented, a fresh analysis agent rescans the codebase. Reorganization often reveals new opportunities: internal duplication in modules that absorbed functions from multiple sources, dead code that was only reachable through dissolved modules, etc.
 
-If the rescan produces a new blueprint, the workflow loops back. If not, it's done.
+If the rescan finds new opportunities, present them to the user following the same interactive cycle (steps 5-7). If the user chooses to implement, loop back through steps 8-9. If no changes are found, proceed to the completion summary.
 
-### 8. Completion Summary
+### 11. Completion Summary
 ```
 ## Arch Review Complete
 
@@ -249,7 +298,7 @@ If the rescan produces a new blueprint, the workflow loops back. If not, it's do
 (none)
 ```
 
-### 9. Update Documentation
+### 12. Update Documentation
 After the summary, the workflow runs `/doc-review` to bring project documentation up to date. Architectural changes rename modules, move functions, and change project structure — documentation that references the old structure becomes stale. The doc-review agent audits all documentation files and fixes issues it finds, committing separately from the refactoring commits.
 
 ## Tips for Effective Use
@@ -309,15 +358,15 @@ The `/arch-review` workflow embodies several key principles:
 - Functions should live where a reader expects to find them
 - The blueprint describes a target architecture, not a grab-bag of fixes
 
+**Recommend boldly, implement collaboratively:**
+- The analysis agent should surface every opportunity, even uncertain ones
+- The user reviews, refines, and decides what to implement
+- Architectural decisions are consequential and benefit from human judgment
+
 **Red diffs within modules:**
 - Once code is in the right place, simplify it
 - Less code is better when it doesn't sacrifice comprehensibility
 - But don't let line count override architectural decisions
-
-**Err on the side of trying:**
-- When uncertain, attempt the restructuring anyway
-- Git makes failed experiments free
-- Missed opportunities are invisible; failed attempts teach you something
 
 **Fresh eyes each pass:**
 - New agent instances prevent accumulated context bias

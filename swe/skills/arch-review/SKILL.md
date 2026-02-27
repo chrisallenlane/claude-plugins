@@ -1,18 +1,18 @@
 ---
 name: arch-review
-description: Autonomous architectural review workflow. Analyzes codebase organization via noun analysis, produces a target blueprint, implements changes through SMEs, verifies with QA, commits atomically. Optionally rescans for cascading improvements.
+description: Interactive architectural review workflow. Analyzes codebase organization via noun analysis, produces a target blueprint, then collaborates with the user to decide what to implement. Changes are made through SMEs, verified with QA, and committed atomically.
 model: opus
 ---
 
 # Arch Review - Blueprint-Driven Architectural Improvement
 
-Autonomous workflow that analyzes codebase architecture, produces a target blueprint via noun analysis, and iteratively implements it.
+Interactive workflow that analyzes codebase architecture, produces a target blueprint via noun analysis, and collaborates with the user to review, refine, and implement it.
 
 ## Philosophy
 
 **Clarity through organization is the goal.** Every module should have a clear identity - a domain noun it owns. Functions should live where a reader expects to find them. DRY and Prune serve this organizational goal, not the other way around.
 
-**Err on the side of trying.** When uncertain whether a refactoring is worthwhile, attempt it anyway. Git makes failed experiments free - the workflow will revert changes that don't pass QA. Missed opportunities are invisible; failed attempts teach you something. Be bold, knowing that version control provides the safety net.
+**Recommend boldly, implement collaboratively.** The analysis agent should surface every opportunity it finds, even uncertain ones — the user can always reject a recommendation. But the decision to implement is the user's. Present findings clearly, iterate on the plan together, and let the user direct what happens next.
 
 **Red diffs are good within modules.** Once a function is in the right place, simplify its implementation. Less code is better when it doesn't sacrifice comprehensibility. But don't let line-count savings override architectural decisions.
 
@@ -27,14 +27,17 @@ Autonomous workflow that analyzes codebase architecture, produces a target bluep
 │  3. Gather QA instructions                           │
 │  4. Spawn swe-arch-review agent (full analysis)      │
 │     → returns dead code list + target blueprint      │
-│  5. Implement dead code removal                      │
-│  6. Implement blueprint items iteratively            │
+│  5. Present analysis to user                         │
+│  6. Iterate on plan with user                        │
+│  7. Ask user how to proceed                          │
+│  8. Implement dead code removal                      │
+│  9. Implement blueprint items iteratively             │
 │     ├─ For each item: SME → QA → commit              │
 │     └─ On persistent failure: skip item              │
-│  7. Rescan for cascading improvements (optional)     │
-│     └─ If new blueprint → loop to step 5             │
-│  8. Completion summary                               │
-│  9. Update documentation (/doc-review)               │
+│ 10. Rescan for cascading improvements                │
+│     └─ If new findings → present, iterate, proceed   │
+│ 11. Completion summary                               │
+│ 12. Update documentation (/doc-review)               │
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -103,22 +106,54 @@ The agent returns:
 
 **Why fresh instances:** Refactoring creates new opportunities. A fresh agent sees the codebase as it is *now*, not as it was before previous changes. No accumulated context or assumptions.
 
-### 5. Implement Dead Code Removal
+### 5. Present Analysis to User
 
-If the analysis identified dead code, implement removal first. This is uncontroversial and simplifies everything that follows.
+After the analysis agent returns, present its findings to the user. The user needs to see the full picture before deciding what to do.
+
+**Present three things:**
+
+**a) Noun analysis table.** Show the domain model table from the agent's output. This is the analytical foundation — the user should understand the nouns the agent identified and why they matter.
+
+**b) Proposed changes.** Show the blueprint items — modules to change, absorb, dissolve, or rename. For each item, include the agent's rationale. Group by category (dead code removal, renames, moves, absorptions, dissolutions, new modules).
+
+**c) No-change items.** Show the modules the agent evaluated and explicitly decided to leave alone, with their domain justifications. This is important context — the user may disagree and want to add items, or may spot a module the agent missed entirely.
+
+### 6. Iterate on Plan with User
+
+The user now has the full analysis. Give them the opportunity to shape the plan before anything is implemented.
+
+**The user may want to:**
+- Remove items they disagree with
+- Add items the agent missed
+- Modify proposed changes (e.g., "move that function to module X instead of Y")
+- Ask questions about specific recommendations ("why did you flag this as dead code?")
+- Adjust the scope or aggression level based on what they see
+- Reprioritize items
+
+**Continue iterating until the user is satisfied with the plan.** Don't rush this — architectural decisions are consequential and benefit from deliberation.
+
+### 7. Ask User How to Proceed
+
+Once the plan is finalized, ask the user how they'd like to proceed. Don't assume implementation is the goal — the user may have other intentions.
+
+The user will tell you what they want. Follow their direction.
+
+### 8. Implement Dead Code Removal
+
+If the finalized plan includes dead code removal and the user chose to proceed with implementation, implement removal first. This simplifies everything that follows.
 
 - Batch all dead code removals together
 - Spawn appropriate SME (or implement directly for mechanical deletions)
 - Verify with QA
 - Commit atomically
 
-If no dead code was found, skip to step 6.
+If no dead code removal is in the plan, skip to step 9.
 
-### 6. Implement Blueprint
+### 9. Implement Blueprint
 
-Work through the target architecture blueprint iteratively. Each blueprint item describes a module's target state - what it owns, what it absorbs, what gets renamed or simplified.
+Work through the finalized blueprint iteratively. Each blueprint item describes a module's target state - what it owns, what it absorbs, what gets renamed or simplified.
 
-#### 6a. Order Blueprint Items
+#### 9a. Order Blueprint Items
 
 Sequence items for safety:
 1. Linter/formatter fixes
@@ -130,9 +165,7 @@ Sequence items for safety:
 
 Within each category, prefer items that don't depend on other items.
 
-#### 6b. For Each Blueprint Item
-
-**Check for behavior-altering changes.** If the blueprint item was flagged as behavior-altering by the analysis agent, present it to the user for approval before proceeding. Skip if not approved.
+#### 9b. For Each Blueprint Item
 
 **Detect appropriate SME and spawn based on primary file type:**
 - Go: `swe-sme-golang`
@@ -163,7 +196,7 @@ Report when complete.
 
 **SME implements and reports back.**
 
-#### 6c. Verify Changes
+#### 9c. Verify Changes
 
 **Spawn `qa-engineer` agent:**
 - Run test suite
@@ -186,7 +219,7 @@ Report when complete.
 - Continue with next blueprint item
 - Include in final summary as "skipped item"
 
-#### 6d. Commit Changes
+#### 9d. Commit Changes
 
 **Create atomic commit for successful item:**
 
@@ -209,19 +242,21 @@ EOF
 - Use `refactor:` prefix in commit message
 - Keep items atomic (one logical change per commit)
 
-#### 6e. Next Item
+#### 9e. Next Item
 
 Proceed to the next blueprint item. Continue until all items are implemented or skipped.
 
-### 7. Rescan for Cascading Improvements
+### 10. Rescan for Cascading Improvements
 
 After the entire blueprint is implemented, rescan the codebase for cascading improvements.
 
 **Why rescan:** Reorganizing code often reveals new opportunities. A module that absorbed functions from three sources may now have internal duplication. Dead code that was reachable through dissolved modules may now be unreachable.
 
-**Spawn a fresh `swe-arch-review` agent** (new instance, fresh context). If it produces a new blueprint with meaningful changes, return to step 5. If it reports "No refactoring needed," the workflow is complete.
+**Spawn a fresh `swe-arch-review` agent** (new instance, fresh context). If it reports "No refactoring needed," proceed to the completion summary.
 
-### 8. Completion Summary
+**If it finds new opportunities:** Follow the same interactive cycle — present the findings to the user (step 5), iterate on the plan (step 6), ask how to proceed (step 7), and implement if directed (steps 8-9). Do not implement rescan findings autonomously.
+
+### 11. Completion Summary
 
 When workflow completes, present summary:
 
@@ -242,7 +277,7 @@ When workflow completes, present summary:
 - [Item description]: [reason for failure]
 ```
 
-### 9. Update Documentation
+### 12. Update Documentation
 
 After the summary, run the `/doc-review` workflow to bring project documentation up to date. Architectural changes often rename modules, move functions, and change the project structure — documentation that references the old structure becomes stale.
 
@@ -305,7 +340,7 @@ This spawns a doc-maintainer agent that audits all project documentation and fix
 
 **Relationship to `/scope`:**
 - `/scope` explores and creates tickets
-- `/arch-review` implements architectural improvements autonomously
+- `/arch-review` analyzes architecture and collaborates with the user on what to change
 - Could use `/scope` first to plan a large restructuring, then `/arch-review` to execute
 
 ## Example Session
@@ -325,59 +360,125 @@ Starting analysis...
 
 Spawning swe-arch-review agent...
 
-Analysis complete:
-  Dead code: 4 instances across 3 files
-  Blueprint: 5 modules affected, 2 dissolutions
-  Behavior-altering: none
+Analysis complete. Here's what I found:
+
+## Noun Analysis
+
+| Namespace   | Method             | Noun     | Verb     | Recommendation          |
+|-------------|--------------------|----------|----------|-------------------------|
+| `Server`    | `parse_request()`  | request  | parse    | Move to `Request`       |
+| `Server`    | `validate_request()`| request | validate | Move to `Request`       |
+| `Server`    | `send_response()`  | response | send     | Move to `Response`      |
+| `App`       | `load_plugins()`   | plugins  | load     | Move to `Plugins`       |
+| `App`       | `init_plugins()`   | plugins  | init     | Move to `Plugins`       |
+
+## Proposed Changes
+
+1. **Dead code removal** (4 instances across 3 files)
+   - `helpers.go:42` unused `formatDate()` function
+   - `server.go:118` commented-out legacy handler
+   - ...
+
+2. **Rename** `parser.go` → `request.go` (domain noun)
+
+3. **request.go absorbs** `validate()` from `server.go`
+   Rationale: validation is a request concept, not a server concept.
+
+4. **Dissolve** `helpers.go`
+   Rationale: no cohesive domain identity. Distribute functions to owners.
+
+5. **Create** `response.go`
+   Rationale: response construction logic scattered across 3 modules.
+
+## No-Change Items
+
+- **config.go** — domain noun: config. Clear identity, well-scoped. No change.
+- **middleware.go** — domain noun: middleware. Cohesive, correctly placed. No change.
+- **logger.go** — domain noun: logger. Single responsibility. No change.
+
+What would you like to change about this plan?
+
+> I agree with 1-4, but let's hold off on creating response.go for now.
+  Also, can you explain why you want to dissolve helpers.go? I think
+  some of those functions are genuinely shared utilities.
+
+Good question. helpers.go contains 6 functions:
+- `formatDate()` — dead code (already flagged for removal)
+- `parseURL()` — only used by request handling → belongs in request.go
+- `sanitizeInput()` — only used by request validation → belongs in request.go
+- `truncateString()` — used by 3 modules for display formatting
+- `pluralize()` — used by 2 modules for display formatting
+- `retryWithBackoff()` — used by server.go and client.go
+
+You're right that truncateString, pluralize, and retryWithBackoff are
+genuinely shared. I'd suggest keeping a focused `display.go` for the
+formatting helpers and moving retryWithBackoff to a `retry.go` module.
+That dissolves the grab-bag while preserving shared utilities.
+
+> That works. Let's do that instead. How should we proceed?
+
+Updated plan:
+1. Remove dead code (4 instances)
+2. Rename parser.go → request.go
+3. request.go absorbs validate() from server.go
+4. Dissolve helpers.go:
+   - parseURL, sanitizeInput → request.go
+   - truncateString, pluralize → display.go (new)
+   - retryWithBackoff → retry.go (new)
+
+How would you like to proceed?
+
+> Let's implement these changes now.
 
 Implementing dead code removal...
-  Spawning swe-sme-golang...
   QA verification: PASS
   Committed: "refactor: remove dead code (4 instances)"
 
-Implementing blueprint item 1/5: rename parser.go → request.go
+Implementing item 1/3: rename parser.go → request.go
   Spawning swe-sme-golang...
   QA verification: PASS
   Committed: "refactor: rename parser to request (domain noun)"
 
-Implementing blueprint item 2/5: request.go absorbs validate() from server.go
+Implementing item 2/3: request.go absorbs validate() from server.go
   Spawning swe-sme-golang...
   QA verification: FAIL - TestServerValidate broken
   Returning to swe-sme-golang for repair (attempt 1/3)...
   QA verification: PASS
   Committed: "refactor: move validation into request module"
 
-Implementing blueprint item 3/5: dissolve helpers.go
+Implementing item 3/3: dissolve helpers.go
   Spawning swe-sme-golang...
   QA verification: PASS
   Committed: "refactor: dissolve helpers; distribute to domain owners"
 
-[Items 4-5...]
-
 Blueprint complete. Rescanning...
 
 Spawning fresh swe-arch-review agent...
-Found: 2 new dead code blocks exposed by reorganization.
-No further architectural changes needed.
 
-Implementing dead code removal...
-  Committed: "refactor: remove dead code exposed by reorganization"
+Rescan found 2 new opportunities:
+1. Dead code: `server.go:55` — `validateInput()` now unreachable
+   after validation moved to request.go
+2. Stutter fix: `request.parse_request()` → `request.parse()`
+
+No further structural changes needed.
+
+Would you like to implement these?
+> Yes, go ahead.
+
+Implementing rescan items...
+  QA verification: PASS
+  Committed: "refactor: remove unreachable code and fix naming stutter"
 
 Rescanning...
-No refactoring needed.
+No further changes found.
 
 ## Arch Review Complete
 
 ### Statistics
-- Commits made: 7
-- Net lines changed: -198
-- Blueprint items completed: 5/5
+- Commits made: 5
+- Net lines changed: -142
+- Blueprint items completed: 3/3
 - Rescans performed: 2
 
 Running /doc-review to update documentation...
-
-Spawning doc-maintainer agent...
-  Updated README.md (renamed parser references → request)
-  Updated CLAUDE.md (updated module list)
-  Committed: "docs: update documentation after refactoring"
 ```
