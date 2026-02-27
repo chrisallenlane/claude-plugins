@@ -14,6 +14,8 @@ Analyze a codebase and produce a target architecture blueprint. **This is an adv
 
 **Organization is the means.** The codebase should be structured so that every module has a clear identity - a domain noun it owns - and every function lives in the namespace where a reader would expect to find it. The natural decomposition boundaries are where one noun's operations end and another's begin. Your job is to find those boundaries and make them explicit.
 
+**Optimize for human comprehension, not your own.** You can reason about a 500-line file with ease. A human cannot. Architecture exists to make codebases navigable for humans with limited working memory. This means you are systematically biased toward fewer namespaces and larger files than humans actually need. Correct for this: when in doubt about whether a noun deserves its own namespace, err toward creating it. Small, focused files with clear identities are easier for humans to reason about than large files with multiple concerns, even if those concerns seem manageable to you.
+
 **Red diffs are a tool, not a goal.** Within a correctly-organized module, less code is better - simplify implementations, remove unnecessary complexity. But red diffs should never override architectural decisions. Don't inline a module to save lines if that module represents a domain noun. Don't avoid creating a needed namespace because it would add lines.
 
 **Red diffs apply to source code, not tests.** Judge line counts by source files only. Test diff direction is not a quality signal in either direction - a good refactoring might add tests (new module needs coverage), remove tests (eliminated dead code), or simply relocate them (responsibilities moved between modules). Focus on whether the resulting test suite has strong coverage, not on whether it grew or shrank.
@@ -55,7 +57,7 @@ This is the core of the analysis. Build a domain model by identifying the nouns 
 
 The ideal method/function name is a single verb. When method names contain nouns, that's a signal the noun should be its own namespace. Perform this analysis systematically:
 
-**Step 2a: Enumerate from code.** Build a table of every function/method whose name contains a noun. Also look beyond function names - examine the data structures (tables, structs, objects) that flow through the system. If a structured object is constructed in one place and consumed in many, that object is a noun even if no function name contains it.
+**Step 2a: Enumerate and count nouns from code.** Build a table of every function/method whose name contains a noun. Also look beyond function names - examine the data structures (tables, structs, objects) that flow through the system. If a structured object is constructed in one place and consumed in many, that object is a noun even if no function name contains it.
 
 | Namespace | Method               | Noun     | Verb     |
 |-----------|----------------------|----------|----------|
@@ -67,19 +69,30 @@ The ideal method/function name is a single verb. When method names contain nouns
 | `App`     | `load_plugins()`     | plugins  | load     |
 | `App`     | `init_plugins()`     | plugins  | init     |
 
+Then produce a **noun frequency table** — count how many times each noun appears across the codebase (in function names, struct/type names, variable names, parameters). Sort by count descending. This is a word cloud in table form: high-frequency nouns are strong candidates for their own namespace.
+
+| Noun     | Count | Has Namespace? | Modules Where It Appears |
+|----------|-------|----------------|--------------------------|
+| request  | 14    | No             | Server, App, Middleware   |
+| config   | 9     | No             | Widget, App, Server       |
+| plugins  | 7     | No             | App                       |
+| response | 4     | No             | Server                    |
+
+A noun that appears frequently across multiple modules is a concept that the codebase already revolves around — it almost certainly deserves its own namespace. A noun concentrated in one module with a high count may indicate that module is doing too much.
+
 **Step 2b: Brainstorm from purpose.** Step 2a finds nouns that are already visible in the code. This step finds nouns that *should* exist but might be absent or hidden. Read the README, project description, or top-level module to understand the application's purpose. Then ask: "What does this application do? What are its core domain concepts?" List them — not 3-5, but *all of them*. Be thorough. A snippet manager's domain includes snippet, tag, source, filetype, config. A web server's domain includes request, response, route, middleware, session, handler. An ORM's domain includes query, schema, migration, connection, model.
 
 For each brainstormed noun, check whether it has a namespace in the code. If a core domain noun is missing from the module structure, that's a high-priority finding. Add it to the noun table and flag it explicitly for evaluation in later steps. **This is where new namespaces come from** — don't just confirm the existing structure is fine. Actively look for concepts that deserve their own namespace but don't have one yet.
 
 **Step 2c: Check existing namespaces.** For each noun in the table (from both steps 2a and 2b), ask: *does a namespace for this noun already exist?* If so, the method likely belongs there. `Widget.get_config()` in a codebase that already has a `Config` module is a misplaced method - move it to `Config.get()` and have `Widget` reference `Config` by composition.
 
-**Step 2d: Evaluate new namespaces.** For each noun that *doesn't* have a namespace, ask: *should it?* A noun that appears with multiple verbs (like `config` with `get` and `set`, or `request` with `parse` and `validate`) is a concept with its own operations. It deserves its own namespace:
+**Step 2d: Evaluate new namespaces.** For each noun that *doesn't* have a namespace, ask: *should it?* Use the frequency table as the primary signal — nouns at the top of the frequency table without their own namespace are the strongest extraction candidates. A high-frequency noun appearing across multiple modules is almost always a concept that deserves its own home:
 
 - `Widget.get_config()` / `Widget.set_config()` → `Config.get()` / `Config.set()`, with `Widget.config` referencing `Config`
 - `Server.parse_request()` / `Server.validate_request()` → `Request.parse()` / `Request.validate()`
 - `App.load_plugins()` / `App.init_plugins()` → `Plugins.load()` / `Plugins.init()`
 
-A noun that appears with only one verb is weaker signal - it may still warrant extraction if the concept is substantial, but don't force it.
+A noun that appears with only one verb is weaker signal - it may still warrant extraction if the concept is substantial or if it ranks high in frequency.
 
 **Step 2e: Weight by domain importance.** Not all nouns are equal. The core domain object - the thing the application exists to manage - should almost always have its own namespace, even if it appears with only one verb. A snippet manager's `snippet` noun is more important than its `filetype` noun. A web server's `request` noun is more important than its `timeout` noun. When making namespace decisions, prioritize domain-central nouns over incidental ones.
 
@@ -182,6 +195,12 @@ Brief assessment of codebase health. What's working well, what needs attention.
 - **[file:line]** Description of dead code to remove
 
 ## Noun Analysis (from Step 2)
+
+### Noun Frequency (Step 2a)
+| Noun | Count | Has Namespace? | Modules Where It Appears |
+|------|-------|----------------|--------------------------|
+(sorted by count descending — high-frequency nouns without
+namespaces are the strongest extraction candidates)
 
 ### Nouns Found in Code (Step 2a)
 | Namespace | Method | Noun | Verb | Recommendation |
