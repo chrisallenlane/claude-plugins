@@ -67,7 +67,9 @@ The ideal method/function name is a single verb. When method names contain nouns
 | `App`     | `load_plugins()`     | plugins  | load     |
 | `App`     | `init_plugins()`     | plugins  | init     |
 
-**Step 2b: Brainstorm from purpose.** Step 2a finds nouns that are already visible in the code. This step finds nouns that *should* exist but might be absent or hidden. Ask: "What does this application do? What are the 3-5 most important domain concepts?" Read the README, project description, or top-level module to understand the application's purpose, then list the core nouns. For each one, check whether it has a namespace in the code. A snippet manager should have a `snippet` namespace. A web server should have `request` and `response` namespaces. An ORM should have `query` and `schema` namespaces. If a core domain noun is missing from the module structure, that's a high-priority finding - add it to the noun table for evaluation in later steps.
+**Step 2b: Brainstorm from purpose.** Step 2a finds nouns that are already visible in the code. This step finds nouns that *should* exist but might be absent or hidden. Read the README, project description, or top-level module to understand the application's purpose. Then ask: "What does this application do? What are its core domain concepts?" List them — not 3-5, but *all of them*. Be thorough. A snippet manager's domain includes snippet, tag, source, filetype, config. A web server's domain includes request, response, route, middleware, session, handler. An ORM's domain includes query, schema, migration, connection, model.
+
+For each brainstormed noun, check whether it has a namespace in the code. If a core domain noun is missing from the module structure, that's a high-priority finding. Add it to the noun table and flag it explicitly for evaluation in later steps. **This is where new namespaces come from** — don't just confirm the existing structure is fine. Actively look for concepts that deserve their own namespace but don't have one yet.
 
 **Step 2c: Check existing namespaces.** For each noun in the table (from both steps 2a and 2b), ask: *does a namespace for this noun already exist?* If so, the method likely belongs there. `Widget.get_config()` in a codebase that already has a `Config` module is a misplaced method - move it to `Config.get()` and have `Widget` reference `Config` by composition.
 
@@ -160,7 +162,7 @@ For each module that should change, describe its target state: what it owns, wha
 4. **Step 1 - Prune dead code**: Catalog all dead code, unused imports, single-use indirection, legacy assumptions.
 5. **Step 2 - Noun analysis**: Follow all six sub-steps (2a-2f). Build the domain model.
 6. **Step 3 - Identify repetition**: Catalog all duplication patterns. Cross-reference with noun analysis to identify where duplication reveals missing abstractions.
-7. **Step 4 - Produce module audit**: Synthesize steps 1-3 into a complete module audit (see Output Format). List every module with a domain justification and verdict. The implementing agent will decide sequencing; your job is to describe the full target state.
+7. **Step 4 - Produce module audit**: Synthesize steps 1-3 into a complete module audit (see Output Format). List every existing module with a domain justification and verdict, and propose new modules for nouns that deserve namespaces but don't have them. The implementing agent will decide sequencing; your job is to describe the full target state.
 8. **Complete**: Provide blueprint and summary.
 
 ## When to Skip
@@ -180,9 +182,29 @@ Brief assessment of codebase health. What's working well, what needs attention.
 - **[file:line]** Description of dead code to remove
 
 ## Noun Analysis (from Step 2)
+
+### Nouns Found in Code (Step 2a)
 | Namespace | Method | Noun | Verb | Recommendation |
 |-----------|--------|------|------|----------------|
 | ...       | ...    | ...  | ...  | Move to `X` / Create `X` / No action |
+
+### Noun Evaluation (Steps 2b-2f)
+
+List EVERY noun identified — from both code enumeration (2a) and
+brainstorming (2b). For each, state whether it currently has its own
+namespace and justify whether it should or shouldn't. No noun may be
+omitted. This forces you to make an explicit decision about each one.
+
+noun_name    — has namespace: yes/no
+               should have namespace: yes/no
+               justification: [why this noun does or doesn't deserve
+               its own namespace — consider verb count, domain
+               importance, and existing module boundaries]
+               action: no change / create namespace / rename from `X`
+
+Nouns brainstormed from purpose (2b) that don't appear in any method
+name are especially important to evaluate here. These are the nouns
+the codebase might be missing entirely.
 
 ## Repetition Catalog (from Step 3)
 - **[pattern]**: [files involved]
@@ -190,9 +212,12 @@ Brief assessment of codebase health. What's working well, what needs attention.
 
 ## Module Audit (from Steps 2-4)
 
-List EVERY module in the codebase. For each, provide a domain justification
-and a verdict. No module may be omitted — even well-placed modules need an
+List EVERY module in the codebase, plus any new modules proposed by the
+noun evaluation. For each, provide a domain justification and a verdict.
+No existing module may be omitted — even well-placed modules need an
 explicit "no change" entry. This forces you to evaluate each one.
+
+### Existing Modules
 
 module_name  — domain noun: [the concept this module owns]
                justification: [why this noun deserves its own namespace]
@@ -212,6 +237,20 @@ other_module — domain noun: [none / unclear / overlaps with X]
 
 If you cannot write a clear, one-concept justification for a module, that
 module is a candidate for dissolution or absorption.
+
+### Proposed New Modules
+
+For each noun from the Noun Evaluation that should have a namespace but
+doesn't, describe the proposed module:
+
+new_module   — domain noun: [the concept this module would own]
+               justification: [why this noun deserves its own namespace]
+               sources: [where the code would come from — which existing
+               modules currently contain this noun's operations]
+               would contain: [specific functions/logic that would move here]
+
+If no new modules are warranted, state that explicitly with a brief
+explanation of why the existing structure is sufficient.
 
 ## Behavior-Altering Changes (requires approval)
 [Any changes that would alter observable behavior, flagged separately]
