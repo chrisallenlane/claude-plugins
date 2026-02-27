@@ -77,6 +77,20 @@ Reviews test quality interactively: scans for brittle, tautological, and useless
 
 [Detailed documentation](skills/test-audit/README.md)
 
+### /test-cover - Test Coverage Gap Filler
+
+Analyzes coverage reports (or generates them), identifies untested code paths prioritized by risk, and fills selected gaps through specialist agents. Reports refactoring suggestions for hard-to-test code.
+
+**Use when:**
+- Coverage metrics are below target
+- After inheriting or onboarding to an under-tested codebase
+- Before a release, to strengthen test coverage in critical areas
+- After adding new features that may lack thorough testing
+
+**Key principle:** Cover what matters most. Prioritize error handling, security, and business logic over boilerplate.
+
+[Detailed documentation](skills/test-cover/README.md)
+
 ### /release-review - Pre-Release Readiness Check
 
 Comprehensive pre-flight check before cutting a release. Scans for debug artifacts, version mismatches, changelog gaps, git hygiene issues, breaking API changes, and license compliance. Runs test suite and build verification. Checks documentation freshness. Interactive — presents findings and lets you decide what to fix.
@@ -157,6 +171,7 @@ Specialist agents spawned by the skills above:
 | `swe-perf-engineer` | Performance testing and optimization |
 | `qa-engineer` | Practical verification and test coverage |
 | `qa-test-auditor` | Test quality reviewer (brittle, tautological, useless tests) |
+| `qa-coverage-analyst` | Coverage gap analyst (coverage reports, risk prioritization, testability suggestions) |
 | `qa-test-mutator` | Mutation testing worker (applies mutations, records results) |
 | `qa-release-eng` | Pre-release scanner (debug artifacts, versioning, changelog, git hygiene, breaking changes, licenses) |
 | `sec-reviewer` | Security vulnerability analysis |
