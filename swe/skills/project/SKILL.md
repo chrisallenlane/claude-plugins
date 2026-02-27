@@ -31,9 +31,8 @@ Orchestrates a batch of tickets as a cohesive project. Creates a project branch,
 │     ├─ 5d. Post-merge verification gate                │
 │     └─ 5e. Delete topic branch                         │
 │  6. Cross-cutting quality passes                       │
-│     ├─ 6a. /test-audit                                 │
-│     ├─ 6b. /refactor (SAFE aggression)                 │
-│     └─ 6c. /doc-review                                 │
+│     ├─ 6a. /refactor (SAFE aggression)                 │
+│     └─ 6b. /doc-review                                 │
 │  7. Final review (present to user)                     │
 └──────────────────────────────────────────────────────┘
 ```
@@ -166,15 +165,7 @@ Follow the `/iterate` workflow with these overrides for autonomous operation:
 
 After all tickets are implemented and merged into the project branch:
 
-#### 6a. Test Audit
-
-Run the `/test-audit` workflow with these parameters:
-- **Scope:** Full project (all tests)
-- **Autonomous operation:** Address all findings — delete tautological tests, rewrite brittle tests, add missing coverage
-- Do not present findings for user selection — address them all
-- Commit changes
-
-#### 6b. Refactoring
+#### 6a. Refactoring
 
 Run the `/refactor` workflow with these parameters:
 - **Aggression ceiling:** SAFE (conservative — only SAFEST and SAFE changes)
@@ -182,7 +173,7 @@ Run the `/refactor` workflow with these parameters:
 - **Scope:** Entire codebase
 - The `/refactor` workflow handles its own iteration loop, commits, and QA verification
 
-#### 6c. Documentation Review
+#### 6b. Documentation Review
 
 Run the `/doc-review` workflow:
 - Full documentation audit (not git-diff scoped)
@@ -207,7 +198,6 @@ Present comprehensive summary to user:
 - Documentation files updated: N
 
 ### Quality Passes
-- Test audit: N issues addressed
 - Refactoring: N improvements, net -N lines
 - Documentation: N updates
 
@@ -256,6 +246,6 @@ The orchestrator maintains:
 - `/scope` creates tickets; `/project` consumes them
 - Typical flow: `/scope` to plan and create tickets, then `/project` to implement the batch
 
-**Relationship to `/refactor`, `/test-audit`, `/doc-review`:**
+**Relationship to `/refactor`, `/doc-review`:**
 - These run as cross-cutting quality passes after all tickets are implemented
 - They catch issues that span multiple tickets or emerge from their interaction
