@@ -90,7 +90,7 @@ If the original reason is gone, the code should be too.
 
 Improve code organization without major architectural changes. This tool operates within the existing module structure - it does not dissolve modules, create new top-level namespaces, or reorganize the module hierarchy. For that, use `/arch-review`.
 
-**Split large files into focused files:** The unit of human comprehension is the file. A 400-line file with clear internal organization is still harder for a human to navigate than three 130-line files with clear names. When a file exceeds ~200-300 lines, contains multiple distinct sub-concerns, or when functions group naturally by purpose, split it into multiple files within the same module. This preserves the module boundary (no API changes) while improving navigability. A `user.go` can become `user_model.go`, `user_validation.go`, `user_queries.go` — same package, better navigability.
+**Split large files into focused files:** The unit of human comprehension is the file. A 400-line file with clear internal organization is still harder for a human to navigate than three 130-line files with clear names. When a file exceeds ~200-300 lines, contains multiple distinct sub-concerns, or when functions group naturally by purpose, split it into multiple files within the same module. This preserves the module boundary (no API changes) while improving navigability. A `user.go` can become `user/model.go`, `user/validation.go`, `user/queries.go` — same package, better navigability.
 
 **Reduce naming stutter:** The namespace provides context, so names inside it shouldn't repeat that context:
 - `user.get_user_name()` → `user.get_name()`
