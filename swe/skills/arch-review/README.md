@@ -117,10 +117,11 @@ The `/arch-review` skill analyzes codebase architecture and collaborates with th
  │  Ordered by safety:                          │    │
  │  1. Linter/formatter fixes                   │    │
  │  2. Renames and stutter fixes                │    │
- │  3. Function moves within modules            │    │
- │  4. Module absorptions                       │    │
- │  5. Module dissolutions                      │    │
- │  6. New module creation                      │    │
+ │  3. File splits within modules               │    │
+ │  4. Function moves within modules            │    │
+ │  5. Module absorptions                       │    │
+ │  6. Module dissolutions                      │    │
+ │  7. New module creation                      │    │
  │                                              │    │
  │  Agent: Language-specific SME or generalist  │    │
  └──────────────────┬───────────────────────────┘    │
@@ -217,10 +218,11 @@ The orchestrator then works through blueprint items in safety order (step 8):
 
 1. **Linter/formatter fixes** - mechanical, lowest risk
 2. **Renames and stutter fixes** - low risk, no structural change
-3. **Function moves within existing modules** - moderate risk
-4. **Module absorptions** (A absorbs functions from B)
-5. **Module dissolutions** (all of C's functions distributed elsewhere)
-6. **New module creation** - highest structural change
+3. **File splits within existing modules** - same namespace, better navigability
+4. **Function moves within existing modules** - moderate risk
+5. **Module absorptions** (A absorbs functions from B)
+6. **Module dissolutions** (all of C's functions distributed elsewhere)
+7. **New module creation** - highest structural change
 
 Each item goes through: SME implementation -> QA verification -> atomic commit.
 

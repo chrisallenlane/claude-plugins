@@ -141,10 +141,11 @@ Work through the finalized blueprint iteratively. Each blueprint item describes 
 Sequence items for safety:
 1. Linter/formatter fixes
 2. Renames and stutter fixes (lowest risk)
-3. Function moves within existing modules
-4. Module absorptions (A absorbs functions from B)
-5. Module dissolutions (all of C's functions distributed elsewhere)
-6. New module creation
+3. File splits within existing modules
+4. Function moves within existing modules
+5. Module absorptions (A absorbs functions from B)
+6. Module dissolutions (all of C's functions distributed elsewhere)
+7. New module creation
 
 Within each category, prefer items that don't depend on other items.
 

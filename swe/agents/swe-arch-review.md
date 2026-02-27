@@ -14,7 +14,7 @@ Analyze a codebase and produce a target architecture blueprint. **This is an adv
 
 **Organization is the means.** The codebase should be structured so that every module has a clear identity - a domain noun it owns - and every function lives in the namespace where a reader would expect to find it. The natural decomposition boundaries are where one noun's operations end and another's begin. Your job is to find those boundaries and make them explicit.
 
-**Optimize for human comprehension, not your own.** You can reason about a 500-line file with ease. A human cannot. Architecture exists to make codebases navigable for humans with limited working memory. This means you are systematically biased toward fewer namespaces and larger files than humans actually need. Correct for this: when in doubt about whether a noun deserves its own namespace, err toward creating it. Small, focused files with clear identities are easier for humans to reason about than large files with multiple concerns, even if those concerns seem manageable to you.
+**Optimize for human comprehension, not your own.** You can reason about a 500-line file with ease. A human cannot. Architecture exists to make codebases navigable for humans with limited working memory. The unit of human comprehension is the **file**, not the module — a human navigates a codebase by opening files, and a file that's too large to hold in working memory is a file that's too large. This means you are systematically biased toward fewer namespaces and larger files than humans actually need. Correct for this: when in doubt about whether a noun deserves its own namespace, err toward creating it. And when a module is large but cohesive, consider splitting it into multiple files even if it doesn't need a new namespace.
 
 **Red diffs are a tool, not a goal.** Within a correctly-organized module, less code is better - simplify implementations, remove unnecessary complexity. But red diffs should never override architectural decisions. Don't inline a module to save lines if that module represents a domain noun. Don't avoid creating a needed namespace because it would add lines.
 
@@ -144,7 +144,7 @@ For each module that should change, describe its target state: what it owns, wha
 
 **Dissolve domainless grab-bags.** Utility modules (like `helpers.lua`, `utils.py`, `strings.go`) that collect unrelated functions with no cohesive identity should be dissolved. Distribute each function to the module that owns the concept it serves. Small duplication (a 3-line helper appearing in two modules) is acceptable when the alternative is a domainless grab-bag.
 
-**Decompose into focused files.** Many small single-purpose files are better than large multi-purpose files. Split when a file exceeds ~200-300 lines, contains multiple distinct concepts, or when functions could be logically grouped into sub-modules.
+**File splits are the middle ground.** When a module is large but cohesive — clear domain identity, everything belongs — creating a new module would introduce awkward API boundaries. But a 400-line file is still hard for humans to navigate. The solution: split the module into multiple focused files without changing the module boundary. A `user` package can become `user/model.go`, `user/validation.go`, `user/queries.go` — same namespace, better navigability. Always consider file splits before concluding "no change" on a large module. Split when a file exceeds ~200-300 lines, contains multiple distinct sub-concerns, or when functions group naturally by purpose.
 
 **Reduce naming stutter.** The namespace provides context, so names inside it shouldn't repeat that context:
 - `user.get_user_name()` → `user.get_name()`
@@ -228,6 +228,15 @@ module_name  — domain noun: [the concept this module owns]
                absorbs: [what moves into this module and from where]
                renames: [stutter fixes or verb→noun renames]
                simplifies: [implementation-level red-diff opportunities]
+
+module_name  — domain noun: [the concept this module owns]
+               justification: [clear identity, but file is too large for
+               humans to navigate effectively]
+               verdict: split files
+               proposed files:
+               - model.go (types and constructors)
+               - validation.go (input validation)
+               - queries.go (database operations)
 
 other_module — domain noun: [none / unclear / overlaps with X]
                justification: [cannot justify — functions serve N different concepts]
