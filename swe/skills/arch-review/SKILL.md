@@ -20,23 +20,21 @@ Interactive workflow that analyzes codebase architecture, produces a target blue
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│           ARCH REVIEW WORKFLOW                       │
+│           ARCH REVIEW WORKFLOW                      │
 ├─────────────────────────────────────────────────────┤
-│  1. Determine scope                                  │
-│  2. Gather QA instructions                           │
-│  3. Spawn swe-arch-review agent (full analysis)      │
-│     → returns dead code list + target blueprint      │
-│  4. Present analysis to user                         │
-│  5. Iterate on plan with user                        │
-│  6. Ask user how to proceed                          │
-│  7. Implement dead code removal                      │
-│  8. Implement blueprint items iteratively             │
-│     ├─ For each item: SME → QA → commit              │
-│     └─ On persistent failure: skip item              │
-│  9. Rescan for cascading improvements                │
-│     └─ If new findings → present, iterate, proceed   │
-│ 10. Completion summary                               │
-│ 11. Update documentation (/doc-review)               │
+│  1. Determine scope                                 │
+│  2. Gather QA instructions                          │
+│  3. Spawn swe-arch-review agent (full analysis)     │
+│     → returns dead code list + target blueprint     │
+│  4. Present analysis to user                        │
+│  5. Iterate on plan with user                       │
+│  6. Ask user how to proceed                         │
+│  7. Implement dead code removal                     │
+│  8. Implement blueprint items iteratively           │
+│     ├─ For each item: SME → QA → commit             │
+│     └─ On persistent failure: skip item             │
+│  9. Completion summary                              │
+│ 10. Update documentation (/doc-review)              │
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -90,8 +88,6 @@ The agent returns:
 - Any behavior-altering changes requiring approval
 
 **If the agent reports "No refactoring needed":** Workflow complete.
-
-**Why fresh instances:** Refactoring creates new opportunities. A fresh agent sees the codebase as it is *now*, not as it was before previous changes. No accumulated context or assumptions.
 
 ### 4. Present Analysis to User
 
@@ -233,17 +229,7 @@ EOF
 
 Proceed to the next blueprint item. Continue until all items are implemented or skipped.
 
-### 9. Rescan for Cascading Improvements
-
-After the entire blueprint is implemented, rescan the codebase for cascading improvements.
-
-**Why rescan:** Reorganizing code often reveals new opportunities. A module that absorbed functions from three sources may now have internal duplication. Dead code that was reachable through dissolved modules may now be unreachable.
-
-**Spawn a fresh `swe-arch-review` agent** (new instance, fresh context). If it reports "No refactoring needed," proceed to the completion summary.
-
-**If it finds new opportunities:** Follow the same interactive cycle — present the findings to the user (step 4), iterate on the plan (step 5), ask how to proceed (step 6), and implement if directed (steps 7-8). Do not implement rescan findings autonomously.
-
-### 10. Completion Summary
+### 9. Completion Summary
 
 When workflow completes, present summary:
 
@@ -255,7 +241,6 @@ When workflow completes, present summary:
 - Net lines changed: -XXX (target: negative in source)
 - Blueprint items completed: N
 - Blueprint items skipped: N
-- Rescans performed: N
 
 ### Blueprint Status
 - [module]: completed / skipped (reason)
@@ -264,7 +249,7 @@ When workflow completes, present summary:
 - [Item description]: [reason for failure]
 ```
 
-### 11. Update Documentation
+### 10. Update Documentation
 
 After the summary, run the `/doc-review` workflow to bring project documentation up to date. Architectural changes often rename modules, move functions, and change the project structure — documentation that references the old structure becomes stale.
 
@@ -276,11 +261,6 @@ Invoke the skill directly:
 This spawns a doc-maintainer agent that audits all project documentation and fixes issues it finds. Any changes are committed separately from the refactoring commits.
 
 ## Agent Coordination
-
-**Fresh instances for context management:**
-- Spawn NEW `swe-arch-review` agent for each analysis pass
-- This prevents context accumulation in the analyzer
-- Orchestrator (you) maintains only summary state
 
 **Sequential execution:**
 - One agent at a time
@@ -349,12 +329,12 @@ Analysis complete. Here's what I found:
 ## Noun Frequency
 
 | Noun     | Count | Has Namespace? | Modules Where It Appears |
-|----------|-------|----------------|--------------------------|
-| request  | 14    | No             | Server, App, Middleware   |
-| config   | 9     | No             | Widget, App, Server       |
-| response | 7     | No             | Server, App, Middleware   |
-| plugins  | 5     | No             | App                       |
-| helper   | 4     | Yes (helpers)  | helpers                   |
+|----------|-------|----------------|-----------------0--------|
+| request  | 14    | No             | Server, App, Middleware  |
+| config   | 9     | No             | Widget, App, Server      |
+| response | 7     | No             | Server, App, Middleware  |
+| plugins  | 5     | No             | App                      |
+| helper   | 4     | Yes (helpers)  | helpers                  |
 
 ## Noun Evaluation
 
@@ -454,34 +434,12 @@ Implementing item 3/3: dissolve helpers.go
   QA verification: PASS
   Committed: "refactor: dissolve helpers; distribute to domain owners"
 
-Blueprint complete. Rescanning...
-
-Spawning fresh swe-arch-review agent...
-
-Rescan found 2 new opportunities:
-1. Dead code: `server.go:55` — `validateInput()` now unreachable
-   after validation moved to request.go
-2. Stutter fix: `request.parse_request()` → `request.parse()`
-
-No further structural changes needed.
-
-Would you like to implement these?
-> Yes, go ahead.
-
-Implementing rescan items...
-  QA verification: PASS
-  Committed: "refactor: remove unreachable code and fix naming stutter"
-
-Rescanning...
-No further changes found.
-
 ## Arch Review Complete
 
 ### Statistics
-- Commits made: 5
-- Net lines changed: -142
+- Commits made: 4
+- Net lines changed: -128
 - Blueprint items completed: 3/3
-- Rescans performed: 2
 
 Running /doc-review to update documentation...
 ```

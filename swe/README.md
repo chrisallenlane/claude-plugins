@@ -51,7 +51,7 @@ Iteratively scans for tactical code quality improvements (DRY, dead code, naming
 
 ### /arch-review - Blueprint-Driven Architectural Improvement
 
-Analyzes codebase architecture via noun analysis, produces a target blueprint, then collaborates with the user to review, refine, and decide what to implement. Changes are made through specialist agents with QA verification. Rescans for cascading improvements.
+Analyzes codebase architecture via noun analysis, produces a target blueprint, then collaborates with the user to review, refine, and decide what to implement. Changes are made through specialist agents with QA verification.
 
 **Use when:**
 - Module boundaries are unclear or responsibilities overlap

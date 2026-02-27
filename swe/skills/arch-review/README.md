@@ -8,10 +8,8 @@ The `/arch-review` skill analyzes codebase architecture and collaborates with th
 - Blueprint-driven - implements a coherent architectural target, not a grab-bag of independent fixes
 - Noun analysis identifies the natural decomposition boundaries in the domain
 - Interactive review - user sees and shapes the plan before any changes are made
-- Fresh agent instances each pass (prevents context accumulation)
 - Atomic commits per item (easy to review, bisect, or revert)
 - Built-in quality gates with QA verification
-- Cascading improvements - rescans catch what reorganization unlocked
 
 ## When to Use
 
@@ -148,20 +146,7 @@ The `/arch-review` skill analyzes codebase architecture and collaborates with th
            ├─ No  → Back to step 8 ─────────────────┘
            └─ Yes ▼
  ┌──────────────────────────────────────────────┐
- │  9. RESCAN FOR CASCADING IMPROVEMENTS        │
- │  ────────────────────────────────────────    │
- │  Fresh swe-arch-review agent                 │
- │                                              │
- │  New findings? → Present to user,            │
- │                  iterate, ask how to proceed  │
- │                  → Loop to step 7 if          │
- │                    implementing               │
- │  No changes?   ─────────────────────────────┐
- └──────────────────────────────────────────────┘
-                                                │
-                       ▼                        │
- ┌──────────────────────────────────────────────┐
- │  10. COMPLETION SUMMARY                      │
+ │  9. COMPLETION SUMMARY                       │
  │  ────────────────────────────────────────    │
  │  • Total commits made                        │
  │  • Net lines changed (target: negative)      │
@@ -170,7 +155,7 @@ The `/arch-review` skill analyzes codebase architecture and collaborates with th
  └──────────────────┬───────────────────────────┘
                     ▼
  ┌──────────────────────────────────────────────┐
- │  11. UPDATE DOCUMENTATION                    │
+ │  10. UPDATE DOCUMENTATION                    │
  │  ────────────────────────────────────────    │
  │  Run /doc-review to fix stale docs           │
  │  (module renames, moved functions, etc.)     │
@@ -209,8 +194,6 @@ A fresh `swe-arch-review` agent performs four sequential analysis steps:
 | 4. Produce blueprint | Synthesizes steps 1-3 into a target architecture |
 
 The blueprint describes each module's target state: what it owns, what it absorbs from other modules, what gets renamed, and what implementation simplifications are possible.
-
-**Why fresh instances?** Architectural changes create new opportunities. A fresh agent sees the codebase as it is *now*, not as it was before previous changes.
 
 ### 4. Present Analysis to User
 After the analysis agent returns, present its findings in full:
@@ -253,12 +236,7 @@ Each item goes through: SME implementation -> QA verification -> atomic commit.
 
 After each item, the `qa-engineer` agent verifies the change didn't break anything (test suite, linters, formatters). On failure, the SME gets up to 3 repair attempts. After 3 failures: revert the item, log the failure, continue with the next item.
 
-### 9. Rescan for Cascading Improvements
-After the blueprint is fully implemented, a fresh analysis agent rescans the codebase. Reorganization often reveals new opportunities: internal duplication in modules that absorbed functions from multiple sources, dead code that was only reachable through dissolved modules, etc.
-
-If the rescan finds new opportunities, present them to the user following the same interactive cycle (steps 4-6). If the user chooses to implement, loop back through steps 7-8. If no changes are found, proceed to the completion summary.
-
-### 10. Completion Summary
+### 9. Completion Summary
 ```
 ## Arch Review Complete
 
@@ -266,7 +244,6 @@ If the rescan finds new opportunities, present them to the user following the sa
 - Commits made: 7
 - Net lines changed: -198
 - Blueprint items completed: 5/5
-- Rescans performed: 2
 
 ### Blueprint Status
 - snippet.lua: completed (renamed from parser.lua, absorbed frontmatter.lua)
@@ -279,7 +256,7 @@ If the rescan finds new opportunities, present them to the user following the sa
 (none)
 ```
 
-### 11. Update Documentation
+### 10. Update Documentation
 After the summary, the workflow runs `/doc-review` to bring project documentation up to date. Architectural changes rename modules, move functions, and change project structure — documentation that references the old structure becomes stale. The doc-review agent audits all documentation files and fixes issues it finds, committing separately from the refactoring commits.
 
 ## Tips for Effective Use
@@ -297,11 +274,6 @@ After the summary, the workflow runs `/doc-review` to bring project documentatio
 6. **Scope aggressively if needed.** For large codebases, target specific modules: `/arch-review src/core/` rather than everything.
 
 ## Agent Coordination
-
-**Fresh instances for context management:**
-- A new `swe-arch-review` agent is spawned for each analysis pass
-- This prevents context accumulation in the analyzer
-- The orchestrator maintains only summary state
 
 **Sequential execution:**
 - One agent at a time
@@ -348,11 +320,6 @@ The `/arch-review` workflow embodies several key principles:
 - Once code is in the right place, simplify it
 - Less code is better when it doesn't sacrifice comprehensibility
 - But don't let line count override architectural decisions
-
-**Fresh eyes each pass:**
-- New agent instances prevent accumulated context bias
-- Each analysis sees the codebase as it is *now*, not as it was
-- Cascading improvements are caught by fresh rescans
 
 **Atomic and reversible:**
 - Each item is one commit
