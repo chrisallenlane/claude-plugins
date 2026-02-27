@@ -51,25 +51,23 @@ If the original reason is gone, the code should be too.
 
 ## Step 2: Noun Analysis
 
-This is the core of the analysis. Build a domain model by identifying the nouns in the codebase and determining where they should live.
+This is the core of the analysis. Build a domain model by identifying the nouns in the codebase, counting them, and using frequency as the quantitative basis for namespace decisions.
 
-**The seams of an application are the spaces between nouns.** Every codebase is a collection of concepts (nouns) acted upon by operations (verbs). When a function name contains a noun, it's telling you which concept it belongs to. The natural decomposition boundaries are where one noun's operations end and another's begin.
+**The seams of an application are the spaces between nouns.** Every codebase is a collection of concepts (nouns) acted upon by operations (verbs). The natural decomposition boundaries are where one noun's operations end and another's begin. Your job is to find those boundaries and make them explicit.
 
-The ideal method/function name is a single verb. When method names contain nouns, that's a signal the noun should be its own namespace. Perform this analysis systematically:
+### Step 2a: Build the Noun Frequency Table
 
-**Step 2a: Enumerate and count nouns from code.** Build a table of every function/method whose name contains a noun. Also look beyond function names - examine the data structures (tables, structs, objects) that flow through the system. If a structured object is constructed in one place and consumed in many, that object is a noun even if no function name contains it.
+Identify every noun in the codebase and count how many times each appears. This is the primary analytical artifact — a word cloud in table form.
 
-| Namespace | Method               | Noun     | Verb     |
-|-----------|----------------------|----------|----------|
-| `Widget`  | `get_config()`       | config   | get      |
-| `Widget`  | `set_config()`       | config   | set      |
-| `Server`  | `parse_request()`    | request  | parse    |
-| `Server`  | `validate_request()` | request  | validate |
-| `Server`  | `send_response()`    | response | send     |
-| `App`     | `load_plugins()`     | plugins  | load     |
-| `App`     | `init_plugins()`     | plugins  | init     |
+**Where to find nouns:**
+- Function/method names: `parse_request()` contains the noun `request`
+- Struct/type/class names: `RequestValidator` contains `request`
+- Variable and parameter names: `configPath` contains `config`
+- Data structures that flow through the system: a table constructed in one place and consumed in many is a noun even if no function name contains it
 
-Then produce a **noun frequency table** — count how many times each noun appears across the codebase (in function names, struct/type names, variable names, parameters). Sort by count descending. This is a word cloud in table form: high-frequency nouns are strong candidates for their own namespace.
+**Also brainstorm nouns from purpose.** Don't limit yourself to what's visible in the code. Read the README, project description, or top-level module. Ask: "What does this application do? What are all of its domain concepts?" A snippet manager's domain includes snippet, tag, source, filetype, config. A web server's includes request, response, route, middleware, session, handler. Be thorough — this is where new namespaces come from.
+
+Produce a frequency table sorted by count descending:
 
 | Noun     | Count | Has Namespace? | Modules Where It Appears |
 |----------|-------|----------------|--------------------------|
@@ -77,26 +75,21 @@ Then produce a **noun frequency table** — count how many times each noun appea
 | config   | 9     | No             | Widget, App, Server       |
 | plugins  | 7     | No             | App                       |
 | response | 4     | No             | Server                    |
+| session  | 0     | No             | (brainstormed — absent)   |
 
-A noun that appears frequently across multiple modules is a concept that the codebase already revolves around — it almost certainly deserves its own namespace. A noun concentrated in one module with a high count may indicate that module is doing too much.
+A noun ranking high in the frequency table without its own namespace is a strong extraction candidate. A noun appearing across multiple modules is a concept the codebase revolves around — it almost certainly deserves its own namespace. A noun concentrated in one module with a high count may indicate that module is doing too much. A brainstormed noun with a count of 0 is a concept the codebase may be missing entirely.
 
-**Step 2b: Brainstorm from purpose.** Step 2a finds nouns that are already visible in the code. This step finds nouns that *should* exist but might be absent or hidden. Read the README, project description, or top-level module to understand the application's purpose. Then ask: "What does this application do? What are its core domain concepts?" List them — not 3-5, but *all of them*. Be thorough. A snippet manager's domain includes snippet, tag, source, filetype, config. A web server's domain includes request, response, route, middleware, session, handler. An ORM's domain includes query, schema, migration, connection, model.
+### Step 2b: Evaluate Each Noun
 
-For each brainstormed noun, check whether it has a namespace in the code. If a core domain noun is missing from the module structure, that's a high-priority finding. Add it to the noun table and flag it explicitly for evaluation in later steps. **This is where new namespaces come from** — don't just confirm the existing structure is fine. Actively look for concepts that deserve their own namespace but don't have one yet.
+For each noun in the frequency table, make an explicit namespace decision. Use these signals:
 
-**Step 2c: Check existing namespaces.** For each noun in the table (from both steps 2a and 2b), ask: *does a namespace for this noun already exist?* If so, the method likely belongs there. `Widget.get_config()` in a codebase that already has a `Config` module is a misplaced method - move it to `Config.get()` and have `Widget` reference `Config` by composition.
+- **Frequency**: High-count nouns are strong candidates. The frequency table is the primary signal.
+- **Spread**: A noun scattered across many modules needs a home.
+- **Domain importance**: The core domain noun (the thing the application exists to manage) should almost always have its own namespace, even at low frequency. A snippet manager's `snippet` noun matters more than its `filetype` noun.
+- **Existing namespaces**: If a namespace for this noun already exists, functions containing the noun likely belong there. `Widget.get_config()` in a codebase with a `Config` module is a misplaced method — it should be `Config.get()`.
+- **Verb-named modules**: A module named `parser` or `validator` that produces a domain noun is named for its technique, not its concept. If `parser.parse()` returns a snippet, it should be `snippet.parse()`.
 
-**Step 2d: Evaluate new namespaces.** For each noun that *doesn't* have a namespace, ask: *should it?* Use the frequency table as the primary signal — nouns at the top of the frequency table without their own namespace are the strongest extraction candidates. A high-frequency noun appearing across multiple modules is almost always a concept that deserves its own home:
-
-- `Widget.get_config()` / `Widget.set_config()` → `Config.get()` / `Config.set()`, with `Widget.config` referencing `Config`
-- `Server.parse_request()` / `Server.validate_request()` → `Request.parse()` / `Request.validate()`
-- `App.load_plugins()` / `App.init_plugins()` → `Plugins.load()` / `Plugins.init()`
-
-A noun that appears with only one verb is weaker signal - it may still warrant extraction if the concept is substantial or if it ranks high in frequency.
-
-**Step 2e: Weight by domain importance.** Not all nouns are equal. The core domain object - the thing the application exists to manage - should almost always have its own namespace, even if it appears with only one verb. A snippet manager's `snippet` noun is more important than its `filetype` noun. A web server's `request` noun is more important than its `timeout` noun. When making namespace decisions, prioritize domain-central nouns over incidental ones.
-
-**Step 2f: Audit module names.** For each module named with a verb or mechanism (`parser`, `loader`, `validator`, `formatter`, `serializer`), check what it *produces*. If the primary output is a domain noun from Step 2e, the module is named for its technique rather than its concept - rename it for what it constructs. `parser.parse()` returning a snippet should be `snippet.parse()` or `snippet.new()`. Not every verb-named module needs renaming - `loader` is fine if it loads files, because "file" isn't the core domain noun. The test is specifically whether the output is a domain-central object.
+For each noun, the output should justify why it does or doesn't deserve a namespace (see Output Format).
 
 ---
 
@@ -173,7 +166,7 @@ For each module that should change, describe its target state: what it owns, wha
 2. **Analyze recent changes**: Use `git diff` to understand what was just implemented.
 3. **Check for linters/formatters**: Identify available tools and whether they pass. Note any failures for the blueprint.
 4. **Step 1 - Prune dead code**: Catalog all dead code, unused imports, single-use indirection, legacy assumptions.
-5. **Step 2 - Noun analysis**: Follow all six sub-steps (2a-2f). Build the domain model.
+5. **Step 2 - Noun analysis**: Build the noun frequency table (2a), then evaluate each noun for namespace decisions (2b).
 6. **Step 3 - Identify repetition**: Catalog all duplication patterns. Cross-reference with noun analysis to identify where duplication reveals missing abstractions.
 7. **Step 4 - Produce module audit**: Synthesize steps 1-3 into a complete module audit (see Output Format). List every existing module with a domain justification and verdict, and propose new modules for nouns that deserve namespaces but don't have them. The implementing agent will decide sequencing; your job is to describe the full target state.
 8. **Complete**: Provide blueprint and summary.
@@ -196,34 +189,22 @@ Brief assessment of codebase health. What's working well, what needs attention.
 
 ## Noun Analysis (from Step 2)
 
-### Noun Frequency (Step 2a)
+### Noun Frequency Table (Step 2a)
 | Noun | Count | Has Namespace? | Modules Where It Appears |
 |------|-------|----------------|--------------------------|
-(sorted by count descending — high-frequency nouns without
-namespaces are the strongest extraction candidates)
+(sorted by count descending — every noun from both code enumeration
+and domain brainstorming, including brainstormed nouns with count 0)
 
-### Nouns Found in Code (Step 2a)
-| Namespace | Method | Noun | Verb | Recommendation |
-|-----------|--------|------|------|----------------|
-| ...       | ...    | ...  | ...  | Move to `X` / Create `X` / No action |
+### Noun Evaluation (Step 2b)
 
-### Noun Evaluation (Steps 2b-2f)
-
-List EVERY noun identified — from both code enumeration (2a) and
-brainstorming (2b). For each, state whether it currently has its own
-namespace and justify whether it should or shouldn't. No noun may be
-omitted. This forces you to make an explicit decision about each one.
+For EVERY noun in the frequency table, justify whether it should or
+shouldn't have its own namespace. No noun may be omitted.
 
 noun_name    — has namespace: yes/no
                should have namespace: yes/no
-               justification: [why this noun does or doesn't deserve
-               its own namespace — consider verb count, domain
-               importance, and existing module boundaries]
+               justification: [why — cite frequency, spread across
+               modules, domain importance]
                action: no change / create namespace / rename from `X`
-
-Nouns brainstormed from purpose (2b) that don't appear in any method
-name are especially important to evaluate here. These are the nouns
-the codebase might be missing entirely.
 
 ## Repetition Catalog (from Step 3)
 - **[pattern]**: [files involved]
