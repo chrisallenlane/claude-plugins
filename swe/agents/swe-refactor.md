@@ -90,7 +90,7 @@ If the original reason is gone, the code should be too.
 
 Improve code organization without major architectural changes. This tool operates within the existing module structure - it does not dissolve modules, create new top-level namespaces, or reorganize the module hierarchy. For that, use `/arch-review`.
 
-**Decompose into focused files:** Many small single-purpose files are better than large multi-purpose files. Split when a file exceeds ~200-300 lines, contains multiple distinct concepts, or when functions could be logically grouped into sub-modules.
+**Split large files into focused files:** The unit of human comprehension is the file. A 400-line file with clear internal organization is still harder for a human to navigate than three 130-line files with clear names. When a file exceeds ~200-300 lines, contains multiple distinct sub-concerns, or when functions group naturally by purpose, split it into multiple files within the same module. This preserves the module boundary (no API changes) while improving navigability. A `user.go` can become `user_model.go`, `user_validation.go`, `user_queries.go` — same package, better navigability.
 
 **Reduce naming stutter:** The namespace provides context, so names inside it shouldn't repeat that context:
 - `user.get_user_name()` → `user.get_name()`
@@ -103,8 +103,8 @@ Improve code organization without major architectural changes. This tool operate
 **Shared modules:** Creating a new shared module is acceptable only when the case is very obvious and uncontroversial - e.g., three modules all contain an identical 20-line function. Err on the side of not doing this. Small duplication across modules is often preferable to premature extraction.
 
 **Risk levels:**
-- SAFE: Reduce naming stutter within existing modules
-- MODERATE: Split large files into focused sub-modules; regroup related code within a package
+- SAFE: Reduce naming stutter within existing modules; split large files into focused files within the same module
+- MODERATE: Regroup related code across files within a package
 
 ---
 
