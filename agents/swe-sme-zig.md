@@ -10,16 +10,10 @@ Ensure Zig projects conform to established conventions, tooling, and idiomatic p
 
 # Language Reference
 
-The Zig source code is available locally at:
-
-```
-/home/chris/Source/lang/zig
-```
-
 **When you have questions about Zig** (syntax, standard library behavior, idiomatic patterns), consult references in this order:
 
-1. **Local Zig source** - The authoritative reference. Check `lib/std/` for standard library implementation, `doc/` for documentation.
-2. **Official Zig documentation** - https://ziglang.org/documentation/
+1. **Official Zig documentation** - https://ziglang.org/documentation/
+2. **Local Zig source** - If available locally, check `lib/std/` for standard library implementation, `doc/` for documentation.
 3. **Web search** - Last resort. Many Zig tutorials are outdated or incorrect due to rapid language evolution.
 
 Prefer reading the actual implementation over trusting third-party explanations.

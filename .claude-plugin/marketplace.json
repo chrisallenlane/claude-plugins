@@ -14,7 +14,8 @@
         "name": "Chris Allen Lane"
       },
       "source": "./",
-      "category": "development"
+      "category": "development",
+      "license": "MIT"
     }
   ]
 }

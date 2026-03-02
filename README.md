@@ -141,6 +141,8 @@ Coordinates specialist agents through a bug-fixing cycle: clarify bug, reproduce
 
 **Key principle:** Diagnose before you fix. Understand why a bug exists, not just what to change.
 
+[Detailed documentation](skills/bugfix/README.md)
+
 ### /project - Multi-Ticket Orchestration
 
 Orchestrates a batch of tickets as a cohesive project. Creates a project branch, implements each ticket sequentially using `/iterate` in autonomous mode, runs cross-cutting quality passes (`/refactor`, `/doc-review`), and presents results for final human review.
@@ -152,6 +154,8 @@ Orchestrates a batch of tickets as a cohesive project. Creates a project branch,
 
 **Key principle:** Maximize autonomy, minimize accumulated error. Pull the andon cord immediately when something goes wrong.
 
+[Detailed documentation](skills/project/README.md)
+
 ### /doc-review - Documentation Quality Audit
 
 Spawns a doc-maintainer agent to comprehensively review all project documentation for correctness, completeness, and freshness. Fixes issues autonomously within its authority.
@@ -162,6 +166,8 @@ Spawns a doc-maintainer agent to comprehensively review all project documentatio
 - Called automatically by `/refactor` and `/arch-review` after completion
 
 **Key principle:** Documentation should reflect the actual state of the codebase, not an aspirational one.
+
+[Detailed documentation](skills/doc-review/README.md)
 
 ## Agents
 

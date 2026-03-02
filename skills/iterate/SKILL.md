@@ -70,6 +70,8 @@ After requirements are clear, assess whether planning is warranted:
 - If Makefile changes: spawn `swe-sme-makefile` agent
 - If Golang project: spawn `swe-sme-golang` agent
 - If GraphQL schema/resolvers: spawn `swe-sme-graphql` agent
+- If Ansible playbooks/roles: spawn `swe-sme-ansible` agent
+- If Zig project: spawn `swe-sme-zig` agent
 - Otherwise: implement directly with general best practices
 
 **Pass plan to implementation agent if planning was done:**

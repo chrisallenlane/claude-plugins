@@ -37,6 +37,8 @@ Loop back to user until the bug is clearly understood. You need enough informati
 - If GraphQL schema/resolvers: spawn `swe-sme-graphql` agent
 - If Dockerfile changes: spawn `swe-sme-docker` agent
 - If Makefile changes: spawn `swe-sme-makefile` agent
+- If Ansible playbooks/roles: spawn `swe-sme-ansible` agent
+- If Zig project: spawn `swe-sme-zig` agent
 - Otherwise: write tests directly with general best practices
 
 **SME agent task:**
