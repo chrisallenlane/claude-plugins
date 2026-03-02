@@ -70,9 +70,6 @@ After requirements are clear, assess whether planning is warranted:
 - If Makefile changes: spawn `swe-sme-makefile` agent
 - If Golang project: spawn `swe-sme-golang` agent
 - If GraphQL schema/resolvers: spawn `swe-sme-graphql` agent
-- If Python project: spawn `swe-sme-python` agent (TODO: create)
-- If Rust project: spawn `swe-sme-rust` agent (TODO: create)
-- If TypeScript/JavaScript: spawn `swe-sme-typescript` agent (TODO: create)
 - Otherwise: implement directly with general best practices
 
 **Pass plan to implementation agent if planning was done:**

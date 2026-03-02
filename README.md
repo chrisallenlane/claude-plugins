@@ -144,7 +144,7 @@ Coordinates specialist agents through a bug-fixing cycle: clarify bug, reproduce
 
 ### /project - Multi-Ticket Orchestration
 
-Orchestrates a batch of tickets as a cohesive project. Creates a project branch, implements each ticket sequentially using `/iterate` in autonomous mode, runs cross-cutting quality passes (`/test-review`, `/refactor`, `/doc-review`), and presents results for final human review.
+Orchestrates a batch of tickets as a cohesive project. Creates a project branch, implements each ticket sequentially using `/iterate` in autonomous mode, runs cross-cutting quality passes (`/refactor`, `/doc-review`), and presents results for final human review.
 
 **Use when:**
 - Implementing a batch of related tickets from your issue tracker

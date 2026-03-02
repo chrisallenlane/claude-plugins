@@ -12,7 +12,7 @@ Spawns a doc-maintainer agent to comprehensively review all project documentatio
 
 ### 1. Spawn doc-maintainer agent
 
-Spawn a `swe:DOC - Maintainer` agent with the following prompt:
+Spawn a `DOC - Maintainer` agent with the following prompt:
 
 ```
 Perform a comprehensive review of ALL project documentation. This is a

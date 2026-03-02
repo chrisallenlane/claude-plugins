@@ -57,7 +57,7 @@ Spawning doc-maintainer agent for comprehensive review...
 
 ### Changes Made
 1. README.md — Added missing /bugfix skill to skills list
-2. swe/README.md — Added swe-diagnostician to agents table
+2. README.md — Added swe-diagnostician to agents table
 
 ### Issues Requiring User Approval
 - Three skills missing README.md files (doc-review, bugfix, project)

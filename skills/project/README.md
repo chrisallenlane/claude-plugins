@@ -104,9 +104,8 @@ The `/project` skill takes a batch of tickets, plans their execution order, impl
  ┌──────────────────────────────────────────────┐
  │  6. CROSS-CUTTING QUALITY PASSES             │
  │  ────────────────────────────────────────    │
- │  6a. /test-review (full suite)               │
- │  6b. /refactor (SAFE aggression)             │
- │  6c. /doc-review (full audit)                │
+ │  6a. /refactor (SAFE aggression)              │
+ │  6b. /doc-review (full audit)                │
  └──────────────────┬───────────────────────────┘
                     ▼
  ┌──────────────────────────────────────────────┐
@@ -170,7 +169,6 @@ For each ticket in order:
 
 ### 6. Cross-Cutting Quality Passes
 After all tickets are implemented:
-- **`/test-review`**: Full test suite review — fills coverage gaps, adds fuzz tests, audits quality
 - **`/refactor`**: Conservative pass (SAFE aggression ceiling only)
 - **`/doc-review`**: Full documentation audit
 
@@ -257,7 +255,6 @@ Creating branch: feat/project-sprint-4
 [Ticket #15] Post-merge verification: all tests pass
 
 Running cross-cutting quality passes...
-- /test-review: 2 tautological tests removed, 3 coverage gaps filled
 - /refactor: 1 DRY improvement (-12 lines)
 - /doc-review: README updated with auth docs
 
@@ -309,7 +306,6 @@ Awaiting your guidance.
 | `/scope`       | Creates tickets that `/project` consumes. Typical flow: `/scope` then `/project`.          |
 | `/iterate`     | Runs inside `/project` for each ticket. `/project` adds batching, ordering, and branching. |
 | `/bugfix`      | Not used by `/project` currently — all tickets go through `/iterate`.                      |
-| `/test-review` | Runs as cross-cutting quality pass after all tickets.                                      |
 | `/refactor`    | Runs as cross-cutting quality pass (SAFE aggression).                                      |
 | `/doc-review`  | Runs as cross-cutting quality pass.                                                        |
 

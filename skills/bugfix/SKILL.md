@@ -37,9 +37,6 @@ Loop back to user until the bug is clearly understood. You need enough informati
 - If GraphQL schema/resolvers: spawn `swe-sme-graphql` agent
 - If Dockerfile changes: spawn `swe-sme-docker` agent
 - If Makefile changes: spawn `swe-sme-makefile` agent
-- If Python project: spawn `swe-sme-python` agent (TODO: create)
-- If Rust project: spawn `swe-sme-rust` agent (TODO: create)
-- If TypeScript/JavaScript: spawn `swe-sme-typescript` agent (TODO: create)
 - Otherwise: write tests directly with general best practices
 
 **SME agent task:**
