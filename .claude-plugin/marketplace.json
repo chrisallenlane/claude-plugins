@@ -1,3 +1,20 @@
 {
-  "plugins": [{ "name": "claude-swe-workflows", "source": "." }]
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "claude-swe-workflows",
+  "description": "Software engineering workflow skills and agents",
+  "owner": {
+    "name": "Chris Allen Lane"
+  },
+  "plugins": [
+    {
+      "name": "claude-swe-workflows",
+      "description": "Software engineering workflow with deliberation, planning, implementation, and quality skills plus specialist agents",
+      "version": "1.0.0",
+      "author": {
+        "name": "Chris Allen Lane"
+      },
+      "source": "./",
+      "category": "development"
+    }
+  ]
 }

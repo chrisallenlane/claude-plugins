@@ -4,15 +4,36 @@ Software engineering workflows for Claude Code, providing skills and specialist 
 
 ## Installation
 
+Register this repository as a marketplace and enable the plugin:
+
 ```bash
-claude plugin marketplace add https://github.com/chrisallenlane/claude-plugins.git
-claude plugin install claude-swe-workflows@chrisallenlane
+claude plugin marketplace add https://github.com/chrisallenlane/claude-swe-workflows.git
+claude plugin install claude-swe-workflows@claude-swe-workflows
 ```
 
-Or for development:
+Or for local development, add the following to `~/.claude/settings.json`:
 
-```bash
-claude --plugin-dir /path/to/claude-swe-workflows
+```json
+{
+  "enabledPlugins": {
+    "claude-swe-workflows@claude-swe-workflows": true
+  }
+}
+```
+
+And register the local directory as a marketplace in `~/.claude/plugins/known_marketplaces.json`:
+
+```json
+{
+  "claude-swe-workflows": {
+    "source": {
+      "source": "directory",
+      "path": "/path/to/claude-swe-workflows"
+    },
+    "installLocation": "/path/to/claude-swe-workflows",
+    "lastUpdated": "2026-01-01T00:00:00.000Z"
+  }
+}
 ```
 
 ## Skills
