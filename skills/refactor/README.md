@@ -41,6 +41,7 @@ The `/refactor` skill autonomously improves code quality within the existing arc
  │  ────────────────────────────────────────    │
  │  • Default: Entire codebase                  │
  │  • Or: User-specified path/module            │
+ │  • Boundary: git-tracked files only          │
  └──────────────────┬───────────────────────────┘
                     ▼
  ┌──────────────────────────────────────────────┐
@@ -106,6 +107,8 @@ The `/refactor` skill autonomously improves code quality within the existing arc
  │  • Total commits, net lines changed          │
  │  • Batches completed vs aborted              │
  │  • Changes by category                       │
+ │  • User-decision items (commented-out code,  │
+ │    unused public APIs)                       │
  └──────────────────┬───────────────────────────┘
                     ▼
  ┌──────────────────────────────────────────────┐
@@ -127,6 +130,8 @@ By default, the workflow operates on the entire codebase. You can specify a narr
 ```
 
 The scope is passed to all spawned agents.
+
+**Important:** The workflow operates exclusively on files tracked by git. Untracked files and directories are never modified or deleted — their loss could be irreversible.
 
 ### 2. Select Aggression Ceiling
 The workflow asks how far up the aggression ladder to climb:
@@ -180,6 +185,11 @@ Each iteration:
 - DRY consolidation: 5 instances
 - Lint fixes: 2 instances
 ```
+
+After the summary, the workflow presents **user-decision items** collected across all passes:
+
+- **Commented-out code:** Locations and descriptions of commented-out code found during scanning. The user decides which (if any) to delete. Commented-out code may be debugging helpers, work-in-progress, or intermittently-used code that is temporarily disabled — it's not treated as dead code.
+- **Apparently-unused public APIs:** Exported symbols that appear unused internally but may be consumed by external users of the package. Informational only.
 
 ### 6. Update Documentation
 After the summary, the workflow runs `/doc-review` to bring documentation up to date.
@@ -294,6 +304,11 @@ Any special QA instructions?
 - Git makes failed experiments free
 - The workflow reverts on failure automatically
 - Missed opportunities are invisible
+
+**Respect boundaries:**
+- Only touch git-tracked files (untracked files may be irreversible to recover)
+- Never delete public/exported APIs (external consumers are invisible to the scanner)
+- Defer to the user on commented-out code (it may be intentionally disabled)
 
 **Atomic and reversible:**
 - Each batch is one commit

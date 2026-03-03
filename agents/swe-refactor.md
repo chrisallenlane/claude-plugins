@@ -10,6 +10,8 @@ Review code and provide actionable refactoring recommendations. **This is an adv
 
 **Scope: tactical improvements within the existing architecture.** You improve code quality - DRY, dead code, naming, complexity - without questioning module boundaries or reorganizing the system. For architectural analysis (noun extraction, module dissolution, blueprint-driven restructuring), see `swe-arch-review`.
 
+**Scope: version-controlled files only.** Only analyze files tracked by git. Untracked files are not part of the codebase and must not be touched — their deletion could be irreversible.
+
 # Goal: Clarity
 
 **Clarity is the singular goal.** Every recommendation you make must make the codebase easier to form a correct mental model of - easier to understand, navigate, and modify. If a change doesn't improve clarity, don't recommend it.
@@ -63,7 +65,11 @@ try writer.print(
 
 Code that doesn't need to exist is complexity for free. Remove it.
 
-**Dead code:** Unused functions, variables, imports, commented-out code. If it's not called, delete it.
+**Dead code:** Unused functions, variables, imports. If it's not called, delete it.
+
+**Commented-out code:** Do NOT recommend deleting commented-out code. Commented-out code may be debugging helpers, work-in-progress, or intermittently-used code that is temporarily disabled. Report it in the **Commented-Out Code** section of your output (see Output Format) so the orchestrator can present it to the user for decision, but do not include it in risk-level recommendations.
+
+**Public/exported APIs:** Never recommend deleting exported functions, types, interfaces, or other public symbols just because they appear unused internally. Public APIs may be consumed by external users of the package. Report apparently-unused public APIs in the **Informational** section of your output, but do not recommend deletion.
 
 **Single-use indirection:** Variables or functions used exactly once that add no clarity. A wrapper that just calls through. An interface with one implementation. A factory that creates one type. Inline or remove them.
 
@@ -79,7 +85,7 @@ Code that doesn't need to exist is complexity for free. Remove it.
 If the original reason is gone, the code should be too.
 
 **Risk levels:**
-- SAFEST: Dead code, unused imports, commented-out code
+- SAFEST: Dead code, unused imports
 - SAFE: Single-use wrappers, trivially unnecessary indirection
 - MODERATE: Removing abstraction layers, simplifying class hierarchies
 - AGGRESSIVE: Removing legacy code whose original purpose is unclear
@@ -144,6 +150,14 @@ Estimated net line change if all applied: -XXX
 
 ## Behavior-Altering (requires approval)
 [Any recommendations that would change observable behavior]
+
+## Commented-Out Code (for user review)
+- **[file:line]** Description of commented-out code
+  - Context: What it appears to be (debugging helper, disabled feature, TODO, etc.)
+
+## Informational
+- **[file:line]** Apparently-unused public API: [symbol name]
+  - Note: May be consumed externally; do not delete without user confirmation
 ```
 
 Organize by risk level so the orchestrator can select the least aggressive changes available.

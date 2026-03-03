@@ -43,6 +43,8 @@ Autonomous refactoring workflow that iteratively improves code quality within th
 
 **Default:** Entire codebase.
 
+**Boundary: version-controlled files only.** The refactoring workflow operates exclusively on files tracked by git. Untracked files and directories must never be modified or deleted — their loss could be irreversible. This boundary is non-negotiable regardless of scope setting.
+
 **If user specifies scope:** Respect that scope (directory, files, module). Pass scope constraint to all spawned agents.
 
 ### 2. Select Aggression Ceiling
@@ -112,6 +114,11 @@ Prioritize changes that produce RED diffs (net code reduction) while improving c
 - Rescan - previous changes may have unlocked new gentle options
 - Aggressive changes naturally surface as gentler ones are exhausted
 - If no recommendations at any level: workflow complete
+
+**Set aside user-decision items:**
+- **Commented-out code**: Do not implement. Collect findings across all passes.
+- **Informational findings** (unused public APIs): Do not implement. Collect across all passes.
+- Present both to the user in the completion summary (step 6).
 
 #### 5b. Plan Implementation
 
@@ -234,6 +241,12 @@ When workflow completes, present summary:
 - [Batch description]: [reason for failure]
 ```
 
+**Then present user-decision items** collected across all passes:
+
+**Commented-out code:** List each location and what the code appears to be (debugging helper, disabled feature, TODO, etc.). Ask the user which, if any, should be deleted. Implement deletions for the items the user selects.
+
+**Apparently-unused public APIs:** List each symbol and location. Note that these may be consumed by external users of the package. These are informational only — do not offer to delete them.
+
 ### 7. Update Documentation
 
 After the refactoring summary, run the `/doc-review` workflow to bring project documentation up to date. Even tactical refactoring can rename functions, move code between files, and change APIs — documentation that references the old state becomes stale.
@@ -262,6 +275,8 @@ This spawns a doc-maintainer agent that audits all project documentation and fix
 - Aborted batches (with reasons)
 - Failure count per active batch
 - Running totals for summary
+- Commented-out code findings (accumulated across passes, for user review)
+- Informational findings (unused public APIs, accumulated across passes)
 
 ## Abort Conditions
 
