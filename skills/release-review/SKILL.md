@@ -4,7 +4,7 @@ description: Pre-release readiness review. Scans for debug artifacts, version mi
 model: opus
 ---
 
-# Release Review — Pre-Release Readiness Check
+# Release Review - Pre-Release Readiness Check
 
 Interactive pre-flight checklist before cutting a release. Spawns a scanner agent for static analysis, runs execution-based checks (tests, build, doc freshness), and presents consolidated findings for human review. Releases are important milestones — this workflow keeps the human tightly in the loop.
 

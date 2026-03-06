@@ -4,7 +4,7 @@ description: Mutation testing workflow. Systematically mutates source code to ve
 model: opus
 ---
 
-# Test Mutate — Mutation Testing Workflow
+# Test Mutate - Mutation Testing Workflow
 
 Systematically introduces small changes (mutations) to source code, runs the test suite after each, and reports which mutations survive (tests don't catch them). Surviving mutations reveal genuine test coverage gaps that line coverage misses.
 

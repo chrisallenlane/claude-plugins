@@ -4,7 +4,7 @@ description: Bug-fixing workflow that coordinates diagnosis, test-driven reprodu
 model: opus
 ---
 
-# Fix - Automated Bug-Fixing Workflow
+# Bugfix - Automated Bug-Fixing Workflow
 
 Coordinates specialist agents through a bug-fixing cycle: clarify bug -> reproduce with failing test -> diagnose root cause -> implement fix -> verify -> review -> document.
 

@@ -4,7 +4,7 @@ description: Review all project documentation for correctness, completeness, and
 model: opus
 ---
 
-# Doc Review — Documentation Quality Audit
+# Doc Review - Documentation Quality Audit
 
 Spawns a doc-maintainer agent to comprehensively review all project documentation and fix issues found.
 

@@ -4,7 +4,7 @@ description: Comprehensive test suite review. Fills coverage gaps, identifies mi
 model: opus
 ---
 
-# Test Review — Comprehensive Test Suite Review
+# Test Review - Comprehensive Test Suite Review
 
 Three-phase review: fill coverage gaps, identify fuzz testing opportunities, then audit test quality. Each phase runs its own analysis → present → select → implement → verify cycle.
 

@@ -1,195 +1,282 @@
 ---
 name: project
-description: Multi-ticket project workflow. Takes a batch of tickets, plans execution order, implements each via /iterate in autonomous mode, runs cross-cutting quality passes, and presents results for final review.
+description: Full-lifecycle project workflow. Takes batched tickets, implements via /batch, runs smoke tests, then executes a comprehensive quality pipeline (refactor, arch-review, test-review, doc-review, release-review). Maximizes autonomy with andon cord escape.
 model: opus
 ---
 
-# Project - Multi-Ticket Orchestration Workflow
+# Project - Full-Lifecycle Project Workflow
 
-Orchestrates a batch of tickets as a cohesive project. Creates a project branch, implements each ticket sequentially using the `/iterate` workflow in autonomous mode, runs cross-cutting quality passes, and presents results for final human review.
+Orchestrates an entire project from tickets to release-ready code. Implements batched tickets via `/batch`, runs smoke tests, then executes a comprehensive quality pipeline. Maximizes autonomy — the andon cord is the only planned escalation path.
 
 ## Philosophy
 
-**Maximize autonomy, minimize accumulated error.** The goal is to complete an entire batch of tickets without user intervention — but not at the cost of letting problems compound. When something goes wrong, pull the andon cord immediately rather than pressing forward and hoping later steps will compensate.
+**Autonomy is the default; escalation is the exception.** The goal is to complete an entire project — multiple batches of tickets, quality passes, and verification — without user intervention. When stuck, try `/deliberate` first. Only pull the andon cord when autonomous resolution has failed or is clearly futile.
 
-**The project branch is the integration point.** Each ticket gets its own topic branch. Work flows from topic branches into the project branch, never directly into main. This keeps main clean and gives the user a single decision point at the end: merge the project branch or don't.
+**The project branch is the single integration point.** All work flows into the project branch. Batches merge into it, quality passes commit to it, and the user makes one decision at the end: merge or don't.
+
+**Quality is layered.** Each quality pass builds on the previous one. Refactoring cleans the code so arch-review can focus on structure. Arch-review restructures so test-review can assess coverage of the final form. Doc-review documents what actually shipped. Release-review validates the whole.
+
+**Fresh eyes catch what familiarity misses.** Each quality pass runs its full workflow, including any embedded sub-passes (e.g., `/refactor` runs its own `/doc-review`). Redundancy is intentional — each agent sees the project with fresh context and may catch issues that prior passes normalized.
 
 ## Workflow Overview
 
 ```
-┌──────────────────────────────────────────────────────┐
-│                  PROJECT WORKFLOW                    │
-├──────────────────────────────────────────────────────┤
-│  1. Receive ticket specification                     │
-│  2. Detect issue tracker & fetch tickets             │
-│  3. Project planning (present to user)               │
-│  4. Create project branch                            │
-│  5. Per-ticket loop:                                 │
-│     ├─ 5a. Create topic branch                       │
-│     ├─ 5b. Run /iterate (autonomous mode)            │
-│     ├─ 5c. Merge topic branch → project branch       │
-│     ├─ 5d. Post-merge verification gate              │
-│     └─ 5e. Delete topic branch                       │
-│  6. Cross-cutting quality passes                     │
-│     ├─ 6a. /refactor (SAFE aggression)               │
-│     └─ 6b. /doc-review                               │
-│  7. Final review (present to user)                   │
-└──────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                     PROJECT WORKFLOW                         │
+├──────────────────────────────────────────────────────────────┤
+│  1. Gather tickets and batching strategy                     │
+│  2. Discuss smoke testing procedures                         │
+│  3. Plan execution across batches                            │
+│  4. Create project branch                                    │
+│  5. Per-batch loop:                                          │
+│     ├─ 5a. Create batch branch from project branch           │
+│     ├─ 5b. Run /batch workflow (autonomous mode)             │
+│     ├─ 5c. Merge batch branch → project branch               │
+│     ├─ 5d. Post-merge verification                           │
+│     └─ 5e. Clean up and checkpoint                           │
+│  6. Smoke testing                                            │
+│  7. Quality pipeline:                                        │
+│     ├─ 7a. /refactor (MAXIMUM aggression)                    │
+│     ├─ 7b. /arch-review (autonomous mode)                    │
+│     ├─ 7c. /refactor again (conditional)                     │
+│     ├─ 7d. /test-review                                      │
+│     ├─ 7e. /doc-review                                       │
+│     └─ 7f. /release-review                                   │
+│  8. Final report                                             │
+└──────────────────────────────────────────────────────────────┘
 ```
+
+## Available Tools
+
+Beyond the mainline workflow, the orchestrator has access to additional workflows:
+
+- **`/deliberate`**: Adversarial deliberation for difficult autonomous decisions. Spawns advocates to argue options before rendering a verdict. Prefer this over gut-feel decisions when stakes are high or trade-offs are unclear.
+- **`/bugfix`**: Coordinated bug-fixing for challenging issues encountered during any phase. Handles diagnosis, reproduction, and targeted fixes.
 
 ## Andon Cord Protocol
 
-**This protocol applies throughout the entire workflow.** When the andon cord is pulled:
+**This protocol applies throughout the entire workflow.** The andon cord is the escape valve for problems that cannot be resolved autonomously.
 
-1. **Stop all work immediately** — do not attempt to continue with other tickets or steps
+**Before pulling the andon cord:**
+1. Attempt autonomous resolution first
+2. For judgment calls, run `/deliberate` to reason through options
+3. Only escalate if autonomous resolution has failed or is clearly futile
+
+**When the andon cord is pulled:**
+1. **Stop all work immediately** — do not attempt to continue with other batches or steps
 2. Present to user:
-   - Which ticket and which step failed
+   - Current phase and step
    - What was attempted and what went wrong
+   - What autonomous resolution was tried (including any `/deliberate` results)
    - Current state of all branches (what's merged, what's in-progress)
+   - Recommended path forward (if you have one)
 3. Wait for user guidance before resuming
 
 **Andon cord triggers:**
-- Acceptance verification fails 3 times (step 5b, `/iterate` step 4)
-- Unresolvable critical/high security findings (step 5b, `/iterate` step 5a)
-- Post-merge test suite failure (step 5d)
-- Merge conflict (step 5c)
-- Issue tracker unavailable or tickets can't be fetched (step 2)
-- Empty ticket with no description (step 5b)
+- Batch workflow pulls its own andon cord (cascades up)
+- Merge conflict between batch branch and project branch
+- Smoke testing reveals fundamental design issues that can't be fixed locally
+- Quality pass reveals blocking issues the orchestrator can't resolve
 - Project branch already exists (step 4)
-- Any unexpected failure not covered above
+- Any situation where continuing would compound errors rather than resolve them
 
 ## Workflow Details
 
-### 1. Receive Ticket Specification
+### 1. Gather Tickets and Batching Strategy
 
-Accept tickets from the user in any of these forms:
-- Explicit list of ticket IDs (e.g., `#12, #15, #18`)
-- Tag/label query (e.g., "all tickets tagged `v2.0`")
-- Milestone (e.g., "milestone: Sprint 4")
-- User-provided description to search for
+**Ask the user:**
+- Which tickets belong to this project? (IDs, tags, milestones, etc.)
+- How are they batched? (e.g., tagged `batch-1`, `batch-2`; or user specifies explicit grouping)
+- What's the batch execution order?
 
-### 2. Detect Issue Tracker & Fetch Tickets
+**If batching is unclear:** Ask. Do not guess at grouping — the user has a reason for the batch structure.
 
-**Detect platform:**
-- Run `git remote -v` and inspect the URL
-- GitHub: `github.com` → use `gh` CLI
-- Gitea: other git hosting → use `mcp__gitea__*` MCP tools if available, otherwise API
-- GitLab: `gitlab.com` or GitLab instances → use `glab` CLI if available
+**Fetch all tickets** using the same tracker detection as `/batch` (GitHub → `gh`, Gitea → MCP tools, etc.). Gather title, description, acceptance criteria, labels, and dependencies for each.
 
-**Fetch each ticket:**
-- Title
-- Description/body
-- Acceptance criteria (if explicitly present)
-- Labels/tags
-- Dependencies (referenced issues, "depends on" links)
+### 2. Discuss Smoke Testing Procedures
 
-**Andon cord** if tracker is unavailable or tickets can't be fetched.
+**Ask the user:** "What smoke testing should be performed after implementation? This varies by project type."
 
-### 3. Project Planning
+**Offer examples if the user needs prompts:**
+- CLI tool: run the binary with representative commands, verify output
+- MCP server: build the binary, send JSON-RPC commands, verify responses
+- Web app: use Playwright MCP for browser testing
+- Library: run integration tests, verify public API works end-to-end
+- API server: hit key endpoints, verify responses
 
-Analyze all fetched tickets and produce an execution plan:
+**Record the procedure.** It will be used for:
+- Step 6 (smoke testing)
+- QA instructions passed to quality passes (steps 7a-7f)
 
-**Dependency analysis:**
-- Check for explicit "depends on" or "blocks" relationships between tickets
-- Check for tickets referencing the same files or subsystems (implicit dependencies)
-- Identify any tickets that must come before others
+### 3. Plan Execution Across Batches
 
-**Execution ordering:**
-- Dependencies first (blocked tickets come after their blockers)
-- Among independent tickets: simpler tickets first (builds momentum, establishes patterns)
-- Flag any ambiguous tickets (missing description, no clear acceptance criteria)
+Analyze all tickets across all batches and produce an execution plan.
 
-**Present the plan to user:**
-- Proposed execution order with rationale
+**Per-batch analysis:**
+- Tickets in this batch and their dependencies
+- Estimated scope (qualitative)
 - Any concerns about ambiguous or under-specified tickets
-- Estimated scope (brief, qualitative — "3 small tickets, 1 medium")
 
-**Wait for user approval** before proceeding. This is the one planned user interaction point.
+**Cross-batch analysis:**
+- Dependencies between batches (batch 2 might depend on batch 1's changes)
+- Optimal batch ordering
+- Risk areas where batches might conflict
+
+**Present the plan to the user.** This is the primary planned user interaction point. Include:
+- Proposed batch execution order with rationale
+- Per-batch ticket listing with brief scope assessment
+- Any concerns about ticket specifications
+- Smoke testing procedure (confirmed)
+- Branch naming: `feat/project-<name>`, with `feat/batch-<name>` per batch
+
+**Wait for user approval before proceeding.**
 
 ### 4. Create Project Branch
 
 - Identify the main branch (`main` or `master`)
 - Create project branch from current HEAD: `feat/project-<descriptive-name>`
-- Branch name derived from the tag, milestone, or a brief summary of the ticket batch
 - **Andon cord** if branch already exists — ask user whether to resume or start fresh
+- Initialize `PROJECT_PROGRESS.md` with project metadata and batch plan
 
-### 5. Per-Ticket Execution Loop
+### 5. Per-Batch Execution Loop
 
-For each ticket in the planned order:
+For each batch in the planned order:
 
-#### 5a. Create Topic Branch
+#### 5a. Create Batch Branch
 
 - Checkout project branch (ensure it's current)
-- Create topic branch: `feat/issue-<number>-<brief-slug>`
-- The slug is derived from the ticket title (lowercase, hyphens, truncated to ~40 chars)
+- Create batch branch: `feat/batch-<descriptive-name>`
 
-#### 5b. Run `/iterate` Workflow (Autonomous Mode)
+#### 5b. Run `/batch` Workflow (Autonomous Mode)
 
-Follow the `/iterate` workflow with these overrides for autonomous operation:
+Invoke the `/batch` workflow with these autonomous overrides:
 
-| `/iterate` Step                             | Autonomous Override                                                                                                                                                                                              |
-|---------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Step 1** (requirements)                   | Pre-loaded from ticket body. Do not prompt user for requirements. If the ticket lacks explicit acceptance criteria, derive them from the description. If the description is empty or incoherent, **andon cord**. |
-| **Step 2** (planning)                       | Follow normal conditional logic — invoke `swe-planner` for complex tasks, skip for simple ones.                                                                                                                  |
-| **Steps 3-4** (implementation + acceptance) | Follow normal logic. If acceptance verification fails 3 times, **andon cord** (do not escalate to user within `/iterate` — escalate here at the project level).                                                  |
-| **Step 5a** (security review)               | Follow normal logic. If critical/high findings cannot be resolved by the implementation agent, **andon cord**.                                                                                                   |
-| **Steps 5b-5c** (refactoring/perf review)   | Follow normal logic — these are advisory.                                                                                                                                                                        |
-| **Step 6** (implement review feedback)      | Follow normal logic.                                                                                                                                                                                             |
-| **Step 7** (peer review)                    | Follow normal logic. Handle deep issues autonomously — trust agents. If peer review breaks tests, revert peer review changes per standard `/iterate` logic.                                                      |
-| **Step 8** (coverage/quality verification)  | Follow normal logic. Handle autonomously — if tests pass, proceed. Do not prompt user for approval of minor issues.                                                                                              |
-| **Step 9** (documentation)                  | Follow normal logic.                                                                                                                                                                                             |
-| **Step 10** (final verification)            | Follow normal logic.                                                                                                                                                                                             |
-| **Step 11a** (commit)                       | Auto-commit with ticket reference. Use `Fixes #<number>` in the commit message.                                                                                                                                  |
-| **Step 11b** (ticket update/close)          | Post a comment on the ticket summarizing changes made. **Do not close** the ticket — leave that for the user after final review.                                                                                 |
-| **Step 11c** (rebase on main)               | **Skip entirely.** We're on topic branches off the project branch, not main.                                                                                                                                     |
+| `/batch` Step                 | Autonomous Override                                                                                                                                                                                                    |
+|-------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Step 1** (receive tickets)  | Pre-loaded — pass the batch's ticket list directly                                                                                                                                                                     |
+| **Step 2** (detect tracker & fetch) | Normal operation                                                                                                                                                                                                 |
+| **Step 3** (batch planning)   | **Orchestrator approves the plan autonomously.** Review the proposed execution order. Use `/deliberate` if the ordering is unclear or if there are concerning dependency patterns. Only pull the andon cord if tickets are fundamentally incoherent. |
+| **Step 4** (create project branch) | **Skip — already on the batch branch.** The batch branch serves as `/batch`'s "project branch." Topic branches are created from it.                                                                             |
+| **Steps 5a-5e** (per-ticket loop)  | Normal operation. Topic branches are created from the batch branch. Andon cord triggers cascade up to the project orchestrator.                                                                                  |
+| **Step 6** (quality passes)   | Normal operation. Let `/batch` run its own refactor + doc-review.                                                                                                                                                      |
+| **Step 7** (final review)     | **Orchestrator reviews autonomously.** Log the summary to `PROJECT_PROGRESS.md`. Do not wait for user input.                                                                                                          |
 
-#### 5c. Merge Topic Branch into Project Branch
+#### 5c. Merge Batch Branch into Project Branch
 
 - Checkout project branch
-- Merge: `git merge --no-ff feat/issue-<number>-<brief-slug>`
-- The `--no-ff` preserves topic branch history for clarity
+- Merge: `git merge --no-ff feat/batch-<name>`
+- The `--no-ff` preserves batch branch history for clarity
 - **Andon cord** on merge conflict — do not attempt auto-resolution
 
-#### 5d. Post-Merge Verification Gate
+#### 5d. Post-Merge Verification
 
 - Run the full test suite on the project branch
 - Run linters/formatters
 - **Andon cord** if tests fail — the merge introduced a regression
 
-#### 5e. Clean Up Topic Branch
+#### 5e. Clean Up and Checkpoint
 
-- Delete the merged topic branch: `git branch -d feat/issue-<number>-<brief-slug>`
-- Update orchestrator state: mark ticket as done
+- Delete the merged batch branch: `git branch -d feat/batch-<name>`
+- Update `PROJECT_PROGRESS.md`: mark batch as complete, record summary
 
-### 6. Cross-Cutting Quality Passes
+### 6. Smoke Testing
 
-After all tickets are implemented and merged into the project branch:
+Execute the smoke testing procedure established in step 2.
 
-#### 6a. Refactoring
+**On issues found:**
+1. Diagnose the issue
+2. For straightforward fixes: implement, verify, commit
+3. For complex bugs: invoke the `/bugfix` workflow
+4. For design-level problems: try `/deliberate` first, then andon cord if unresolvable
+5. Re-run smoke tests after fixes until clean
 
-Run the `/refactor` workflow with these parameters:
-- **Aggression ceiling:** SAFE (conservative — only SAFEST and SAFE changes)
-- **Custom QA instructions:** None (standard test suite verification)
+**Update `PROJECT_PROGRESS.md`** with smoke test results and any fixes applied.
+
+### 7. Quality Pipeline
+
+Run each quality pass sequentially. The orchestrator may use judgment to skip passes for trivial projects (e.g., 2 small tickets with no architectural impact may not need `/arch-review`). If skipping, note the reason in the final report.
+
+#### 7a. Refactor
+
+Run the `/refactor` workflow with:
+- **Aggression ceiling:** MAXIMUM
+- **QA instructions:** The smoke testing procedure from step 2
 - **Scope:** Entire codebase
-- The `/refactor` workflow handles its own iteration loop, commits, and QA verification
 
-#### 6b. Documentation Review
+#### 7b. Arch Review (Autonomous Mode)
+
+Run the `/arch-review` workflow with autonomous overrides:
+
+| `/arch-review` Step                  | Autonomous Override                                                                                                                                                                                                                                      |
+|--------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Step 1** (scope)                   | Entire codebase                                                                                                                                                                                                                                          |
+| **Step 2** (QA instructions)         | The smoke testing procedure from step 2                                                                                                                                                                                                                  |
+| **Step 3** (analyze)                 | Normal operation                                                                                                                                                                                                                                         |
+| **Step 4** (present analysis)        | **Orchestrator reviews the analysis.** Do not present to user.                                                                                                                                                                                           |
+| **Step 5** (iterate on plan)         | **Orchestrator decides what to implement.** Approve items that are clearly beneficial (dead code removal, obvious naming improvements, clear function ownership fixes). For high-impact items (module dissolution, major restructuring, new module creation), use `/deliberate` to reason through the trade-offs. Defer items that seem out of scope for this project — note them in the final report as recommendations. |
+| **Step 6** (how to proceed)          | Proceed with implementation of approved items                                                                                                                                                                                                            |
+| **Steps 7-9** (implement + summary)  | Normal operation                                                                                                                                                                                                                                         |
+| **Step 10** (doc-review)             | Normal operation                                                                                                                                                                                                                                         |
+
+**Track whether arch-review made substantive changes** — module restructuring, function moves, new modules. Dead code removal and naming fixes do not count. This determines whether step 7c runs.
+
+#### 7c. Refactor Again (Conditional)
+
+**Only run if arch-review made substantive changes** in step 7b.
+
+Run `/refactor` again with the same parameters as step 7a. Architectural restructuring often introduces code that benefits from tactical cleanup.
+
+#### 7d. Test Review
+
+Run the `/test-review` workflow.
+
+The orchestrator handles any interactive steps autonomously, applying the same pattern: implement what's clearly beneficial, `/deliberate` for judgment calls, andon cord as last resort.
+
+#### 7e. Doc Review
 
 Run the `/doc-review` workflow:
-- Full documentation audit (not git-diff scoped)
+- Full documentation audit
 - Fixes committed separately
 
-### 7. Final Review
+#### 7f. Release Review
+
+Run the `/release-review` workflow with autonomous overrides:
+
+For each finding the release review surfaces:
+- **Auto-fix:** Debug artifacts, version mismatches, changelog gaps, formatting issues
+- **Deliberate:** Ambiguous findings, trade-off decisions
+- **Defer to final report:** Items that require user judgment (e.g., "should this breaking change be noted in CHANGELOG?")
+- **Andon cord:** Blocking issues that can't be resolved (e.g., tests fail, build broken)
+
+### 8. Final Report
 
 Present comprehensive summary to user:
 
 ```
 ## Project Complete
 
-### Tickets Implemented
-- #12: <title> — <brief outcome>
-- #15: <title> — <brief outcome>
-- #18: <title> — <brief outcome>
+### Batches Implemented
+- Batch 1 (<name>): N tickets completed
+  - #12: <title> — <brief outcome>
+  - #15: <title> — <brief outcome>
+- Batch 2 (<name>): N tickets completed
+  - #18: <title> — <brief outcome>
+
+### Smoke Testing
+- Result: PASS / N issues found and fixed
+- [Brief description of any fixes applied]
+
+### Quality Pipeline Results
+- Refactor (pass 1): N commits, net -XXX lines
+- Arch Review: N items implemented, N deferred
+- Refactor (pass 2): [ran/skipped] — N commits, net -XXX lines
+- Test Review: N tests added, N gaps filled
+- Doc Review: N documentation updates
+- Release Review: N findings resolved, N deferred
+
+### Deferred Items
+[Items the orchestrator chose not to implement, with rationale.
+ These are recommendations for the user to consider.]
 
 ### Statistics
 - Total commits: N
@@ -197,55 +284,126 @@ Present comprehensive summary to user:
 - Tests added/modified: N
 - Documentation files updated: N
 
-### Quality Passes
-- Refactoring: N improvements, net -N lines
-- Documentation: N updates
-
 ### Branch Status
 - Project branch: feat/project-<name>
 - Base branch: <main branch>
-- Ready to merge
+- Ready for review and merge
 ```
 
 User decides next steps: merge to main, further work, or discard.
 
 ## State Management
 
-The orchestrator maintains:
-- **Ticket list**: all tickets with status (pending / in-progress / done / failed)
-- **Current ticket**: which ticket is being worked on
-- **Execution order**: from the planning step
-- **Summary log**: brief notes on each completed ticket (avoid context bloat — just ticket number, title, outcome, and commit count)
-- **Branch names**: project branch and any active topic branches (for cleanup if needed)
+### PROJECT_PROGRESS.md
+
+Maintain a progress file at the repository root throughout the workflow. This file is gitignored and serves two purposes: human-readable progress tracking and crash recovery context.
+
+**Structure:**
+```markdown
+# Project: <name>
+Started: <timestamp>
+Branch: feat/project-<name>
+Status: <current phase>
+
+## Configuration
+- Smoke testing: <procedure summary>
+- Batches: <count>
+
+## Batch Progress
+
+### Batch 1: <name> — COMPLETE
+- Tickets: #12, #15
+- Commits: N
+- Summary: <brief>
+
+### Batch 2: <name> — IN PROGRESS
+- Tickets: #18, #20
+- Current ticket: #20
+- Status: implementing
+
+## Quality Pipeline
+- [x] Refactor (pass 1)
+- [ ] Arch Review
+- [ ] Refactor (pass 2)
+- [ ] Test Review
+- [ ] Doc Review
+- [ ] Release Review
+
+## Issues Log
+- <timestamp>: <issue description and resolution>
+```
+
+**Update at every major transition:** batch start/complete, quality pass start/complete, andon cord events, smoke test results.
 
 ## Agent Coordination
 
 **Sequential execution:**
-- One ticket at a time, one agent at a time
-- Each agent completes before the next begins
-- No parallel agent execution
+- One batch at a time, one quality pass at a time
+- Each sub-workflow completes before the next begins
+- No parallel execution
 
 **Context management:**
-- The `/iterate` workflow within each ticket manages its own agent lifecycle
-- The project orchestrator tracks only summary-level state across tickets
-- Keep per-ticket summaries brief to avoid context window bloat across a large batch
+- The project orchestrator is a thin coordinator
+- It delegates all implementation to sub-workflows
+- It maintains only summary-level state in its context
+- `PROJECT_PROGRESS.md` provides durable state outside the context window
+- Keep per-batch and per-pass summaries brief to avoid context bloat
 
-**Fresh state per ticket:**
-- Each ticket starts with a fresh topic branch
-- The `/iterate` workflow starts from scratch for each ticket
-- No state leaks between tickets except the cumulative project branch
+**Sub-workflow invocation:**
+- Quality passes (`/refactor`, `/arch-review`, `/test-review`, `/doc-review`, `/release-review`): invoke as skills
+- `/batch`: invoke as a skill with autonomous overrides
+- `/deliberate`, `/bugfix`: invoke as skills when needed
+
+## Abort Conditions
+
+**Abort current batch:**
+- Batch workflow's own andon cord triggers
+- Merge conflict into project branch
+- Post-merge test failures
+
+**Abort quality pass:**
+- Quality pass encounters unresolvable issues after `/deliberate`
+- Skip the pass, log the issue, continue with next pass
+- Include in final report
+
+**Abort entire workflow:**
+- User interrupts
+- Git repository in unclean state that can't be resolved
+- Multiple consecutive andon cord pulls suggest fundamental problems
+- Critical system error
+
+**Do NOT abort for:**
+- Individual ticket failures within a batch (handled by `/batch`)
+- Quality pass recommendations the orchestrator disagrees with (defer them)
+- Minor issues that can be noted in the final report
 
 ## Integration with Other Skills
 
-**Relationship to `/iterate`:**
-- `/project` is a higher-level orchestrator that runs `/iterate` for each ticket
-- `/iterate` handles the full development cycle for a single ticket
-- `/project` adds: batching, ordering, branching strategy, cross-cutting quality passes
+**Relationship to `/batch`:**
+- `/project` is a higher-level orchestrator that runs `/batch` for each batch of tickets
+- `/batch` handles the per-ticket implementation loop via `/iterate`
+- `/project` adds: multi-batch coordination, smoke testing, comprehensive quality pipeline
 
 **Relationship to `/scope`:**
 - `/scope` creates tickets; `/project` consumes them
-- Typical flow: `/scope` to plan and create tickets, then `/project` to implement the batch
+- Typical flow: `/scope` to plan → organize tickets into batches → `/project` to implement
 
-**Relationship to `/refactor`, `/doc-review`:**
-- These run as cross-cutting quality passes after all tickets are implemented
-- They catch issues that span multiple tickets or emerge from their interaction
+**Relationship to quality passes:**
+- `/project` runs each quality pass as a complete workflow
+- Each pass operates on the full codebase with fresh context
+- Passes build on each other: refactor → arch-review → refactor → test → doc → release
+
+**Hierarchy:**
+```
+/project
+├── /batch (per batch)
+│   ├── /iterate (per ticket)
+│   ├── /refactor (per-batch quality)
+│   └── /doc-review (per-batch quality)
+├── /refactor (project-level quality)
+├── /arch-review (project-level quality)
+├── /refactor (conditional second pass)
+├── /test-review (project-level quality)
+├── /doc-review (project-level quality)
+└── /release-review (project-level quality)
+```

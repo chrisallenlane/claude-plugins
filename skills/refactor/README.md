@@ -170,7 +170,7 @@ Each iteration:
 
 **For other languages** (Python, JavaScript, Rust, Lua, etc.): The orchestrator implements directly.
 
-### 5. Completion Summary
+### 7. Completion Summary
 ```
 ## Refactoring Complete
 
@@ -191,7 +191,7 @@ After the summary, the workflow presents **user-decision items** collected acros
 - **Commented-out code:** Locations and descriptions of commented-out code found during scanning. The user decides which (if any) to delete. Commented-out code may be debugging helpers, work-in-progress, or intermittently-used code that is temporarily disabled — it's not treated as dead code.
 - **Apparently-unused public APIs:** Exported symbols that appear unused internally but may be consumed by external users of the package. Informational only.
 
-### 6. Update Documentation
+### 8. Update Documentation
 After the summary, the workflow runs `/doc-review` to bring documentation up to date.
 
 ## Examples
