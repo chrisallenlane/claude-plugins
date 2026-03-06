@@ -1,5 +1,7 @@
 # /project - Full-Lifecycle Project Workflow
 
+> **Upgrading from v1.x?** The v1.x `/project` skill (single-batch orchestration) has been renamed to [`/batch`](../batch/README.md). The `/project` name now refers to this multi-batch full-lifecycle workflow, which invokes `/batch` internally for each batch. If you were using v1.x `/project` for a single batch of tickets, use `/batch` instead.
+
 ## Overview
 
 The `/project` skill orchestrates an entire project from tickets to release-ready code. It takes batched tickets, implements each batch via the `/batch` workflow in autonomous mode, runs smoke tests, then executes a comprehensive quality pipeline (refactor, arch-review, test-review, doc-review, release-review). The result is a single project branch ready for human review and merge.

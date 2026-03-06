@@ -76,32 +76,38 @@ The `/release-review` skill performs a comprehensive pre-flight check before cut
  │  3. PRESENT PHASE 1 FINDINGS                 │
  │  ────────────────────────────────────────    │
  │  Show BLOCKERs and WARNINGs from scan        │
- │                                              │
- │  Ask: Continue with execution checks?        │
- │  ├─ Continue → proceed to step 4             │
- │  ├─ Fix first → exit, user fixes, re-runs    │
- │  └─ Skip → go to step 7                      │
  └──────────────────┬───────────────────────────┘
                     ▼
  ┌──────────────────────────────────────────────┐
- │  4-6. EXECUTION CHECKS (slow)                │
+ │  4. USER DECISION POINT                      │
  │  ────────────────────────────────────────    │
- │  4. Run test suite                           │
- │  5. Run build verification                   │
- │  6. Check doc freshness (doc-maintainer)     │
+ │  Continue with execution checks?             │
+ │  ├─ Continue → proceed to step 5             │
+ │  ├─ Fix first → exit, user fixes, re-runs    │
+ │  └─ Skip → go to step 8                      │
  └──────────────────┬───────────────────────────┘
                     ▼
  ┌──────────────────────────────────────────────┐
- │  7. FULL CONSOLIDATED REPORT                 │
+ │  5. Run test suite                           │
+ ├──────────────────────────────────────────────┤
+ │  6. Run build verification                   │
+ ├──────────────────────────────────────────────┤
+ │  7. Check doc freshness (doc-maintainer)     │
+ └──────────────────┬───────────────────────────┘
+                    ▼
+ ┌──────────────────────────────────────────────┐
+ │  8. FULL CONSOLIDATED REPORT                 │
  │  ────────────────────────────────────────    │
  │  All findings numbered by severity:          │
  │  BLOCKERS → WARNINGS → PASSED                │
- │                                              │
- │  User selects which items to address         │
  └──────────────────┬───────────────────────────┘
                     ▼
  ┌──────────────────────────────────────────────┐
- │  8. IMPLEMENT SELECTED FIXES                 │
+ │  9. USER SELECTS ITEMS TO ADDRESS            │
+ └──────────────────┬───────────────────────────┘
+                    ▼
+ ┌──────────────────────────────────────────────┐
+ │  10. IMPLEMENT SELECTED FIXES                │
  │  ────────────────────────────────────────    │
  │  Auto-fixable:                               │
  │  • Debug artifact removal                    │
@@ -118,13 +124,13 @@ The `/release-review` skill performs a comprehensive pre-flight check before cut
  └──────────────────┬───────────────────────────┘
                     ▼
  ┌──────────────────────────────────────────────┐
- │  9. RE-VERIFY                                │
+ │  11. RE-VERIFY                               │
  │  ────────────────────────────────────────    │
  │  Quick re-check of affected static checks    │
  └──────────────────┬───────────────────────────┘
                     ▼
  ┌──────────────────────────────────────────────┐
- │  10. FINAL SUMMARY                           │
+ │  12. FINAL SUMMARY                           │
  │  ────────────────────────────────────────    │
  │  • Items resolved vs remaining               │
  │  • Changes made                              │
