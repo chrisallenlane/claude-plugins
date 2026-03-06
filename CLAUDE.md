@@ -51,4 +51,4 @@ The skills form a three-stage development workflow:
    decide        plan      implement
 ```
 
-Skills: `/deliberate` (adversarial decision-making), `/scope` (planning), `/iterate` (implementation), `/bugfix` (bug-fixing), `/batch` (multi-ticket orchestration), `/project` (full-lifecycle project orchestration), `/refactor` (tactical cleanup), `/arch-review` (architectural restructuring), `/test-review` (comprehensive test suite review), `/test-mutate` (mutation testing), `/release-review` (pre-release readiness), and `/doc-review` (documentation audit), plus specialist agents.
+Skills: `/deliberate` (adversarial decision-making), `/scope` (planning), `/scope-project` (adversarial project planning), `/iterate` (implementation), `/bugfix` (bug-fixing), `/batch` (multi-ticket orchestration), `/project` (full-lifecycle project orchestration), `/refactor` (tactical cleanup), `/arch-review` (architectural restructuring), `/test-review` (comprehensive test suite review), `/test-mutate` (mutation testing), `/release-review` (pre-release readiness), and `/doc-review` (documentation audit), plus specialist agents.
