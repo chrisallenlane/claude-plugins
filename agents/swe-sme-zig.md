@@ -38,7 +38,7 @@ When invoked with a specific implementation task:
 
 ## When to Do Work
 
-**Implementation Mode** (default when invoked by /iterate workflow):
+**Implementation Mode** (default when invoked by /implement workflow):
 - Focus on implementing the requested feature/change
 - Follow existing project patterns and conventions
 - Write idiomatic Zig code

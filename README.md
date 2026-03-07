@@ -20,7 +20,7 @@ and autonomy.
 ```
 /project                              ← full project lifecycle
 ├── /batch (per batch)                ← multi-ticket orchestration
-│   ├── /iterate (per ticket)         ← single-ticket implementation
+│   ├── /implement (per ticket)         ← single-ticket implementation
 │   │   ├── SME implementation        ← language-specific specialist
 │   │   ├── QA verification           ← practical + coverage
 │   │   ├── Code review               ← security, refactor, perf
@@ -44,7 +44,7 @@ consumes directly:
     plan             implement + verify + polish
 ```
 
-For single tickets: `/scope` plans, `/iterate` implements.
+For single tickets: `/scope` plans, `/implement` implements.
 
 Two supporting workflows are available at any level: `/deliberate`
 (adversarial decision-making for hard choices) and `/bugfix`
@@ -59,7 +59,7 @@ your task:
 |---------------------------------------------------------|------------------|
 | Implement an entire multi-batch project autonomously    | `/project`       |
 | Implement a batch of related tickets                    | `/batch`         |
-| Implement a single ticket or feature                    | `/iterate`       |
+| Implement a single ticket or feature                    | `/implement`       |
 | Plan a multi-batch project with adversarial review      | `/scope-project` |
 | Plan a single feature and create a ticket               | `/scope`         |
 | Fix a bug with diagnosis and root-cause analysis        | `/bugfix`        |
@@ -74,7 +74,7 @@ your task:
 **Rules of thumb:**
 - Multiple batches of tickets forming a project? `/project`
 - One batch of 2+ related tickets? `/batch`
-- One ticket? `/iterate` (or `/bugfix` if it's a bug)
+- One ticket? `/implement` (or `/bugfix` if it's a bug)
 - Not sure what to build yet? Start with `/scope` or `/scope-project`
 
 ## Skills
@@ -100,20 +100,20 @@ planned intervention path.
 #### /batch — Multi-Ticket Orchestration
 
 Takes a batch of tickets, plans their execution order, implements each
-sequentially using `/iterate` in autonomous mode, runs cross-cutting
+sequentially using `/implement` in autonomous mode, runs cross-cutting
 quality passes (`/refactor`, `/doc-review`), and presents results for
 final review.
 
 [Detailed documentation](skills/batch/README.md)
 
-#### /iterate — Single-Ticket Development
+#### /implement — Single-Ticket Development
 
 Orchestrates a complete development cycle through specialist agents:
 requirements → planning → implementation → QA → code review →
 documentation. Detects project type and dispatches to language-specific
 SMEs (Go, GraphQL, Docker, Makefile, Ansible, Zig).
 
-[Detailed documentation](skills/iterate/README.md)
+[Detailed documentation](skills/implement/README.md)
 
 ### Planning
 
@@ -211,7 +211,7 @@ trade-offs.
 Coordinates specialist agents through a diagnosis-first bug-fixing cycle:
 reproduce with a failing test, perform root-cause analysis with git
 archaeology, implement a targeted fix, and verify. Same review pipeline as
-`/iterate`.
+`/implement`.
 
 [Detailed documentation](skills/bugfix/README.md)
 

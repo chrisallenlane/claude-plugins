@@ -175,7 +175,7 @@ Output: Created ticket with URL.
 - Don't rush to ticket creation
 - Better to ask more questions than create vague tickets
 
-**Integration with /iterate:**
+**Integration with /implement:**
 - These skills are separate and complementary
-- `/scope` creates the ticket, `/iterate` implements it
-- Ticket created by `/scope` can be handed to someone else or tackled later with `/iterate`
+- `/scope` creates the ticket, `/implement` implements it
+- Ticket created by `/scope` can be handed to someone else or tackled later with `/implement`

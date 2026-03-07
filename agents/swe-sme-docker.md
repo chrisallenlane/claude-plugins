@@ -28,7 +28,7 @@ When invoked with a specific task:
 
 ## When to Do Work
 
-**Implementation Mode** (default when invoked by /iterate workflow):
+**Implementation Mode** (default when invoked by /implement workflow):
 - Focus on implementing the requested change
 - Follow existing patterns where appropriate
 - Apply best practices to new/modified sections

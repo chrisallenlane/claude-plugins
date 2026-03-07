@@ -2,12 +2,12 @@
 
 ## Overview
 
-The `/batch` skill takes a batch of tickets, plans their execution order, implements each one sequentially using the `/iterate` workflow in autonomous mode, runs cross-cutting quality passes, and presents results for final review. It turns a set of tickets into a single project branch ready to merge.
+The `/batch` skill takes a batch of tickets, plans their execution order, implements each one sequentially using the `/implement` workflow in autonomous mode, runs cross-cutting quality passes, and presents results for final review. It turns a set of tickets into a single project branch ready to merge.
 
 **Key benefits:**
 - Batch execution of multiple tickets without intervention
 - Dependency-aware ordering
-- Each ticket gets full `/iterate` quality treatment
+- Each ticket gets full `/implement` quality treatment
 - Cross-cutting quality passes catch inter-ticket issues
 - Topic branches per ticket, merged into a project branch
 - Andon cord protocol stops work immediately on failures
@@ -21,9 +21,9 @@ The `/batch` skill takes a batch of tickets, plans their execution order, implem
 - Batches where you want autonomous execution with quality gates
 
 **Don't use `/batch` for:**
-- Single tickets (use `/iterate` or `/bugfix` directly)
+- Single tickets (use `/implement` or `/bugfix` directly)
 - Exploratory work or prototyping
-- Tickets that need heavy user collaboration during implementation (use `/iterate` interactively)
+- Tickets that need heavy user collaboration during implementation (use `/implement` interactively)
 
 **Rule of thumb:** If you have 2+ tickets you want implemented as a cohesive unit, use `/batch`.
 
@@ -79,7 +79,7 @@ The `/batch` skill takes a batch of tickets, plans their execution order, implem
  │  5a. Create topic branch                     │
  │      feat/issue-<number>-<slug>              │
  ├──────────────────────────────────────────────┤
- │  5b. Run /iterate (autonomous mode)          │
+ │  5b. Run /implement (autonomous mode)          │
  │      • Requirements pre-loaded from ticket   │
  │      • Full quality pipeline                 │
  │      • Auto-commit with ticket reference     │
@@ -154,7 +154,7 @@ For each ticket in order:
 
 **5a. Create topic branch** (`feat/issue-<number>-<slug>`) off the project branch.
 
-**5b. Run `/iterate` in autonomous mode.** The full `/iterate` workflow runs with these overrides:
+**5b. Run `/implement` in autonomous mode.** The full `/implement` workflow runs with these overrides:
 - Requirements are pre-loaded from the ticket body (no user prompting)
 - Acceptance criteria are derived from the description if not explicit
 - Auto-commits with `Fixes #<number>` in the message
@@ -237,19 +237,19 @@ Approve this plan?
 Creating branch: feat/batch-sprint-4
 
 [Ticket #12] Creating topic branch: feat/issue-12-add-auth
-[Ticket #12] Running /iterate (autonomous)...
+[Ticket #12] Running /implement (autonomous)...
 [Ticket #12] ✓ Implemented, tests pass, committed
 [Ticket #12] Merged into project branch
 [Ticket #12] Post-merge verification: all tests pass
 
 [Ticket #18] Creating topic branch: feat/issue-18-add-metrics
-[Ticket #18] Running /iterate (autonomous)...
+[Ticket #18] Running /implement (autonomous)...
 [Ticket #18] ✓ Implemented, tests pass, committed
 [Ticket #18] Merged into project branch
 [Ticket #18] Post-merge verification: all tests pass
 
 [Ticket #15] Creating topic branch: feat/issue-15-fix-cache
-[Ticket #15] Running /iterate (autonomous)...
+[Ticket #15] Running /implement (autonomous)...
 [Ticket #15] ✓ Implemented, tests pass, committed
 [Ticket #15] Merged into project branch
 [Ticket #15] Post-merge verification: all tests pass
@@ -277,7 +277,7 @@ Running cross-cutting quality passes...
 
 ### Example 2: Andon Cord
 ```
-[Ticket #15] Running /iterate (autonomous)...
+[Ticket #15] Running /implement (autonomous)...
 [Ticket #15] Acceptance verification: FAIL (attempt 1/3)
 [Ticket #15] Acceptance verification: FAIL (attempt 2/3)
 [Ticket #15] Acceptance verification: FAIL (attempt 3/3)
@@ -285,7 +285,7 @@ Running cross-cutting quality passes...
 ⚠ ANDON CORD — Stopping all work
 
 Ticket #15 (Fix cache race condition) failed acceptance verification
-3 times during /iterate step 4.
+3 times during /implement step 4.
 
 Specific failures:
 - TestConcurrentCacheAccess still shows data race under -race flag
@@ -304,8 +304,8 @@ Awaiting your guidance.
 | Skill          | Relationship                                                                               |
 |----------------|--------------------------------------------------------------------------------------------|
 | `/scope`       | Creates tickets that `/batch` consumes. Typical flow: `/scope` then `/batch`.          |
-| `/iterate`     | Runs inside `/batch` for each ticket. `/batch` adds batching, ordering, and branching. |
-| `/bugfix`      | Not used by `/batch` currently — all tickets go through `/iterate`.                      |
+| `/implement`     | Runs inside `/batch` for each ticket. `/batch` adds batching, ordering, and branching. |
+| `/bugfix`      | Not used by `/batch` currently — all tickets go through `/implement`.                      |
 | `/refactor`    | Runs as cross-cutting quality pass (SAFE aggression).                                      |
 | `/doc-review`  | Runs as cross-cutting quality pass.                                                        |
 
@@ -317,6 +317,6 @@ Awaiting your guidance.
 
 3. **Trust the andon cord.** When it fires, something genuinely went wrong. Don't try to force past it — address the root cause.
 
-4. **Check cross-cutting results.** The quality passes in step 6 often find inter-ticket issues (duplicate code, conflicting patterns) that per-ticket `/iterate` runs can't see.
+4. **Check cross-cutting results.** The quality passes in step 6 often find inter-ticket issues (duplicate code, conflicting patterns) that per-ticket `/implement` runs can't see.
 
 5. **The project branch is your safety net.** Main stays clean. If the project branch is unsatisfactory, you can discard it entirely.

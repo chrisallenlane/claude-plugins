@@ -178,11 +178,11 @@ Commit? > yes
 
 ## Integration with Other Skills
 
-`/test-mutate`, `/test-review`, `/iterate`, and `/refactor` are complementary:
+`/test-mutate`, `/test-review`, `/implement`, and `/refactor` are complementary:
 
 - **Use /test-review** to fill coverage gaps and audit test quality
 - **Use /test-mutate** to find tests that run code without verifying behavior
-- **Use /iterate** to build features with quality gates
+- **Use /implement** to build features with quality gates
 - **Use /refactor** for code cleanup, then `/test-mutate` to verify tests weren't weakened
 
 Recommended sequence for test improvement: `/test-review` first (fill gaps, clean up), then `/test-mutate` (strengthen).

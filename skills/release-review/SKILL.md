@@ -198,7 +198,7 @@ Remove the marker comment. Show what was removed. The user selected these knowin
 Cannot auto-fix — the user must resolve conflicts manually. Report the file and conflicting content. Skip.
 
 #### Test failures
-Cannot auto-fix from here. Suggest: "Test failures require investigation. Fix manually or use `/iterate` to address."
+Cannot auto-fix from here. Suggest: "Test failures require investigation. Fix manually or use `/implement` to address."
 
 #### Build failures
 Cannot auto-fix from here. Report the error and suggest investigating.

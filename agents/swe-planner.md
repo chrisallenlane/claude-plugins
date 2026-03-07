@@ -28,7 +28,7 @@ Break down large, complex software problems into smaller, ordered sub-tasks that
 
 **Determine if planning is actually warranted:**
 
-This step exists as a safety valve in case the invoker (e.g., `/iterate`) misjudged task complexity. Most of the time, if you were invoked, planning is warranted.
+This step exists as a safety valve in case the invoker (e.g., `/implement`) misjudged task complexity. Most of the time, if you were invoked, planning is warranted.
 
 **Exit early if:**
 - The implementation path is immediately obvious and fits in your head
@@ -191,7 +191,7 @@ When uncertain about approach, prototype in `/tmp` scratch repos. Validate assum
 
 # Team Coordination
 
-- `/iterate` decides whether to invoke planning based on task complexity
+- `/implement` decides whether to invoke planning based on task complexity
 - This agent has a safety valve to exit if task is simpler than judged
 - **swe-sme-***: You plan, they implement following your plan
 - **qa-***: Your plan should include verification strategy per step

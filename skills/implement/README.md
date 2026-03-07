@@ -1,8 +1,8 @@
-# /iterate - Automated Development Workflow
+# /implement - Automated Development Workflow
 
 ## Overview
 
-The `/iterate` skill orchestrates a complete development workflow through specialist agents, taking you from requirements to tested, documented, production-ready code. It coordinates implementation, refactoring, quality assurance, and documentation in a systematic, repeatable process.
+The `/implement` skill orchestrates a complete development workflow through specialist agents, taking you from requirements to tested, documented, production-ready code. It coordinates implementation, refactoring, quality assurance, and documentation in a systematic, repeatable process.
 
 **Key benefits:**
 - Specialist expertise applied to each phase
@@ -13,26 +13,26 @@ The `/iterate` skill orchestrates a complete development workflow through specia
 
 ## When to Use
 
-**Use `/iterate` for:**
+**Use `/implement` for:**
 - Non-trivial features requiring multiple files or subsystems
 - Bug fixes where you want comprehensive testing and documentation
 - Changes where quality gates matter (refactoring, security, performance)
 - Work that benefits from specialist review (GraphQL APIs, Docker, Makefiles)
 - Features where practical verification is important (CLI tools, MCP servers)
 
-**Don't use `/iterate` for:**
+**Don't use `/implement` for:**
 - Simple typo fixes or trivial one-line changes
 - Quick exploratory work or prototyping
 - Tasks where overhead outweighs benefit
 - Work you'll throw away or iterate on rapidly
 
-**Rule of thumb:** If the task is substantial enough that you'd normally write tests, update docs, and get a code review, use `/iterate`.
+**Rule of thumb:** If the task is substantial enough that you'd normally write tests, update docs, and get a code review, use `/implement`.
 
 ## Workflow Diagram
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│ /iterate Workflow                                               │
+│ /implement Workflow                                               │
 └─────────────────────────────────────────────────────────────────┘
 
  ┌──────────────────────────────────────────────┐
@@ -421,7 +421,7 @@ If limits reached, workflow escalates to user with current state and specific bl
 
 ## Philosophy
 
-The `/iterate` workflow embodies several key principles:
+The `/implement` workflow embodies several key principles:
 
 **Different lenses, different stages:**
 - Implementation focuses on "does it work?"
@@ -448,4 +448,4 @@ The `/iterate` workflow embodies several key principles:
 
 ---
 
-Ready to use? Just type `/iterate` and describe what you want to build.
+Ready to use? Just type `/implement` and describe what you want to build.

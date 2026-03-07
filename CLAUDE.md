@@ -49,10 +49,10 @@ The skills form a layered system. Higher-level workflows orchestrate lower-level
 ```
 /project
 ├── /batch (per batch)
-│   └── /iterate (per ticket)
+│   └── /implement (per ticket)
 └── quality pipeline: /refactor, /arch-review, /test-review, /doc-review, /release-review
 ```
 
-Planning feeds implementation: `/scope-project` → `/project`, or `/scope` → `/iterate`.
+Planning feeds implementation: `/scope-project` → `/project`, or `/scope` → `/implement`.
 
 Supporting workflows available at any level: `/deliberate` (adversarial decision-making), `/bugfix` (diagnosis-first bug fixing), `/test-mutate` (mutation testing).

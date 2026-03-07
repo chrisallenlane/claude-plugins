@@ -302,8 +302,8 @@ This spawns a doc-maintainer agent that audits all project documentation and fix
 - `/arch-review` is a strategic workflow that questions and restructures the architecture itself (noun analysis, module boundaries, blueprints)
 - Use `/refactor` for routine cleanup; use `/arch-review` when the module structure itself needs rethinking
 
-**Relationship to `/iterate`:**
-- `/iterate` is a feature development workflow that optionally invokes `swe-refactor` (tactical) for code review after implementation
+**Relationship to `/implement`:**
+- `/implement` is a feature development workflow that optionally invokes `swe-refactor` (tactical) for code review after implementation
 - `/arch-review` is a dedicated architectural improvement workflow
 
 **Relationship to `/scope`:**

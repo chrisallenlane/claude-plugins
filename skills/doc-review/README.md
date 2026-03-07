@@ -20,7 +20,7 @@ The `/doc-review` skill spawns a doc-maintainer agent to comprehensively review 
 - As part of `/refactor` or `/arch-review` completion (it runs automatically)
 
 **Don't use `/doc-review` for:**
-- Updating docs for a specific change (the `/iterate` and `/bugfix` workflows do this as part of their flow)
+- Updating docs for a specific change (the `/implement` and `/bugfix` workflows do this as part of their flow)
 - Writing new documentation from scratch (just ask directly)
 
 ## Workflow
@@ -56,7 +56,7 @@ Spawning doc-maintainer agent for comprehensive review...
 ## Documentation Audit Report
 
 ### Changes Made
-1. skills/iterate/README.md — Updated example to match current CLI flags
+1. skills/implement/README.md — Updated example to match current CLI flags
 2. CLAUDE.md — Fixed skill list ordering to match directory structure
 
 ### Issues Requiring User Approval
@@ -79,4 +79,4 @@ Committed: "docs: review and update project documentation"
 
 2. **Run before releases.** Stale docs in a release are embarrassing. A quick `/doc-review` catches drift.
 
-3. **Different from `/iterate` step 9.** The `/iterate` workflow's documentation step is scoped to the git diff. `/doc-review` audits everything regardless of recent changes.
+3. **Different from `/implement` step 9.** The `/implement` workflow's documentation step is scoped to the git diff. `/doc-review` audits everything regardless of recent changes.

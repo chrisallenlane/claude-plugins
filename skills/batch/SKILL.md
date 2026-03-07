@@ -1,12 +1,12 @@
 ---
 name: batch
-description: Multi-ticket batch workflow. Takes a batch of tickets, plans execution order, implements each via /iterate in autonomous mode, runs cross-cutting quality passes, and presents results for final review.
+description: Multi-ticket batch workflow. Takes a batch of tickets, plans execution order, implements each via /implement in autonomous mode, runs cross-cutting quality passes, and presents results for final review.
 model: opus
 ---
 
 # Batch - Multi-Ticket Orchestration Workflow
 
-Orchestrates a batch of tickets as a cohesive unit. Creates a project branch, implements each ticket sequentially using the `/iterate` workflow in autonomous mode, runs cross-cutting quality passes, and presents results for final human review.
+Orchestrates a batch of tickets as a cohesive unit. Creates a project branch, implements each ticket sequentially using the `/implement` workflow in autonomous mode, runs cross-cutting quality passes, and presents results for final human review.
 
 ## Philosophy
 
@@ -26,7 +26,7 @@ Orchestrates a batch of tickets as a cohesive unit. Creates a project branch, im
 │  4. Create project branch                            │
 │  5. Per-ticket loop:                                 │
 │     ├─ 5a. Create topic branch                       │
-│     ├─ 5b. Run /iterate (autonomous mode)            │
+│     ├─ 5b. Run /implement (autonomous mode)            │
 │     ├─ 5c. Merge topic branch → project branch       │
 │     ├─ 5d. Post-merge verification gate              │
 │     └─ 5e. Delete topic branch                       │
@@ -49,8 +49,8 @@ Orchestrates a batch of tickets as a cohesive unit. Creates a project branch, im
 3. Wait for user guidance before resuming
 
 **Andon cord triggers:**
-- Acceptance verification fails 3 times (step 5b, `/iterate` step 4)
-- Unresolvable critical/high security findings (step 5b, `/iterate` step 5a)
+- Acceptance verification fails 3 times (step 5b, `/implement` step 4)
+- Unresolvable critical/high security findings (step 5b, `/implement` step 5a)
 - Post-merge test suite failure (step 5d)
 - Merge conflict (step 5c)
 - Issue tracker unavailable or tickets can't be fetched (step 2)
@@ -123,19 +123,19 @@ For each ticket in the planned order:
 - Create topic branch: `feat/issue-<number>-<brief-slug>`
 - The slug is derived from the ticket title (lowercase, hyphens, truncated to ~40 chars)
 
-#### 5b. Run `/iterate` Workflow (Autonomous Mode)
+#### 5b. Run `/implement` Workflow (Autonomous Mode)
 
-Follow the `/iterate` workflow with these overrides for autonomous operation:
+Follow the `/implement` workflow with these overrides for autonomous operation:
 
-| `/iterate` Step                             | Autonomous Override                                                                                                                                                                                              |
+| `/implement` Step                             | Autonomous Override                                                                                                                                                                                              |
 |---------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Step 1** (requirements)                   | Pre-loaded from ticket body. Do not prompt user for requirements. If the ticket lacks explicit acceptance criteria, derive them from the description. If the description is empty or incoherent, **andon cord**. |
 | **Step 2** (planning)                       | Follow normal conditional logic — invoke `swe-planner` for complex tasks, skip for simple ones.                                                                                                                  |
-| **Steps 3-4** (implementation + acceptance) | Follow normal logic. If acceptance verification fails 3 times, **andon cord** (do not escalate to user within `/iterate` — escalate here at the batch level).                                                    |
+| **Steps 3-4** (implementation + acceptance) | Follow normal logic. If acceptance verification fails 3 times, **andon cord** (do not escalate to user within `/implement` — escalate here at the batch level).                                                    |
 | **Step 5a** (security review)               | Follow normal logic. If critical/high findings cannot be resolved by the implementation agent, **andon cord**.                                                                                                   |
 | **Steps 5b-5c** (refactoring/perf review)   | Follow normal logic — these are advisory.                                                                                                                                                                        |
 | **Step 6** (implement review feedback)      | Follow normal logic.                                                                                                                                                                                             |
-| **Step 7** (peer review)                    | Follow normal logic. Handle deep issues autonomously — trust agents. If peer review breaks tests, revert peer review changes per standard `/iterate` logic.                                                      |
+| **Step 7** (peer review)                    | Follow normal logic. Handle deep issues autonomously — trust agents. If peer review breaks tests, revert peer review changes per standard `/implement` logic.                                                      |
 | **Step 8** (coverage/quality verification)  | Follow normal logic. Handle autonomously — if tests pass, proceed. Do not prompt user for approval of minor issues.                                                                                              |
 | **Step 9** (documentation)                  | Follow normal logic.                                                                                                                                                                                             |
 | **Step 10** (final verification)            | Follow normal logic.                                                                                                                                                                                             |
@@ -226,20 +226,20 @@ The orchestrator maintains:
 - No parallel agent execution
 
 **Context management:**
-- The `/iterate` workflow within each ticket manages its own agent lifecycle
+- The `/implement` workflow within each ticket manages its own agent lifecycle
 - The batch orchestrator tracks only summary-level state across tickets
 - Keep per-ticket summaries brief to avoid context window bloat across a large batch
 
 **Fresh state per ticket:**
 - Each ticket starts with a fresh topic branch
-- The `/iterate` workflow starts from scratch for each ticket
+- The `/implement` workflow starts from scratch for each ticket
 - No state leaks between tickets except the cumulative project branch
 
 ## Integration with Other Skills
 
-**Relationship to `/iterate`:**
-- `/batch` is a higher-level orchestrator that runs `/iterate` for each ticket
-- `/iterate` handles the full development cycle for a single ticket
+**Relationship to `/implement`:**
+- `/batch` is a higher-level orchestrator that runs `/implement` for each ticket
+- `/implement` handles the full development cycle for a single ticket
 - `/batch` adds: batching, ordering, branching strategy, cross-cutting quality passes
 
 **Relationship to `/scope`:**

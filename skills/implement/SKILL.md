@@ -1,10 +1,10 @@
 ---
-name: iterate
+name: implement
 description: Iterative development workflow that coordinates implementation, refactoring, QA, and documentation agents to complete features systematically. Use when the user wants a full development workflow with quality checks.
 model: opus
 ---
 
-# Iterate - Automated Development Workflow
+# Implement - Automated Development Workflow
 
 Coordinates specialist agents through a complete development cycle: requirements -> planning -> implementation -> refactoring -> QA -> documentation.
 

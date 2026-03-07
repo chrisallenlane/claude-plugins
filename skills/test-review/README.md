@@ -231,7 +231,7 @@ Implementation is always parallelized by target test file — findings targeting
 | Skill          | Relationship                                                                              |
 |----------------|-------------------------------------------------------------------------------------------|
 | `/test-mutate` | Complementary. `/test-review` builds breadth, `/test-mutate` builds depth.                |
-| `/iterate`     | `/iterate` includes QA as part of feature development. `/test-review` is a standalone audit. |
+| `/implement`     | `/implement` includes QA as part of feature development. `/test-review` is a standalone audit. |
 | `/refactor`    | Run `/test-review` before refactoring to ensure tests are strong enough to catch regressions. |
 
 Recommended sequence for test improvement: `/test-review` first (fill gaps, clean up), then `/test-mutate` (verify tests catch bugs).

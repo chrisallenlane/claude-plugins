@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `/bugfix` skill orchestrates a diagnosis-first bug-fixing workflow through specialist agents. It reproduces the bug with a failing test, performs root-cause analysis with git archaeology, implements a targeted fix, and verifies the fix through practical testing — all with the same review and documentation quality gates as `/iterate`.
+The `/bugfix` skill orchestrates a diagnosis-first bug-fixing workflow through specialist agents. It reproduces the bug with a failing test, performs root-cause analysis with git archaeology, implements a targeted fix, and verifies the fix through practical testing — all with the same review and documentation quality gates as `/implement`.
 
 **Key benefits:**
 - Test-driven reproduction: a failing test defines "done"
@@ -10,7 +10,7 @@ The `/bugfix` skill orchestrates a diagnosis-first bug-fixing workflow through s
 - Git archaeology uncovers when and why the bug was introduced
 - Related failure modes are identified and tested, not just the reported bug
 - Practical verification confirms the fix actually works
-- Same review pipeline as `/iterate` (security, refactoring, performance, peer review)
+- Same review pipeline as `/implement` (security, refactoring, performance, peer review)
 
 ## When to Use
 
@@ -23,7 +23,7 @@ The `/bugfix` skill orchestrates a diagnosis-first bug-fixing workflow through s
 
 **Don't use `/bugfix` for:**
 - Obvious typos or trivial one-line fixes (just fix them directly)
-- Feature requests disguised as bugs (use `/iterate`)
+- Feature requests disguised as bugs (use `/implement`)
 - Exploratory debugging where the symptom is unclear (investigate first, then `/bugfix`)
 
 **Rule of thumb:** If the bug is worth a failing test and root-cause analysis, use `/bugfix`. If the fix is obvious, just do it.
@@ -177,20 +177,20 @@ The `/bugfix` skill orchestrates a diagnosis-first bug-fixing workflow through s
  └──────────────────────────────────────────────┘
 ```
 
-## How /bugfix Differs from /iterate
+## How /bugfix Differs from /implement
 
-The `/bugfix` workflow diverges from `/iterate` in steps 2-4, then rejoins for the review pipeline:
+The `/bugfix` workflow diverges from `/implement` in steps 2-4, then rejoins for the review pipeline:
 
-| Step | `/iterate`             | `/bugfix`                               |
+| Step | `/implement`             | `/bugfix`                               |
 |------|------------------------|-----------------------------------------|
 | 1    | Gather requirements    | Clarify bug symptoms                    |
 | 2    | Planning (conditional) | **Write failing test** (SME)            |
 | 3    | Implementation         | **Diagnosis** (swe-diagnostician)       |
 | 4    | QA acceptance gate     | **Implement fix** (guided by diagnosis) |
-| 5+   | Reviews, docs, commit  | Same as `/iterate` steps 5-11           |
+| 5+   | Reviews, docs, commit  | Same as `/implement` steps 5-11           |
 
 Key differences:
-- **Test first, then fix.** `/iterate` implements then tests. `/bugfix` writes a failing test before any fix attempt.
+- **Test first, then fix.** `/implement` implements then tests. `/bugfix` writes a failing test before any fix attempt.
 - **Diagnosis before implementation.** The diagnostician performs root-cause analysis so the SME implements a targeted fix, not a guess.
 - **Git archaeology.** The diagnostician traces when and how the bug was introduced, providing context the SME wouldn't otherwise have.
 - **Related failure modes.** The diagnostician identifies patterns, and the SME writes tests for all of them — not just the reported bug.
@@ -251,7 +251,7 @@ The `qa-engineer` performs practical verification:
 If verification fails, returns to step 4 (max 3 attempts before escalating).
 
 ### 6-12. Reviews, Documentation, Completion
-Identical to `/iterate` steps 5-11. See the [/iterate README](../iterate/README.md) for details.
+Identical to `/implement` steps 5-11. See the [/implement README](../implement/README.md) for details.
 
 ## Examples
 
@@ -323,7 +323,7 @@ Workflow:
 
 4. **Related failure modes are valuable.** The diagnostician looks for patterns, not just the single reported bug. This often catches adjacent bugs that would have been reported next.
 
-5. **Use `/iterate` for feature-shaped bugs.** If the "bug" is really a missing feature or a design change, `/iterate` is a better fit. `/bugfix` is for when existing behavior is wrong.
+5. **Use `/implement` for feature-shaped bugs.** If the "bug" is really a missing feature or a design change, `/implement` is a better fit. `/bugfix` is for when existing behavior is wrong.
 
 ## Agent Coordination
 

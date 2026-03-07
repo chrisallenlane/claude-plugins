@@ -20,10 +20,10 @@ The `/release-review` skill performs a comprehensive pre-flight check before cut
 - Catching things that development workflows don't focus on
 
 **Don't use `/release-review` for:**
-- Routine development checks (use `/iterate` or `/refactor`)
+- Routine development checks (use `/implement` or `/refactor`)
 - Test quality concerns (use `/test-review` or `/test-mutate`)
 - Documentation updates (use `/doc-review`)
-- Security audits (the sec-reviewer agent handles that during `/iterate`)
+- Security audits (the sec-reviewer agent handles that during `/implement`)
 
 **Key principle:** Releases deserve human review. This workflow surfaces issues — it doesn't silently fix them.
 

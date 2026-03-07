@@ -25,7 +25,7 @@ The `/project` skill orchestrates an entire project from tickets to release-read
 
 **Don't use `/project` for:**
 - A single batch of tickets (use `/batch` directly)
-- Single tickets (use `/iterate` or `/bugfix` directly)
+- Single tickets (use `/implement` or `/bugfix` directly)
 - Exploratory work or prototyping
 - Projects with heavy user collaboration needed during implementation
 
@@ -460,7 +460,7 @@ All smoke tests pass
 Creating batch branch: feat/batch-ui-overhaul
 Running /batch (autonomous mode)...
   [#22] Implemented dashboard — React components
-  [#25] Running /iterate (autonomous)...
+  [#25] Running /implement (autonomous)...
   [#25] Acceptance verification: FAIL (attempt 1/3)
   [#25] Acceptance verification: FAIL (attempt 2/3)
   [#25] Acceptance verification: FAIL (attempt 3/3)
@@ -468,7 +468,7 @@ Running /batch (autonomous mode)...
 ⚠ ANDON CORD — Stopping all work
 
 Ticket #25 (Responsive layout) failed acceptance verification
-3 times during /iterate step 4 within /batch.
+3 times during /implement step 4 within /batch.
 
 Specific failures:
 - CSS grid doesn't render correctly in Safari
@@ -509,7 +509,7 @@ Skipping /refactor (pass 2): arch-review was skipped
 |--------------------|-----------------------------------------------------------------------------------------------------|
 | `/scope`           | Creates tickets that `/project` consumes. Typical flow: `/scope` → organize into batches → `/project`. |
 | `/batch`           | Runs inside `/project` for each batch. `/project` adds multi-batch coordination, smoke testing, and the quality pipeline. |
-| `/iterate`         | Runs inside `/batch` for each ticket. The innermost implementation loop.                            |
+| `/implement`         | Runs inside `/batch` for each ticket. The innermost implementation loop.                            |
 | `/refactor`        | Runs as project-level quality pass (MAXIMUM aggression) and within each batch (SAFE aggression).    |
 | `/arch-review`     | Runs as project-level quality pass in autonomous mode.                                              |
 | `/test-review`     | Runs as project-level quality pass.                                                                 |
@@ -522,7 +522,7 @@ Skipping /refactor (pass 2): arch-review was skipped
 ```
 /project
 ├── /batch (per batch)
-│   ├── /iterate (per ticket)
+│   ├── /implement (per ticket)
 │   ├── /refactor (per-batch quality)
 │   └── /doc-review (per-batch quality)
 ├── /refactor (project-level quality)

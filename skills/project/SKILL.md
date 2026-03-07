@@ -381,7 +381,7 @@ Status: <current phase>
 
 **Relationship to `/batch`:**
 - `/project` is a higher-level orchestrator that runs `/batch` for each batch of tickets
-- `/batch` handles the per-ticket implementation loop via `/iterate`
+- `/batch` handles the per-ticket implementation loop via `/implement`
 - `/project` adds: multi-batch coordination, smoke testing, comprehensive quality pipeline
 
 **Relationship to `/scope`:**
@@ -397,7 +397,7 @@ Status: <current phase>
 ```
 /project
 ├── /batch (per batch)
-│   ├── /iterate (per ticket)
+│   ├── /implement (per ticket)
 │   ├── /refactor (per-batch quality)
 │   └── /doc-review (per-batch quality)
 ├── /refactor (project-level quality)
