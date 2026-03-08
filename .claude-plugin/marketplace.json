@@ -9,7 +9,7 @@
     {
       "name": "claude-swe-workflows",
       "description": "Software engineering workflow with deliberation, planning, implementation, and quality skills plus specialist agents",
-      "version": "2.0.0",
+      "version": "3.0.0",
       "author": {
         "name": "Chris Allen Lane"
       },
