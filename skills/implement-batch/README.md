@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `/batch` skill takes a batch of tickets, plans their execution order, implements each one sequentially using the `/implement` workflow in autonomous mode, runs cross-cutting quality passes, and presents results for final review. It turns a set of tickets into a single project branch ready to merge.
+The `/implement-batch` skill takes a batch of tickets, plans their execution order, implements each one sequentially using the `/implement` workflow in autonomous mode, runs cross-cutting quality passes, and presents results for final review. It turns a set of tickets into a single project branch ready to merge.
 
 **Key benefits:**
 - Batch execution of multiple tickets without intervention
@@ -14,18 +14,18 @@ The `/batch` skill takes a batch of tickets, plans their execution order, implem
 
 ## When to Use
 
-**Use `/batch` for:**
+**Use `/implement-batch` for:**
 - Implementing a sprint's worth of tickets
 - Milestone or tag-based batches (e.g., "all v2.0 tickets")
 - Multiple related tickets that should ship together
 - Batches where you want autonomous execution with quality gates
 
-**Don't use `/batch` for:**
+**Don't use `/implement-batch` for:**
 - Single tickets (use `/implement` or `/bugfix` directly)
 - Exploratory work or prototyping
 - Tickets that need heavy user collaboration during implementation (use `/implement` interactively)
 
-**Rule of thumb:** If you have 2+ tickets you want implemented as a cohesive unit, use `/batch`.
+**Rule of thumb:** If you have 2+ tickets you want implemented as a cohesive unit, use `/implement-batch`.
 
 ## Workflow Diagram
 
@@ -303,15 +303,15 @@ Awaiting your guidance.
 
 | Skill          | Relationship                                                                               |
 |----------------|--------------------------------------------------------------------------------------------|
-| `/scope`       | Creates tickets that `/batch` consumes. Typical flow: `/scope` then `/batch`.          |
-| `/implement`     | Runs inside `/batch` for each ticket. `/batch` adds batching, ordering, and branching. |
-| `/bugfix`      | Not used by `/batch` currently — all tickets go through `/implement`.                      |
+| `/scope`       | Creates tickets that `/implement-batch` consumes. Typical flow: `/scope` then `/implement-batch`.          |
+| `/implement`     | Runs inside `/implement-batch` for each ticket. `/implement-batch` adds batching, ordering, and branching. |
+| `/bugfix`      | Not used by `/implement-batch` currently — all tickets go through `/implement`.                      |
 | `/refactor`    | Runs as cross-cutting quality pass (SAFE aggression).                                      |
 | `/doc-review`  | Runs as cross-cutting quality pass.                                                        |
 
 ## Tips
 
-1. **Start with well-specified tickets.** `/batch` works autonomously — vague tickets lead to andon cord pulls. Use `/scope` to create well-defined tickets first.
+1. **Start with well-specified tickets.** `/implement-batch` works autonomously — vague tickets lead to andon cord pulls. Use `/scope` to create well-defined tickets first.
 
 2. **Review the execution plan.** Step 3 is your one planned interaction point. Catch ordering issues and ambiguous tickets here.
 

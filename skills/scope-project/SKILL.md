@@ -274,7 +274,7 @@ After the implementer approves, present the complete ticket set to the user:
 
 ### 8. Cut Tickets Upstream
 
-**Detect issue tracker** using the same detection as `/scope` and `/batch`:
+**Detect issue tracker** using the same detection as `/scope` and `/implement-batch`:
 - Check `CLAUDE.md` for tracker preference
 - Auto-detect from `git remote -v`
 - GitHub → `gh`, Gitea → MCP tools, GitLab → `glab`

@@ -1,12 +1,12 @@
 ---
 name: implement-project
-description: Full-lifecycle project workflow. Takes batched tickets, implements via /batch, runs smoke tests, then executes a comprehensive quality pipeline (refactor, arch-review, test-review, doc-review, release-review). Maximizes autonomy with andon cord escape.
+description: Full-lifecycle project workflow. Takes batched tickets, implements via /implement-batch, runs smoke tests, then executes a comprehensive quality pipeline (refactor, arch-review, test-review, doc-review, release-review). Maximizes autonomy with andon cord escape.
 model: opus
 ---
 
 # Implement-Project - Full-Lifecycle Project Workflow
 
-Orchestrates an entire project from tickets to release-ready code. Implements batched tickets via `/batch`, runs smoke tests, then executes a comprehensive quality pipeline. Maximizes autonomy — the andon cord is the only planned escalation path.
+Orchestrates an entire project from tickets to release-ready code. Implements batched tickets via `/implement-batch`, runs smoke tests, then executes a comprehensive quality pipeline. Maximizes autonomy — the andon cord is the only planned escalation path.
 
 ## Philosophy
 
@@ -30,7 +30,7 @@ Orchestrates an entire project from tickets to release-ready code. Implements ba
 │  4. Create project branch                                    │
 │  5. Per-batch loop:                                          │
 │     ├─ 5a. Create batch branch from project branch           │
-│     ├─ 5b. Run /batch workflow (autonomous mode)             │
+│     ├─ 5b. Run /implement-batch workflow (autonomous mode)             │
 │     ├─ 5c. Merge batch branch → project branch               │
 │     ├─ 5d. Post-merge verification                           │
 │     └─ 5e. Clean up and checkpoint                           │
@@ -91,7 +91,7 @@ Beyond the mainline workflow, the orchestrator has access to additional workflow
 
 **If batching is unclear:** Ask. Do not guess at grouping — the user has a reason for the batch structure.
 
-**Fetch all tickets** using the same tracker detection as `/batch` (GitHub → `gh`, Gitea → MCP tools, etc.). Gather title, description, acceptance criteria, labels, and dependencies for each.
+**Fetch all tickets** using the same tracker detection as `/implement-batch` (GitHub → `gh`, Gitea → MCP tools, etc.). Gather title, description, acceptance criteria, labels, and dependencies for each.
 
 ### 2. Discuss Smoke Testing Procedures
 
@@ -147,18 +147,18 @@ For each batch in the planned order:
 - Checkout project branch (ensure it's current)
 - Create batch branch: `feat/batch-<descriptive-name>`
 
-#### 5b. Run `/batch` Workflow (Autonomous Mode)
+#### 5b. Run `/implement-batch` Workflow (Autonomous Mode)
 
-Invoke the `/batch` workflow with these autonomous overrides:
+Invoke the `/implement-batch` workflow with these autonomous overrides:
 
-| `/batch` Step                 | Autonomous Override                                                                                                                                                                                                    |
+| `/implement-batch` Step                 | Autonomous Override                                                                                                                                                                                                    |
 |-------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Step 1** (receive tickets)  | Pre-loaded — pass the batch's ticket list directly                                                                                                                                                                     |
 | **Step 2** (detect tracker & fetch) | Normal operation                                                                                                                                                                                                 |
 | **Step 3** (batch planning)   | **Orchestrator approves the plan autonomously.** Review the proposed execution order. Use `/deliberate` if the ordering is unclear or if there are concerning dependency patterns. Only pull the andon cord if tickets are fundamentally incoherent. |
-| **Step 4** (create project branch) | **Skip — already on the batch branch.** The batch branch serves as `/batch`'s "project branch." Topic branches are created from it.                                                                             |
+| **Step 4** (create project branch) | **Skip — already on the batch branch.** The batch branch serves as `/implement-batch`'s "project branch." Topic branches are created from it.                                                                             |
 | **Steps 5a-5e** (per-ticket loop)  | Normal operation. Topic branches are created from the batch branch. Andon cord triggers cascade up to the project orchestrator.                                                                                  |
-| **Step 6** (quality passes)   | Normal operation. Let `/batch` run its own refactor + doc-review.                                                                                                                                                      |
+| **Step 6** (quality passes)   | Normal operation. Let `/implement-batch` run its own refactor + doc-review.                                                                                                                                                      |
 | **Step 7** (final review)     | **Orchestrator reviews autonomously.** Log the summary to `PROJECT_PROGRESS.md`. Do not wait for user input.                                                                                                          |
 
 #### 5c. Merge Batch Branch into Project Branch
@@ -351,7 +351,7 @@ Status: <current phase>
 
 **Sub-workflow invocation:**
 - Quality passes (`/refactor`, `/arch-review`, `/test-review`, `/doc-review`, `/release-review`): invoke as skills
-- `/batch`: invoke as a skill with autonomous overrides
+- `/implement-batch`: invoke as a skill with autonomous overrides
 - `/deliberate`, `/bugfix`: invoke as skills when needed
 
 ## Abort Conditions
@@ -373,15 +373,15 @@ Status: <current phase>
 - Critical system error
 
 **Do NOT abort for:**
-- Individual ticket failures within a batch (handled by `/batch`)
+- Individual ticket failures within a batch (handled by `/implement-batch`)
 - Quality pass recommendations the orchestrator disagrees with (defer them)
 - Minor issues that can be noted in the final report
 
 ## Integration with Other Skills
 
-**Relationship to `/batch`:**
-- `/implement-project` is a higher-level orchestrator that runs `/batch` for each batch of tickets
-- `/batch` handles the per-ticket implementation loop via `/implement`
+**Relationship to `/implement-batch`:**
+- `/implement-project` is a higher-level orchestrator that runs `/implement-batch` for each batch of tickets
+- `/implement-batch` handles the per-ticket implementation loop via `/implement`
 - `/implement-project` adds: multi-batch coordination, smoke testing, comprehensive quality pipeline
 
 **Relationship to `/scope`:**
@@ -396,7 +396,7 @@ Status: <current phase>
 **Hierarchy:**
 ```
 /project
-├── /batch (per batch)
+├── /implement-batch (per batch)
 │   ├── /implement (per ticket)
 │   ├── /refactor (per-batch quality)
 │   └── /doc-review (per-batch quality)

@@ -19,7 +19,7 @@ and autonomy.
 
 ```
 /implement-project                              ← full project lifecycle
-├── /batch (per batch)                ← multi-ticket orchestration
+├── /implement-batch (per batch)                ← multi-ticket orchestration
 │   ├── /implement (per ticket)         ← single-ticket implementation
 │   │   ├── SME implementation        ← language-specific specialist
 │   │   ├── QA verification           ← practical + coverage
@@ -58,7 +58,7 @@ your task:
 | You want to...                                          | Use              |
 |---------------------------------------------------------|------------------|
 | Implement an entire multi-batch project autonomously    | `/implement-project`       |
-| Implement a batch of related tickets                    | `/batch`         |
+| Implement a batch of related tickets                    | `/implement-batch`         |
 | Implement a single ticket or feature                    | `/implement`       |
 | Plan a multi-batch project with adversarial review      | `/scope-project` |
 | Plan a single feature and create a ticket               | `/scope`         |
@@ -73,7 +73,7 @@ your task:
 
 **Rules of thumb:**
 - Multiple batches of tickets forming a project? `/implement-project`
-- One batch of 2+ related tickets? `/batch`
+- One batch of 2+ related tickets? `/implement-batch`
 - One ticket? `/implement` (or `/bugfix` if it's a bug)
 - Not sure what to build yet? Start with `/scope` or `/scope-project`
 
@@ -87,7 +87,7 @@ through quality passes to a merge-ready branch.
 #### /implement-project — Full-Lifecycle Project Workflow
 
 Orchestrates an entire project from tickets to release-ready code. Takes
-batched tickets, implements each batch via `/batch` in autonomous mode,
+batched tickets, implements each batch via `/implement-batch` in autonomous mode,
 runs smoke tests, then executes a comprehensive quality pipeline (refactor,
 arch-review, test-review, doc-review, release-review). The result is a
 single project branch ready for human review and merge.
@@ -97,14 +97,14 @@ planned intervention path.
 
 [Detailed documentation](skills/implement-project/README.md)
 
-#### /batch — Multi-Ticket Orchestration
+#### /implement-batch — Multi-Ticket Orchestration
 
 Takes a batch of tickets, plans their execution order, implements each
 sequentially using `/implement` in autonomous mode, runs cross-cutting
 quality passes (`/refactor`, `/doc-review`), and presents results for
 final review.
 
-[Detailed documentation](skills/batch/README.md)
+[Detailed documentation](skills/implement-batch/README.md)
 
 #### /implement — Single-Ticket Development
 

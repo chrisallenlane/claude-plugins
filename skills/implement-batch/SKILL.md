@@ -1,10 +1,10 @@
 ---
-name: batch
+name: implement-batch
 description: Multi-ticket batch workflow. Takes a batch of tickets, plans execution order, implements each via /implement in autonomous mode, runs cross-cutting quality passes, and presents results for final review.
 model: opus
 ---
 
-# Batch - Multi-Ticket Orchestration Workflow
+# Implement-Batch - Multi-Ticket Orchestration Workflow
 
 Orchestrates a batch of tickets as a cohesive unit. Creates a project branch, implements each ticket sequentially using the `/implement` workflow in autonomous mode, runs cross-cutting quality passes, and presents results for final human review.
 
@@ -238,13 +238,13 @@ The orchestrator maintains:
 ## Integration with Other Skills
 
 **Relationship to `/implement`:**
-- `/batch` is a higher-level orchestrator that runs `/implement` for each ticket
+- `/implement-batch` is a higher-level orchestrator that runs `/implement` for each ticket
 - `/implement` handles the full development cycle for a single ticket
-- `/batch` adds: batching, ordering, branching strategy, cross-cutting quality passes
+- `/implement-batch` adds: batching, ordering, branching strategy, cross-cutting quality passes
 
 **Relationship to `/scope`:**
-- `/scope` creates tickets; `/batch` consumes them
-- Typical flow: `/scope` to plan and create tickets, then `/batch` to implement the batch
+- `/scope` creates tickets; `/implement-batch` consumes them
+- Typical flow: `/scope` to plan and create tickets, then `/implement-batch` to implement the batch
 
 **Relationship to `/refactor`, `/doc-review`:**
 - These run as cross-cutting quality passes after all tickets are implemented

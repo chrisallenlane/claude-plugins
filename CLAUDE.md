@@ -48,7 +48,7 @@ The skills form a layered system. Higher-level workflows orchestrate lower-level
 
 ```
 /implement-project
-├── /batch (per batch)
+├── /implement-batch (per batch)
 │   └── /implement (per ticket)
 └── quality pipeline: /refactor, /arch-review, /test-review, /doc-review, /release-review
 ```

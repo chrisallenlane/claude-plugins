@@ -292,7 +292,7 @@ and adds a missing ticket for shutdown handling.
 |----------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
 | `/scope`       | Plans a single ticket interactively. `/scope-project` plans an entire project with adversarial review.                                             |
 | `/implement-project`     | Implements what `/scope-project` plans. Tickets go upstream with batch labels that `/implement-project` consumes directly. Typical flow: `/scope-project` → `/implement-project`. |
-| `/batch`       | Can also consume `/scope-project`'s tagged tickets if only one batch needs implementation.                                                         |
+| `/implement-batch`       | Can also consume `/scope-project`'s tagged tickets if only one batch needs implementation.                                                         |
 | `/implement`     | Can implement individual tickets from `/scope-project` if full `/implement-project` orchestration isn't needed.                                              |
 | `/deliberate`  | Available within `/scope-project` for difficult design decisions during planning.                                                                   |
 

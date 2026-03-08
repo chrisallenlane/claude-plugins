@@ -4,15 +4,15 @@
 
 ### Breaking Changes
 
-- **`/implement-project` renamed to `/batch`.** The v1.x `/implement-project` skill (single-batch
-  ticket orchestration) is now `/batch`. The `/implement-project` name is used by a new,
+- **`/implement-project` renamed to `/implement-batch`.** The v1.x `/implement-project` skill (single-batch
+  ticket orchestration) is now `/implement-batch`. The `/implement-project` name is used by a new,
   higher-level workflow (see below). If you were using `/implement-project` to implement
-  a single batch of tickets, use `/batch` instead.
+  a single batch of tickets, use `/implement-batch` instead.
 
 ### New Skills
 
 - **`/implement-project` — Full-lifecycle project workflow.** Orchestrates an entire
-  multi-batch project: implements batches via `/batch`, runs smoke tests, then
+  multi-batch project: implements batches via `/implement-batch`, runs smoke tests, then
   executes a comprehensive quality pipeline (refactor, arch-review,
   test-review, doc-review, release-review). Maximizes autonomy with andon cord
   escalation.
