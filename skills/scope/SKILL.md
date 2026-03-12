@@ -77,6 +77,7 @@ Output: Shared, precise understanding of the work to be done.
 - Proposed solution (high-level approach)
 - Acceptance criteria (specific, testable)
 - Technical notes (implementation considerations, affected components)
+- Security considerations (if the change introduces new attack surface, handles user input, touches auth/authz, or affects trust boundaries — note what controls will be needed. Consult the `sec-blue-teamer` agent if the implications are non-obvious.)
 - Out of scope (what explicitly won't be done)
 - Open questions (if any remain)
 

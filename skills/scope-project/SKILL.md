@@ -158,6 +158,7 @@ labels: [batch-N, <other labels>]
 - Affected files: [list key files]
 - Key functions: [list functions to modify/create]
 - Patterns to follow: [existing patterns in the codebase]
+- Security considerations: [if applicable — new attack surface, input handling, auth/authz changes, trust boundary impacts]
 
 ## Implementation Notes
 [Guidance for the implementer — current function signatures, module

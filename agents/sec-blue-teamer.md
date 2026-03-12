@@ -303,7 +303,18 @@ Dependency audit: [tools run, or "no dependency audit tooling present"]
 
 ## TOOLING RECOMMENDATIONS (if applicable)
 [Security tools the project should adopt]
+
+## NON-SECURITY BUGS (if any)
+- **[file:line — function]** — [what's broken and how you found it]
 ```
+
+---
+
+# Incidental Bug Reporting
+
+During control inventory and consistency checking, you will sometimes discover bugs that have **no security impact** — broken logic, dead code paths, incorrect behavior under edge conditions. These are outside your scope. Don't investigate them further.
+
+**But do report them.** You're reading code systematically in a way that most reviews don't. List any non-security bugs you notice in a `NON-SECURITY BUGS` section at the end of your report so they can be routed to the normal development workflow. A one-liner per bug is sufficient — file, line, and what's wrong.
 
 ---
 
