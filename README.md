@@ -245,7 +245,8 @@ Specialist agents spawned by the workflows above:
 | `qa-fuzz-analyst`           | Fuzz testing gap analyst (fuzz infrastructure detection, candidate identification)                    |
 | `qa-test-mutator`           | Mutation testing worker (applies mutations, records results)                                          |
 | `qa-release-eng`            | Pre-release scanner (debug artifacts, versioning, changelog, git hygiene, breaking changes, licenses) |
-| `sec-reviewer`              | Security vulnerability analysis                                                                       |
+| `sec-blue-teamer`           | Defensive security analyst (control inventory, consistency, defense-in-depth, configuration)           |
+| `sec-red-teamer`            | Adversarial security analyst (attack surface mapping, exploitation, trust boundary analysis)           |
 | `doc-maintainer`            | Documentation updates and verification                                                                |
 
 ## Development

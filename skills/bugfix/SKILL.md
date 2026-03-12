@@ -121,13 +121,13 @@ Conditionally invoke specialized reviewers based on code changes and complexity.
 
 **If security-sensitive code changed (auth, crypto, input validation, data access):**
 
-**Spawn `sec-reviewer` agent:**
-- Analyzes code for security vulnerabilities
-- Identifies potential attack vectors
-- Reviews for OWASP top 10 issues
+**Spawn `sec-blue-teamer` agent:**
+- Evaluates defensive security posture of changed code
+- Checks control consistency, defense-in-depth, and configuration
+- Identifies systemic gaps that enable vulnerability classes
 - **Has authority to demand changes** - security issues should block or require explicit user approval
 
-**Output**: Security findings with severity levels (critical/high/medium/low)
+**Output**: Defense evaluation with severity levels (critical/high/low)
 
 #### 6b. Refactoring Review (Conditional - Advisory)
 

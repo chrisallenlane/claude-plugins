@@ -1,12 +1,12 @@
 ---
 name: audit-source
-description: White-box security audit. Spawns a lead red-teamer for reconnaissance, then dedicated red-teamers per attack vector for deep exploitation analysis. Iterates when exploit chains are discovered. Heavy and thorough by design.
+description: White-box security audit. Blue-teamer evaluates defensive posture, then red-teamers attack informed by defensive gaps. Iterates when exploit chains are discovered. Heavy and thorough by design.
 model: opus
 ---
 
 # Audit Source — White-Box Security Audit
 
-Orchestrates an adversarial security assessment of the project's source code. A lead red-teamer performs reconnaissance and identifies attack vectors, then dedicated red-teamers investigate each vector in depth. Findings are synthesized, exploit chains are explored, and the process iterates until no new chains emerge.
+Orchestrates a comprehensive security assessment of the project's source code using both defensive and offensive analysis. A blue-teamer evaluates the defensive posture first, then a lead red-teamer performs reconnaissance informed by the defensive gaps. Dedicated red-teamers investigate each attack vector in depth. Findings are synthesized, exploit chains are explored, and the process iterates until no new chains emerge.
 
 **This is deliberately heavy.** Thoroughness is the priority, not speed. A complete audit may spawn many agents and take significant time. That's the point — shallow security reviews miss the vulnerabilities that matter.
 
@@ -17,15 +17,18 @@ Orchestrates an adversarial security assessment of the project's source code. A 
 │                   AUDIT WORKFLOW                     │
 ├──────────────────────────────────────────────────────┤
 │  1. Determine scope                                  │
-│  2. Spawn lead red-teamer (reconnaissance)           │
+│  2. Spawn blue-teamer (defense evaluation)           │
+│     └─ Output: control inventory + gaps + depth      │
+│  3. Spawn lead red-teamer (reconnaissance)           │
+│     └─ Input: blue-teamer's defense evaluation       │
 │     └─ Output: attack surface + ranked vector list   │
-│  3. For each high-confidence vector:                 │
+│  4. For each high-confidence vector:                 │
 │     └─ Spawn focused red-teamer (deep investigation) │
-│  4. Synthesize findings                              │
-│     ├─ If exploit chains found → goto 3 (new vector) │
+│  5. Synthesize findings                              │
+│     ├─ If exploit chains found → goto 4 (new vector) │
 │     └─ If no new chains → proceed                    │
-│  5. Present consolidated findings to user            │
-│  6. Optionally route findings to fixers              │
+│  6. Present consolidated findings to user            │
+│  7. Optionally route findings to fixers              │
 └──────────────────────────────────────────────────────┘
 ```
 
@@ -42,48 +45,99 @@ Orchestrates an adversarial security assessment of the project's source code. A 
 - "Is there anything you're particularly concerned about?" (auth, file handling, a recent change, etc.)
 - "Are there any areas I should skip?" (vendored code, generated code, test fixtures)
 
-User concerns inform the prioritization of vectors in step 2, but the lead red-teamer still performs full reconnaissance — user intuition supplements, not replaces, systematic analysis.
+User concerns inform the prioritization of vectors in later steps, but the blue-teamer and lead red-teamer still perform full analysis — user intuition supplements, not replaces, systematic analysis.
 
-### 2. Reconnaissance — Lead Red-Teamer
+### 2. Defense Evaluation — Blue-Teamer
 
-**Spawn a `sec-red-teamer` agent in broad recon mode:**
+**Spawn a `sec-blue-teamer` agent for full defense evaluation:**
 
 ```
-You are the lead red-teamer for a white-box security audit.
+You are the blue-teamer for a white-box security audit. Your defense evaluation
+will be passed to the red team to inform their attack planning.
 
 Scope: [entire codebase | user-specified scope]
 User concerns: [any areas of concern mentioned by user, or "none specified"]
 
-Perform phases 1–3 of your methodology:
-1. Reconnaissance — map the full attack surface (every entry point, what it accepts, who can reach it)
-2. Data flow tracing — for each entry point, trace input to its final destination. Note validation gaps, dangerous sinks, and transformation hazards. You don't need to fully exploit yet — identify where the promising targets are.
-3. Trust boundary mapping — identify where trust transitions occur and which boundaries look weakest.
+Perform your full methodology:
+1. Inventory security controls — map every defense that exists (auth, authz,
+   input validation, CSRF, headers, rate limiting, crypto, secrets, logging)
+2. Evaluate each control — correctness, consistency, failure mode
+3. Identify missing controls — what should exist but doesn't, given the
+   application type?
+4. Assess defense-in-depth — where does security rely on a single control?
+5. Review configuration — are security features properly configured?
+6. Dependency hygiene — run available tooling, check for CVEs and supply chain
+   concerns
+7. Secrets and credentials — check for secrets in the wrong places
 
-Do NOT perform deep exploitation yet. Your job is to survey the landscape and produce a prioritized target list.
+Pay special attention to CONSISTENCY. The red team will exploit every gap where
+a control exists but isn't applied universally.
+
+Output your full report in your standard format. Your findings will be passed
+directly to the lead red-teamer to inform reconnaissance.
+```
+
+**When the blue-teamer reports back:** Review the defense evaluation. The control inventory, gap analysis, and defense-in-depth assessment become critical input for the red team.
+
+### 3. Reconnaissance — Lead Red-Teamer
+
+**Spawn a `sec-red-teamer` agent in broad recon mode, informed by the blue-team evaluation:**
+
+```
+You are the lead red-teamer for a white-box security audit. The blue team has
+already evaluated the defensive posture. Use their findings to focus your
+reconnaissance on the weakest defenses.
+
+Scope: [entire codebase | user-specified scope]
+User concerns: [any areas of concern mentioned by user, or "none specified"]
+
+## BLUE TEAM DEFENSE EVALUATION
+[Full blue-teamer report — control inventory, gaps, defense-in-depth assessment]
+
+Perform phases 1–3 of your methodology:
+1. Reconnaissance — map the full attack surface (every entry point, what it
+   accepts, who can reach it). Cross-reference with the blue team's control
+   inventory to identify which entry points lack defenses.
+2. Data flow tracing — for each entry point, trace input to its final
+   destination. The blue team identified consistency gaps — verify whether
+   those gaps are exploitable.
+3. Trust boundary mapping — identify where trust transitions occur. The blue
+   team flagged single points of security failure — these are your priority
+   boundaries.
+
+Do NOT perform deep exploitation yet. Your job is to survey the landscape and
+produce a prioritized target list. The blue team's findings should make your
+recon significantly more targeted.
 
 Output a structured report:
 
 ## ATTACK SURFACE
 [Entry points discovered, ranked by exposure]
+[Note which entry points the blue team identified as unprotected or
+inconsistently protected]
 
 ## TRUST BOUNDARIES
 [Trust boundaries identified, noting implicit/unguarded ones]
+[Cross-reference with blue team's defense-in-depth assessment]
 
 ## TARGET LIST
 For each promising attack vector, provide:
 - Target: [entry point or code path]
 - Files: [specific files and line ranges to focus on]
 - Hypothesis: [what you think might be exploitable and why]
+- Blue team context: [relevant defensive gaps from blue team report]
 - Context: [relevant framework protections, validation observed, transformations]
 - Priority: [CRITICAL / HIGH / MEDIUM]
 - Investigation approach: [what the focused red-teamer should try]
 
-Rank targets by a combination of exposure (how easy to reach) and potential impact (how bad if exploited). Limit to the top 10 targets — quality over quantity.
+Rank targets by a combination of exposure (how easy to reach) and potential
+impact (how bad if exploited). Limit to the top 10 targets — quality over
+quantity.
 ```
 
 **When the lead reports back:** Review the target list. This is the basis for the deep-dive phase.
 
-### 3. Deep Investigation — Focused Red-Teamers
+### 4. Deep Investigation — Focused Red-Teamers
 
 **For each target in the lead's list (CRITICAL and HIGH priority), spawn a dedicated `sec-red-teamer` agent:**
 
@@ -94,6 +148,7 @@ You are a focused red-teamer investigating a single attack vector.
 Target: [from lead's report]
 Files: [from lead's report]
 Hypothesis: [from lead's report]
+Blue team context: [defensive gaps relevant to this target]
 Context: [from lead's report]
 Investigation approach: [from lead's report]
 
@@ -122,7 +177,7 @@ If this vector is a dead end, say so. Don't manufacture findings. A clean report
 
 **Pass prior findings to each new agent.** As findings accumulate, each subsequent focused agent receives a summary of what prior agents found. This enables chain discovery — agent 3 might realize that agent 1's low-severity information disclosure combines with agent 2's SSRF to create a critical chain.
 
-### 4. Synthesize and Chain
+### 5. Synthesize and Chain
 
 After all focused agents have reported, synthesize their findings.
 
@@ -138,12 +193,12 @@ After all focused agents have reported, synthesize their findings.
 
 **If chains are discovered:**
 - Create new target entries for each chain
-- Return to step 3 with a focused red-teamer dedicated to validating and fully exploiting the chain
+- Return to step 4 with a focused red-teamer dedicated to validating and fully exploiting the chain
 - The chain investigator receives all relevant findings from the individual agents and attempts to demonstrate the full chain
 
 **Convergence:** The loop terminates when a synthesis pass produces no new chains. Typically this takes 1–2 chain iterations. If chain analysis keeps producing new chains after 3 iterations, present current findings and let the user decide whether to continue.
 
-### 5. Present Consolidated Findings
+### 6. Present Consolidated Findings
 
 Compile all findings from all agents into a single report:
 
@@ -151,13 +206,18 @@ Compile all findings from all agents into a single report:
 ## Security Audit Summary
 
 Scope: [what was audited]
+Defense evaluation: [summary — N controls inventoried, M gaps found]
 Attack surface: [N entry points identified]
 Vectors investigated: [N of M targets from recon]
 Findings: N (X critical, Y high, Z low)
 Exploit chains: N
 
-## ATTACK SURFACE
-[Summary from lead red-teamer]
+## DEFENSE POSTURE (from blue-teamer)
+[Summary of control inventory and key gaps]
+[Defense-in-depth assessment — where security relies on a single control]
+
+## ATTACK SURFACE (from lead red-teamer)
+[Entry points discovered, ranked by exposure]
 
 ## FINDINGS
 
@@ -166,8 +226,9 @@ Exploit chains: N
   - Attack: [concrete exploitation path]
   - Impact: [what the attacker gets]
   - Data flow: [entry] → [transformations] → [sink]
+  - Defensive gap: [what the blue team identified that enabled this]
   - Fix: [remediation guidance]
-  - Discovered by: [lead recon | focused agent for <target> | chain analysis]
+  - Discovered by: [blue team | lead recon | focused agent for <target> | chain analysis]
 
 ### HIGH
 [same format]
@@ -190,7 +251,7 @@ Exploit chains: N
 
 **Present to user interactively.** Walk through CRITICAL findings first. For each, explain the attack, the impact, and the recommended fix. Let the user ask questions and discuss before moving to the next finding.
 
-### 6. Route to Fixers (Optional)
+### 7. Route to Fixers (Optional)
 
 After presenting findings, ask the user: "Would you like to route these findings to agents for remediation?"
 
@@ -198,7 +259,7 @@ After presenting findings, ask the user: "Would you like to route these findings
 - For each finding, determine the appropriate fixer:
   - Web vulnerabilities (XSS, CSRF, clickjacking) → `swe-sme-html`, `swe-sme-javascript`, or `swe-sme-css` depending on the fix
   - Injection vulnerabilities (SQL, command, path) → language-appropriate SME
-  - Auth/crypto issues → `sec-reviewer` for defensive remediation guidance, then language SME for implementation
+  - Auth/crypto issues → `sec-blue-teamer` for defensive remediation guidance, then language SME for implementation
   - For exploit chains → fix the cheapest link (the component that's easiest to remediate and breaks the chain)
 
 - Spawn the appropriate agent with the finding details and remediation guidance
@@ -209,11 +270,12 @@ After presenting findings, ask the user: "Would you like to route these findings
 
 ## Agent Coordination
 
-**Sequential execution within each phase.** Focused red-teamers run sequentially so findings accumulate for chain analysis.
+**Sequential execution within each phase.** The blue-teamer runs first, then the lead red-teamer (with blue-team input), then focused red-teamers run sequentially so findings accumulate for chain analysis.
 
-**Fresh instances for every agent.** Each red-teamer gets a clean context window dedicated entirely to its target. This is the core design principle — full context dedicated to a single vector.
+**Fresh instances for every agent.** Each agent gets a clean context window dedicated entirely to its task. This is the core design principle — full context dedicated to a single concern.
 
 **State to maintain (as orchestrator):**
+- Blue-teamer's defense evaluation (passed to lead red-teamer and included in final report)
 - Lead red-teamer's attack surface report and target list
 - Each focused agent's findings (accumulating)
 - Chain analysis results
@@ -237,12 +299,12 @@ After presenting findings, ask the user: "Would you like to route these findings
 ## Integration with Other Skills
 
 **Relationship to `/bugfix`:**
-- `/bugfix` invokes `sec-reviewer` for scoped security review of changed code
+- `/bugfix` invokes `sec-blue-teamer` for scoped security review of changed code
 - `/audit-source` is a dedicated, full-depth security audit
 - Use `/audit-source` proactively; `/bugfix` handles security reactively
 
 **Relationship to `/implement`:**
-- `/implement` may invoke `sec-reviewer` as part of its review phase
+- `/implement` may invoke `sec-blue-teamer` as part of its review phase
 - `/audit-source` is independent and deeper — run it when security assurance matters, not as part of routine development
 
 **Relationship to `/review-release`:**
@@ -265,32 +327,45 @@ Any areas to skip?
 
 Starting white-box security audit...
 
-[Phase 1 — Reconnaissance]
-Spawning lead red-teamer...
+[Phase 1 — Defense Evaluation]
+Spawning blue-teamer...
+
+Blue-teamer report:
+  Controls inventoried: 8
+  Key gaps:
+  - Auth middleware missing on 3 of 14 routes (/internal/*, /ws/*, /api/export)
+  - No parameterized queries — ORM used for 11 of 14 queries, 3 use raw SQL
+  - CSRF protection on POST only, not PUT/DELETE
+  - No rate limiting on /api/auth/* endpoints
+  - OAuth state parameter generated but never validated on callback
+  Defense-in-depth: Single-layer defense on 4 critical paths
+
+[Phase 2 — Reconnaissance]
+Spawning lead red-teamer (with blue-team findings)...
 
 Lead red-teamer report:
   Attack surface: 14 entry points (8 API, 3 WebSocket, 2 CLI, 1 file upload)
   Trust boundaries: 5 identified (2 implicit — database trust, env var trust)
   Targets identified: 7 (3 critical, 3 high, 1 medium)
+  Note: Blue team's finding about missing auth on /internal/* routes
+  and unvalidated OAuth state confirmed as high-priority targets.
 
 Target list:
-  CRITICAL-1: POST /api/auth/callback — OAuth token exchange, token stored in session
+  CRITICAL-1: POST /api/auth/callback — OAuth state not validated (blue team flagged)
   CRITICAL-2: POST /api/upload — file upload with path construction from user input
-  CRITICAL-3: WebSocket /ws/chat — message handler with no auth check
+  CRITICAL-3: WebSocket /ws/chat — auth middleware gap (blue team flagged)
   HIGH-1: GET /api/users/:id — IDOR candidate, auth present but no ownership check
-  HIGH-2: POST /api/search — query parameter passed to raw SQL
-  HIGH-3: PUT /api/settings — admin endpoint, middleware applied inconsistently
+  HIGH-2: POST /api/search — raw SQL query (blue team flagged as consistency gap)
+  HIGH-3: PUT /api/settings — admin endpoint, middleware inconsistently applied
   MEDIUM-1: GET /api/export — CSV generation with user-controlled column names
 
-[Phase 2 — Deep Investigation]
+[Phase 3 — Deep Investigation]
 
 Spawning focused red-teamer for CRITICAL-1 (OAuth callback)...
   Finding: OAuth state parameter not validated — CSRF on auth callback
   allows attacker to link victim's account to attacker's OAuth identity.
   Severity: CRITICAL
-  Attack: Attacker initiates OAuth flow, captures callback URL with their
-  code, sends victim to that URL. Victim's session now linked to attacker's
-  OAuth account.
+  Defensive gap: Blue team identified state generation without validation.
 
 Spawning focused red-teamer for CRITICAL-2 (file upload)...
   Finding: Path traversal in upload destination. Filename from multipart
@@ -300,7 +375,8 @@ Spawning focused red-teamer for CRITICAL-2 (file upload)...
 
 Spawning focused red-teamer for CRITICAL-3 (WebSocket)...
   Finding: Dead end. WebSocket handler does check auth via upgrade
-  headers. Lead misread the middleware chain. No finding.
+  headers. Blue team's middleware gap finding was about a different
+  middleware layer. No finding.
 
 Spawning focused red-teamer for HIGH-1 (IDOR)...
   Finding: Confirmed. GET /api/users/:id returns full user record
@@ -312,6 +388,7 @@ Spawning focused red-teamer for HIGH-2 (SQL injection)...
   string. POST /api/search with body {"q": "' UNION SELECT * FROM
   users--"} dumps user table.
   Severity: CRITICAL (upgraded from HIGH — unauthenticated endpoint)
+  Defensive gap: Blue team identified 3 raw SQL queries bypassing ORM.
 
 Spawning focused red-teamer for HIGH-3 (admin settings)...
   Finding: PUT /api/settings/theme has admin middleware. PUT
@@ -319,7 +396,7 @@ Spawning focused red-teamer for HIGH-3 (admin settings)...
   notification settings for all users.
   Severity: HIGH
 
-[Phase 3 — Chain Analysis]
+[Phase 4 — Chain Analysis]
 
 Analyzing 5 findings for chains...
 
@@ -336,6 +413,7 @@ No further chains discovered. Audit converging.
 
 ## Security Audit Summary
 Scope: entire codebase (excluding vendor/, testdata/)
+Defense evaluation: 8 controls inventoried, 5 gaps found
 Attack surface: 14 entry points
 Vectors investigated: 6 of 7 targets
 Findings: 6 (3 critical, 2 high, 0 low)

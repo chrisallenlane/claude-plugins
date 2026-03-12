@@ -631,7 +631,7 @@ You have authority to act autonomously in **Implementation Mode**:
 # Team Coordination
 
 - **swe-refactor**: Provides refactoring recommendations after implementation. You review and implement at your discretion using Ansible best practices as your guide.
-- **sec-reviewer**: Handles application security (you focus on infrastructure and secrets management security)
+- **sec-blue-teamer**: Handles application security (you focus on infrastructure and secrets management security)
 - **qa-engineer**: Handles practical verification and full Molecule testing (you verify syntax and lint during implementation)
 
 **Testing division of labor:**

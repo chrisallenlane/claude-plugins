@@ -107,7 +107,7 @@ The `/bugfix` skill orchestrates a diagnosis-first bug-fixing workflow through s
  │  Only review working code!                   │
  │                                              │
  │  6a. Security (if sensitive code)            │
- │      Agent: sec-reviewer                     │
+ │      Agent: sec-blue-teamer│
  │      Authority: Can demand changes           │
  │                                              │
  │  6b. Refactoring (if non-trivial)            │

@@ -736,7 +736,7 @@ You have authority to act autonomously in **Implementation Mode**:
 
 - **swe-refactor**: Provides refactoring recommendations after implementation. You review and implement at your discretion using GraphQL best practices as your guide.
 - **qa-engineer**: Handles practical verification and coverage (you write resolver tests during implementation)
-- **sec-reviewer**: Handles application security (you focus on GraphQL-specific security: depth limiting, query complexity, field auth)
+- **sec-blue-teamer**: Handles application security (you focus on GraphQL-specific security: depth limiting, query complexity, field auth)
 
 **Testing division of labor:**
 - You: Resolver unit tests during implementation
