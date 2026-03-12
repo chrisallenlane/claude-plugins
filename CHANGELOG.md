@@ -1,25 +1,20 @@
 # Changelog
 
-## Unreleased
+## v4.1.0
 
-### Breaking Changes
-
-- **`sec-reviewer` renamed to `sec-blue-teamer`.** The security review agent is now the defensive counterpart to the new `sec-red-teamer`. Update any workflows or documentation that reference the old name.
-
-### New Skill
+### New Skills
 
 - **`/audit-source` — White-box security audit.** Orchestrates a comprehensive security assessment using both defensive and offensive analysis. The blue-teamer evaluates defensive posture first; the lead red-teamer performs reconnaissance informed by those gaps; focused red-teamers investigate each vector in depth; findings are synthesized and exploit chains explored until no new chains emerge.
 
-### New Agent
+### New Agents
 
-- **`sec-red-teamer`** — Adversarial security analyst. Attacks the codebase from an attacker's perspective to find concrete exploitable vulnerabilities. Works as the offensive counterpart to `sec-blue-teamer`. In `/audit-source`, the blue-teamer's defense evaluation runs first and feeds the red-teamer's reconnaissance.
+- **`sec-red-teamer`** — Adversarial security analyst. Attacks the codebase from an attacker's perspective to find concrete exploitable vulnerabilities. Works as the offensive counterpart to `sec-blue-teamer`.
+- **`sec-blue-teamer`** — Defensive security analyst (renamed from `sec-reviewer`). Evaluates security posture through control inventory, consistency checking, defense-in-depth assessment, and dependency hygiene. Runs as the first step in `/audit-source`, feeding its defense evaluation to the red team.
 
 ### Improvements
 
-- **`sec-blue-teamer`** now operates explicitly as the first step in `/audit-source`, feeding its defense evaluation to the red team to inform targeted reconnaissance.
 - Both `sec-blue-teamer` and `sec-red-teamer` report incidental non-security bugs discovered during their analysis in a dedicated `NON-SECURITY BUGS` section.
-- **`/scope`** ticket templates now include a **Security considerations** field for feature proposals, prompting authors to note new attack surface, input handling, auth/authz changes, and trust boundary impacts.
-- **`/scope-project`** ticket templates include the same security considerations field in the Technical Notes section.
+- **`/scope`** and **`/scope-project`** ticket templates now include a **Security considerations** field, prompting authors to note new attack surface, input handling, auth/authz changes, and trust boundary impacts.
 
 ## v4.0.0
 
