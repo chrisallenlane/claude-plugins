@@ -233,8 +233,12 @@ Each item goes through: SME implementation -> QA verification -> atomic commit.
 - `swe-sme-graphql` - GraphQL schemas
 - `swe-sme-ansible` - Ansible playbooks
 - `swe-sme-zig` - Zig projects
+- `swe-sme-html` - HTML/markup
+- `swe-sme-css` - CSS/styling
+- `swe-sme-javascript` - Vanilla JavaScript
+- `swe-sme-typescript` - TypeScript
 
-**For other languages** (Python, JavaScript, Rust, Lua, etc.): The orchestrator implements directly, following language idioms.
+**For other languages** (Python, Rust, Lua, etc.): The orchestrator implements directly, following language idioms.
 
 After each item, the `qa-engineer` agent verifies the change didn't break anything (test suite, linters, formatters). On failure, the SME gets up to 3 repair attempts. After 3 failures: revert the item, log the failure, continue with the next item.
 

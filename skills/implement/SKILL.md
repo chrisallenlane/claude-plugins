@@ -72,6 +72,10 @@ After requirements are clear, assess whether planning is warranted:
 - If GraphQL schema/resolvers: spawn `swe-sme-graphql` agent
 - If Ansible playbooks/roles: spawn `swe-sme-ansible` agent
 - If Zig project: spawn `swe-sme-zig` agent
+- If TypeScript project (`.ts` files, `tsconfig.json`): spawn `swe-sme-typescript` agent
+- If vanilla JavaScript (`.js` files, no TypeScript): spawn `swe-sme-javascript` agent
+- If HTML/markup changes: spawn `swe-sme-html` agent
+- If CSS/styling changes: spawn `swe-sme-css` agent
 - Otherwise: implement directly with general best practices
 
 **Pass plan to implementation agent if planning was done:**

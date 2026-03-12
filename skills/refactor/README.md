@@ -167,8 +167,12 @@ Each iteration:
 - `swe-sme-graphql` - GraphQL schemas
 - `swe-sme-ansible` - Ansible playbooks
 - `swe-sme-zig` - Zig projects
+- `swe-sme-html` - HTML/markup
+- `swe-sme-css` - CSS/styling
+- `swe-sme-javascript` - Vanilla JavaScript
+- `swe-sme-typescript` - TypeScript
 
-**For other languages** (Python, JavaScript, Rust, Lua, etc.): The orchestrator implements directly.
+**For other languages** (Python, Rust, Lua, etc.): The orchestrator implements directly.
 
 ### 7. Completion Summary
 ```

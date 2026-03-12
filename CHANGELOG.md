@@ -1,5 +1,26 @@
 # Changelog
 
+## Unreleased
+
+### Breaking Changes
+
+- **Five skills and agents renamed for verb-noun consistency:**
+  - `/arch-review` → `/review-arch` (agent `swe-arch-review` → `swe-review-arch`)
+  - `/doc-review` → `/review-doc`
+  - `/release-review` → `/review-release`
+  - `/test-review` → `/review-test`
+  - `/test-mutate` → `/test-mutation`
+
+  Update any invocations or scripts that reference the old names.
+
+### New Agents
+
+- **`swe-sme-html`** — HTML structure, semantics, and accessibility specialist. Dispatched by `/implement`, `/refactor`, `/review-arch`, and `/bugfix` for web projects.
+- **`swe-sme-css`** — CSS styling, layout, and responsive design specialist. Covers Flexbox, Grid, custom properties, and modern CSS features.
+- **`swe-sme-javascript`** — Vanilla JavaScript implementation specialist (ES modules, async/await, DOM APIs). Defers to TypeScript SME when the project uses TypeScript.
+- **`swe-sme-typescript`** — TypeScript implementation specialist. Covers strict-mode configuration, type design, generics, and compiler discipline.
+- **`qa-accessibility-auditor`** — WCAG 2.2 AA accessibility auditor. Advisory-only role: identifies barriers, prioritizes by user impact, and provides remediation guidance for HTML/CSS/JS implementers.
+
 ## v3.0.0
 
 ### Breaking Changes

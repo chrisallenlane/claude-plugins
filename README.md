@@ -111,7 +111,8 @@ final review.
 Orchestrates a complete development cycle through specialist agents:
 requirements → planning → implementation → QA → code review →
 documentation. Detects project type and dispatches to language-specific
-SMEs (Go, GraphQL, Docker, Makefile, Ansible, Zig).
+SMEs (Go, GraphQL, Docker, Makefile, Ansible, Zig, HTML, CSS,
+JavaScript, TypeScript).
 
 [Detailed documentation](skills/implement/README.md)
 
@@ -219,28 +220,33 @@ archaeology, implement a targeted fix, and verify. Same review pipeline as
 
 Specialist agents spawned by the workflows above:
 
-| Agent                 | Purpose                                                                                               |
-|-----------------------|-------------------------------------------------------------------------------------------------------|
-| `advocate`            | Argues for a specific option in deliberation proceedings                                              |
-| `swe-planner`         | Decomposes complex tasks into implementation plans                                                    |
-| `swe-sme-golang`      | Go implementation specialist                                                                          |
-| `swe-sme-graphql`     | GraphQL schema and resolver specialist                                                                |
-| `swe-sme-docker`      | Dockerfile and container specialist                                                                   |
-| `swe-sme-makefile`    | Makefile and build system specialist                                                                  |
-| `swe-sme-ansible`     | Ansible automation specialist                                                                         |
-| `swe-sme-zig`         | Zig implementation specialist                                                                         |
-| `swe-refactor`        | Tactical code quality reviewer (DRY, dead code, naming, complexity)                                   |
-| `swe-review-arch`     | Architecture reviewer (noun analysis, module boundaries, blueprints)                                  |
-| `swe-diagnostician`   | Bug root-cause analyst (execution tracing, git archaeology, diagnosis reports)                        |
-| `swe-perf-engineer`   | Performance testing and optimization                                                                  |
-| `qa-engineer`         | Practical verification and test coverage                                                              |
-| `qa-test-auditor`     | Test quality reviewer (brittle, tautological, useless tests)                                          |
-| `qa-coverage-analyst` | Coverage gap analyst (coverage reports, risk prioritization, testability suggestions)                 |
-| `qa-fuzz-analyst`     | Fuzz testing gap analyst (fuzz infrastructure detection, candidate identification)                    |
-| `qa-test-mutator`     | Mutation testing worker (applies mutations, records results)                                          |
-| `qa-release-eng`      | Pre-release scanner (debug artifacts, versioning, changelog, git hygiene, breaking changes, licenses) |
-| `sec-reviewer`        | Security vulnerability analysis                                                                       |
-| `doc-maintainer`      | Documentation updates and verification                                                                |
+| Agent                       | Purpose                                                                                               |
+|-----------------------------|-------------------------------------------------------------------------------------------------------|
+| `advocate`                  | Argues for a specific option in deliberation proceedings                                              |
+| `swe-planner`               | Decomposes complex tasks into implementation plans                                                    |
+| `swe-sme-golang`            | Go implementation specialist                                                                          |
+| `swe-sme-graphql`           | GraphQL schema and resolver specialist                                                                |
+| `swe-sme-docker`            | Dockerfile and container specialist                                                                   |
+| `swe-sme-makefile`          | Makefile and build system specialist                                                                  |
+| `swe-sme-ansible`           | Ansible automation specialist                                                                         |
+| `swe-sme-zig`               | Zig implementation specialist                                                                         |
+| `swe-sme-html`              | HTML structure, semantics, and accessibility specialist                                               |
+| `swe-sme-css`               | CSS styling, layout, and responsive design specialist                                                 |
+| `swe-sme-javascript`        | Vanilla JavaScript implementation specialist                                                          |
+| `swe-sme-typescript`        | TypeScript implementation and type design specialist                                                  |
+| `swe-refactor`              | Tactical code quality reviewer (DRY, dead code, naming, complexity)                                   |
+| `swe-review-arch`           | Architecture reviewer (noun analysis, module boundaries, blueprints)                                  |
+| `swe-diagnostician`         | Bug root-cause analyst (execution tracing, git archaeology, diagnosis reports)                        |
+| `swe-perf-engineer`         | Performance testing and optimization                                                                  |
+| `qa-engineer`               | Practical verification and test coverage                                                              |
+| `qa-accessibility-auditor`  | WCAG accessibility auditor (keyboard navigation, ARIA, contrast, semantic structure)                  |
+| `qa-test-auditor`           | Test quality reviewer (brittle, tautological, useless tests)                                          |
+| `qa-coverage-analyst`       | Coverage gap analyst (coverage reports, risk prioritization, testability suggestions)                 |
+| `qa-fuzz-analyst`           | Fuzz testing gap analyst (fuzz infrastructure detection, candidate identification)                    |
+| `qa-test-mutator`           | Mutation testing worker (applies mutations, records results)                                          |
+| `qa-release-eng`            | Pre-release scanner (debug artifacts, versioning, changelog, git hygiene, breaking changes, licenses) |
+| `sec-reviewer`              | Security vulnerability analysis                                                                       |
+| `doc-maintainer`            | Documentation updates and verification                                                                |
 
 ## Development
 

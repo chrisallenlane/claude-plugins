@@ -59,13 +59,17 @@ The `/implement` skill orchestrates a complete development workflow through spec
  │  Agent: Language-specific SME or generalist  │
  │                                              │
  │  Detects project type:                       │
- │  • Go       → swe-sme-golang                 │
- │  • GraphQL  → swe-sme-graphql                │
- │  • Docker   → swe-sme-docker                 │
- │  • Makefile → swe-sme-makefile               │
- │  • Ansible  → swe-sme-ansible                │
- │  • Zig      → swe-sme-zig                    │
- │  • Other    → Generalist implementation      │
+ │  • Go         → swe-sme-golang               │
+ │  • GraphQL    → swe-sme-graphql              │
+ │  • Docker     → swe-sme-docker               │
+ │  • Makefile   → swe-sme-makefile             │
+ │  • Ansible    → swe-sme-ansible              │
+ │  • Zig        → swe-sme-zig                  │
+ │  • HTML       → swe-sme-html                 │
+ │  • CSS        → swe-sme-css                  │
+ │  • JavaScript → swe-sme-javascript           │
+ │  • TypeScript → swe-sme-typescript           │
+ │  • Other      → Generalist implementation    │
  │                                              │
  │  Implements feature + writes unit tests      │
  └──────────────────┬───────────────────────────┘
@@ -203,6 +207,10 @@ A language-specific specialist (or generalist) implements the feature:
 - `swe-sme-makefile` - Makefiles and build systems
 - `swe-sme-ansible` - Ansible playbooks and roles
 - `swe-sme-zig` - Zig projects
+- `swe-sme-html` - HTML structure and semantics
+- `swe-sme-css` - CSS styling and layout
+- `swe-sme-javascript` - Vanilla JavaScript
+- `swe-sme-typescript` - TypeScript
 
 ### 4. Quality Assurance - Acceptance Verification (CRITICAL GATE)
 The `qa-engineer` performs practical verification before writing tests:
