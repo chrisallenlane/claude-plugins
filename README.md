@@ -70,6 +70,7 @@ your task:
 | Verify test quality via mutation testing                | `/test-mutation`   |
 | Audit all project documentation                         | `/review-doc`    |
 | Pre-release readiness check                             | `/review-release`|
+| Assess code health across all project languages         | `/review-source` |
 | Perform a white-box security audit                      | `/audit-source`  |
 
 **Rules of thumb:**
@@ -196,6 +197,16 @@ changes, and license compliance. Interactive — presents findings and lets
 you decide what to fix.
 
 [Detailed documentation](skills/review-release/README.md)
+
+#### /review-source — Code Health Assessment
+
+Assesses source code health across all languages in the project. Detects
+languages, dispatches SME agents for specialist review (or generalists for
+unsupported languages), and produces a consolidated health report with
+per-language ratings. Advisory only — no changes made. Use to decide
+whether `/refactor` is needed.
+
+[Detailed documentation](skills/review-source/README.md)
 
 ### Security
 

@@ -187,13 +187,13 @@ Dependencies are code you didn't write and probably haven't read. They expand yo
 
 **Run mechanical tooling if available.** Check the `Makefile`, `package.json`, CI config for dependency audit tools:
 
-| Tool | Language |
-|------|----------|
-| `npm audit` / `yarn audit` | Node.js |
-| `govulncheck` | Go |
-| `pip-audit` / `safety` | Python |
-| `cargo audit` | Rust |
-| `bundler-audit` | Ruby |
+| Tool                        | Language |
+|-----------------------------|----------|
+| `npm audit` / `yarn audit`  | Node.js  |
+| `govulncheck`               | Go       |
+| `pip-audit` / `safety`      | Python   |
+| `cargo audit`               | Rust     |
+| `bundler-audit`             | Ruby     |
 
 **If no tooling is present,** recommend the appropriate tool for the project's language.
 

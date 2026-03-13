@@ -195,18 +195,18 @@ Version control tells you what the developers were worried about — and what th
 
 Check the `Makefile`, `package.json` scripts, and CI config for security-related tooling.
 
-| Tool | What it catches |
-|------|----------------|
-| `npm audit` / `yarn audit` | Known CVEs in Node.js dependencies |
-| `govulncheck` | Known CVEs in Go dependencies |
-| `pip-audit` / `safety` | Known CVEs in Python dependencies |
-| `cargo audit` | Known CVEs in Rust dependencies |
-| `gitleaks` / `trufflehog` | Secrets committed to git history |
-| `semgrep` | Pattern-based static analysis |
-| `bandit` | Python-specific security issues |
-| `gosec` | Go-specific security issues |
-| `eslint-plugin-security` | JavaScript-specific security issues |
-| `brakeman` | Ruby on Rails security issues |
+| Tool                        | What it catches                      |
+|-----------------------------|--------------------------------------|
+| `npm audit` / `yarn audit`  | Known CVEs in Node.js dependencies   |
+| `govulncheck`               | Known CVEs in Go dependencies        |
+| `pip-audit` / `safety`      | Known CVEs in Python dependencies    |
+| `cargo audit`               | Known CVEs in Rust dependencies      |
+| `gitleaks` / `trufflehog`   | Secrets committed to git history     |
+| `semgrep`                   | Pattern-based static analysis        |
+| `bandit`                    | Python-specific security issues      |
+| `gosec`                     | Go-specific security issues          |
+| `eslint-plugin-security`    | JavaScript-specific security issues  |
+| `brakeman`                  | Ruby on Rails security issues        |
 
 **If no security tooling is present,** say so in your report. But tools catch the obvious stuff — the methodology above is for finding what tools miss.
 
