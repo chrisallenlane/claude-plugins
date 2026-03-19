@@ -220,6 +220,16 @@ whether `/refactor` is needed.
 
 [Detailed documentation](skills/review-source/README.md)
 
+#### /review-perf — Performance Review
+
+Reviews a project for performance issues across two domains: compute
+performance (algorithms, memory, CPU, benchmarking) and web performance
+(caching, asset delivery, loading strategy, Core Web Vitals). Detects the
+project type and dispatches the appropriate specialist(s) in parallel.
+Advisory only — no changes made.
+
+[Detailed documentation](skills/review-perf/README.md)
+
 ### Security
 
 #### /audit-source — White-Box Security Audit

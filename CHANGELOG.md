@@ -1,5 +1,30 @@
 # Changelog
 
+## v4.4.0
+
+### New Skills
+
+- **`/review-perf` — Performance review.** Detects whether a project contains web content, non-web source code, or both, and dispatches the appropriate performance reviewer(s) in parallel. Produces a consolidated report with cross-domain synthesis. Advisory only.
+
+### New Agents
+
+- **`swe-web-perf-reviewer`** — Web performance reviewer. Identifies network, caching, loading, and asset delivery issues from source code analysis. Covers caching strategy, asset delivery, critical rendering path, resource hints, image optimization, JS/CSS cost, network overhead, and Core Web Vitals risk factors. Advisory only.
+
+### Improvements
+
+- **Agent naming standardized.** All advisory "examine and report" agents now use the `reviewer` suffix. Test-related QA agents grouped under `qa-test-*` namespace. Web-specific agents namespaced with `web`. Full rename list:
+  - `swe-review-arch` → `swe-arch-reviewer`
+  - `swe-refactor` → `swe-code-reviewer`
+  - `swe-diagnostician` → `swe-bug-investigator`
+  - `swe-perf-engineer` → `swe-perf-reviewer` (now advisory only)
+  - `qa-release-eng` → `qa-release-engineer`
+  - `qa-accessibility-auditor` → `qa-web-a11y-reviewer`
+  - `qa-test-auditor` → `qa-test-reviewer`
+  - `qa-coverage-analyst` → `qa-test-coverage-reviewer`
+  - `qa-fuzz-analyst` → `qa-test-fuzz-reviewer`
+- **`swe-perf-reviewer` is now advisory only.** Formerly `swe-perf-engineer` with implementation authority. Now follows the same advisory pattern as all other reviewers, routing findings to language SMEs.
+- **Versioning policy documented.** Skills (slash commands) are the public interface. Agent names are internal implementation details and may change without a major version bump.
+
 ## v4.3.0
 
 ### New Skills
