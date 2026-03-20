@@ -56,7 +56,7 @@ Spawning doc-maintainer agent for comprehensive review...
 ## Documentation Audit Report
 
 ### Changes Made
-1. skills/implement/README.md — Updated example to match current CLI flags
+1. skills/implement/references/guide.md — Updated example to match current CLI flags
 2. CLAUDE.md — Fixed skill list ordering to match directory structure
 
 ### Issues Requiring User Approval

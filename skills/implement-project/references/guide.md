@@ -1,6 +1,6 @@
 # /implement-project - Full-Lifecycle Project Workflow
 
-> **Upgrading from v1.x?** The v1.x `/implement-project` skill (single-batch orchestration) has been renamed to [`/implement-batch`](../implement-batch/README.md). The `/implement-project` name now refers to this multi-batch full-lifecycle workflow, which invokes `/implement-batch` internally for each batch. If you were using v1.x `/implement-project` for a single batch of tickets, use `/implement-batch` instead.
+> **Upgrading from v1.x?** The v1.x `/implement-project` skill (single-batch orchestration) has been renamed to [`/implement-batch`](../implement-batch/references/guide.md). The `/implement-project` name now refers to this multi-batch full-lifecycle workflow, which invokes `/implement-batch` internally for each batch. If you were using v1.x `/implement-project` for a single batch of tickets, use `/implement-batch` instead.
 
 ## Overview
 

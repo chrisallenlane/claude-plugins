@@ -93,7 +93,7 @@ Tickets created by `/scope` are comprehensive and include:
 
 ## Integration with Other Skills
 
-`/scope` plans a single ticket. For multi-ticket project planning with adversarial review, use [`/scope-project`](../scope-project/README.md) instead.
+`/scope` plans a single ticket. For multi-ticket project planning with adversarial review, use [`/scope-project`](../scope-project/references/guide.md) instead.
 
 - **Use /scope first** when you need to think through a complex change
 - **Ticket gets created** with all the exploration and decisions documented

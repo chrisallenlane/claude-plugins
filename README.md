@@ -99,7 +99,7 @@ single project branch ready for human review and merge.
 Maximizes autonomy — the andon cord (stop-the-line escalation) is the only
 planned intervention path.
 
-[Detailed documentation](skills/implement-project/README.md)
+[Detailed documentation](skills/implement-project/SKILL.md)
 
 #### /implement-batch — Multi-Ticket Orchestration
 
@@ -108,7 +108,7 @@ sequentially using `/implement` in autonomous mode, runs cross-cutting
 quality passes (`/refactor`, `/review-doc`), and presents results for
 final review.
 
-[Detailed documentation](skills/implement-batch/README.md)
+[Detailed documentation](skills/implement-batch/SKILL.md)
 
 #### /implement — Single-Ticket Development
 
@@ -118,7 +118,7 @@ documentation. Detects project type and dispatches to language-specific
 SMEs (Go, GraphQL, Docker, Makefile, Ansible, Zig, HTML, CSS,
 JavaScript, TypeScript).
 
-[Detailed documentation](skills/implement/README.md)
+[Detailed documentation](skills/implement/SKILL.md)
 
 ### Planning
 
@@ -133,7 +133,7 @@ an implementer agent to find gaps, ambiguities, and missing work. Only
 when the implementer is satisfied do tickets go upstream — already tagged
 with batch labels ready for `/implement-project` to consume.
 
-[Detailed documentation](skills/scope-project/README.md)
+[Detailed documentation](skills/scope-project/SKILL.md)
 
 #### /scope — Problem Space Exploration
 
@@ -141,7 +141,7 @@ Explores problem spaces through iterative dialogue and codebase analysis,
 then creates a detailed ticket in your issue tracker. For single features,
 bug investigations, or refactoring proposals.
 
-[Detailed documentation](skills/scope/README.md)
+[Detailed documentation](skills/scope/SKILL.md)
 
 ### Quality
 
@@ -156,7 +156,7 @@ naming issues, unnecessary complexity), implements through specialist
 agents with QA verification, and loops until no improvements remain. Works
 within existing architecture — for structural changes, use `/review-arch`.
 
-[Detailed documentation](skills/refactor/README.md)
+[Detailed documentation](skills/refactor/SKILL.md)
 
 #### /review-arch — Blueprint-Driven Architectural Improvement
 
@@ -165,7 +165,7 @@ blueprint, then collaborates with the user to decide what to implement.
 For module boundaries, responsibility overlap, utility grab-bag
 dissolution, and structural rethinking.
 
-[Detailed documentation](skills/review-arch/README.md)
+[Detailed documentation](skills/review-arch/SKILL.md)
 
 #### /review-test — Comprehensive Test Suite Review
 
@@ -173,7 +173,7 @@ Three-phase review: fills coverage gaps, identifies missing fuzz tests,
 and audits test quality. Each phase has its own analysis → present →
 select → implement → verify cycle.
 
-[Detailed documentation](skills/review-test/README.md)
+[Detailed documentation](skills/review-test/SKILL.md)
 
 #### /test-mutation — Mutation Testing
 
@@ -181,7 +181,7 @@ Systematically introduces mutations into source code and checks if tests
 catch them. Surviving mutations reveal genuine coverage gaps that line
 coverage misses. Multi-session with progress tracking.
 
-[Detailed documentation](skills/test-mutation/README.md)
+[Detailed documentation](skills/test-mutation/SKILL.md)
 
 #### /review-doc — Documentation Quality Audit
 
@@ -189,7 +189,7 @@ Comprehensively reviews all project documentation for correctness,
 completeness, and freshness. Fixes issues autonomously within its
 authority.
 
-[Detailed documentation](skills/review-doc/README.md)
+[Detailed documentation](skills/review-doc/SKILL.md)
 
 #### /review-release — Pre-Release Readiness Check
 
@@ -198,7 +198,7 @@ version mismatches, changelog gaps, git hygiene issues, breaking API
 changes, and license compliance. Interactive — presents findings and lets
 you decide what to fix.
 
-[Detailed documentation](skills/review-release/README.md)
+[Detailed documentation](skills/review-release/SKILL.md)
 
 #### /review-a11y — Accessibility Audit
 
@@ -208,7 +208,7 @@ auditor agents to evaluate conformance, and produces a consolidated
 report prioritized by real-world user impact. Advisory only — no
 changes made.
 
-[Detailed documentation](skills/review-a11y/README.md)
+[Detailed documentation](skills/review-a11y/SKILL.md)
 
 #### /review-source — Code Health Assessment
 
@@ -218,7 +218,7 @@ unsupported languages), and produces a consolidated health report with
 per-language ratings. Advisory only — no changes made. Use to decide
 whether `/refactor` is needed.
 
-[Detailed documentation](skills/review-source/README.md)
+[Detailed documentation](skills/review-source/SKILL.md)
 
 #### /review-perf — Performance Review
 
@@ -228,7 +228,7 @@ performance (algorithms, memory, CPU, benchmarking) and web performance
 project type and dispatches the appropriate specialist(s) in parallel.
 Advisory only — no changes made.
 
-[Detailed documentation](skills/review-perf/README.md)
+[Detailed documentation](skills/review-perf/SKILL.md)
 
 ### Security
 
@@ -250,7 +250,7 @@ for each option who argue their cases, rebut each other, and respond to
 probing questions before a judge renders a verdict with reasoning and
 trade-offs.
 
-[Detailed documentation](skills/deliberate/README.md)
+[Detailed documentation](skills/deliberate/SKILL.md)
 
 #### /bugfix — Diagnosis-First Bug Fixing
 
@@ -259,7 +259,7 @@ reproduce with a failing test, perform root-cause analysis with git
 archaeology, implement a targeted fix, and verify. Same review pipeline as
 `/implement`.
 
-[Detailed documentation](skills/bugfix/README.md)
+[Detailed documentation](skills/bugfix/SKILL.md)
 
 ## Agents
 
@@ -283,7 +283,7 @@ Specialist agents spawned by the workflows above:
 | `swe-arch-reviewer`         | Architecture reviewer (noun analysis, module boundaries, blueprints)                                  |
 | `swe-bug-investigator`      | Bug root-cause investigator (execution tracing, git archaeology, diagnosis reports)                    |
 | `swe-perf-reviewer`         | Compute performance reviewer (algorithmic complexity, benchmarking, profiling, optimization)           |
-| `swe-web-perf-reviewer`    | Web performance reviewer (caching, asset delivery, loading strategy, Core Web Vitals)                  |
+| `swe-web-perf-reviewer`     | Web performance reviewer (caching, asset delivery, loading strategy, Core Web Vitals)                  |
 | `qa-engineer`               | Practical verification and test coverage                                                              |
 | `qa-web-a11y-reviewer`      | WCAG accessibility reviewer (keyboard navigation, ARIA, contrast, semantic structure)                  |
 | `qa-test-reviewer`          | Test quality reviewer (brittle, tautological, useless tests)                                          |
