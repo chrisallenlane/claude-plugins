@@ -2,11 +2,10 @@
 
 ## Overview
 
-The `/review-release` skill performs a comprehensive pre-flight check before cutting a release. It spawns a scanner agent for fast static analysis, then runs execution-based checks (tests, build, doc freshness), and presents all findings interactively for human review.
+The `/review-release` skill performs a comprehensive pre-flight check before cutting a release. It spawns a scanner agent for static analysis, runs execution-based checks (tests, build, doc freshness), then presents all findings in a single consolidated report for human review.
 
 **Key benefits:**
-- Fast feedback first — static analysis runs before expensive test/build checks
-- Interactive — every finding is presented for human decision
+- Runs all checks without interruption — no mid-scan pauses
 - Structured severity levels (BLOCKER/WARNING/INFO) to prioritize attention
 - Reuses existing workflows (doc-maintainer for freshness checks)
 - Consolidated report with actionable recommendations
@@ -59,9 +58,9 @@ The `/review-release` skill performs a comprehensive pre-flight check before cut
  └──────────────────┬───────────────────────────┘
                     ▼
  ┌──────────────────────────────────────────────┐
- │  2. STATIC ANALYSIS (fast)                   │
+ │  2. STATIC ANALYSIS                          │
  │  ────────────────────────────────────────    │
- │  Agent: qa-release-engineer                       │
+ │  Agent: qa-release-engineer                  │
  │                                              │
  │  Scans for:                                  │
  │  • Debug/dev artifacts                       │
@@ -73,41 +72,26 @@ The `/review-release` skill performs a comprehensive pre-flight check before cut
  └──────────────────┬───────────────────────────┘
                     ▼
  ┌──────────────────────────────────────────────┐
- │  3. PRESENT PHASE 1 FINDINGS                 │
- │  ────────────────────────────────────────    │
- │  Show BLOCKERs and WARNINGs from scan        │
- └──────────────────┬───────────────────────────┘
-                    ▼
- ┌──────────────────────────────────────────────┐
- │  4. USER DECISION POINT                      │
- │  ────────────────────────────────────────    │
- │  Continue with execution checks?             │
- │  ├─ Continue → proceed to step 5             │
- │  ├─ Fix first → exit, user fixes, re-runs    │
- │  └─ Skip → go to step 8                      │
- └──────────────────┬───────────────────────────┘
-                    ▼
- ┌──────────────────────────────────────────────┐
- │  5. Run test suite                           │
+ │  3. Run test suite                           │
  ├──────────────────────────────────────────────┤
- │  6. Run build verification                   │
+ │  4. Run build verification                   │
  ├──────────────────────────────────────────────┤
- │  7. Check doc freshness (doc-maintainer)     │
+ │  5. Check doc freshness (doc-maintainer)     │
  └──────────────────┬───────────────────────────┘
                     ▼
  ┌──────────────────────────────────────────────┐
- │  8. FULL CONSOLIDATED REPORT                 │
+ │  6. FULL CONSOLIDATED REPORT                 │
  │  ────────────────────────────────────────    │
  │  All findings numbered by severity:          │
  │  BLOCKERS → WARNINGS → PASSED                │
  └──────────────────┬───────────────────────────┘
                     ▼
  ┌──────────────────────────────────────────────┐
- │  9. USER SELECTS ITEMS TO ADDRESS            │
+ │  7. USER SELECTS ITEMS TO ADDRESS            │
  └──────────────────┬───────────────────────────┘
                     ▼
  ┌──────────────────────────────────────────────┐
- │  10. IMPLEMENT SELECTED FIXES                │
+ │  8. IMPLEMENT SELECTED FIXES                 │
  │  ────────────────────────────────────────    │
  │  Auto-fixable:                               │
  │  • Debug artifact removal                    │
@@ -124,13 +108,13 @@ The `/review-release` skill performs a comprehensive pre-flight check before cut
  └──────────────────┬───────────────────────────┘
                     ▼
  ┌──────────────────────────────────────────────┐
- │  11. RE-VERIFY                               │
+ │  9. RE-VERIFY                                │
  │  ────────────────────────────────────────    │
  │  Quick re-check of affected static checks    │
  └──────────────────┬───────────────────────────┘
                     ▼
  ┌──────────────────────────────────────────────┐
- │  12. FINAL SUMMARY                           │
+ │ 10. FINAL SUMMARY                            │
  │  ────────────────────────────────────────    │
  │  • Items resolved vs remaining               │
  │  • Changes made                              │
@@ -154,11 +138,16 @@ Any checks to skip?
 > Run everything
 
 Spawning qa-release-engineer agent...
+Running tests...
+Running build...
+Checking docs...
 
-## Release Readiness: Static Analysis
+## Release Readiness Report
 
 Last tag: v3.0.0 → Target: v3.1.0
 12 commits, 8 files changed
+
+No BLOCKERS or WARNINGS found.
 
 ### PASSED
 - Debug artifacts: None found
@@ -167,20 +156,9 @@ Last tag: v3.0.0 → Target: v3.1.0
 - Git hygiene: Clean working tree, no issues
 - Breaking changes: None detected
 - License compliance: No new dependencies
-
-Continue with execution checks?
-> Continue
-
-Running tests... All pass. ✓
-Running build... Clean build. ✓
-Checking docs... Up to date. ✓
-
-## Release Readiness Report
-
-No BLOCKERS or WARNINGS found.
-
-### PASSED
-- All checks pass
+- Tests: All pass
+- Build: Clean build
+- Docs: Up to date
 
 ### Recommendation
 READY TO RELEASE
@@ -195,29 +173,14 @@ What version?
 > 2.0.0
 
 Spawning qa-release-engineer agent...
+Running tests...
+Running build...
+Checking docs...
 
-## Release Readiness: Static Analysis
+## Release Readiness Report
 
 Last tag: v1.9.2 → Target: v2.0.0
 89 commits, 42 files changed
-
-### BLOCKERS (2)
-1. [DEBUG] src/api/handler.go:15 — fmt.Println("debug: request body", body)
-2. [VERSION] All manifests say 1.9.2 (target is 2.0.0)
-
-### WARNINGS (3)
-3. [CHANGELOG] Not updated since v1.9.2
-4. [BREAKING] Removed exported function ParseConfig()
-5. [DEBUG] TODO markers in 2 files
-
-Continue with execution checks?
-> Continue
-
-Running tests... All pass. ✓
-Running build... Clean build. ✓
-Checking docs... README.md references removed ParseConfig().
-
-## Full Report
 
 ### BLOCKERS (2)
 1. [DEBUG] src/api/handler.go:15 — debug statement
@@ -240,30 +203,13 @@ Select items to address:
 - Recommendation: PROCEED WITH CAUTION
 ```
 
-### Example 3: Fix Blockers First
-
-```
-Spawning qa-release-engineer agent...
-
-### BLOCKERS (3)
-1. [GIT] src/auth.go:42 — Merge conflict markers
-2. [GIT] .env file tracked by git
-3. [TESTS] (not yet run)
-
-Continue with execution checks?
-> Fix blockers first
-
-Understood. Resolve the merge conflict in src/auth.go and
-remove .env from tracking, then re-run /review-release.
-```
-
 ## Tips for Effective Use
 
 1. **Run on a clean branch.** The release review works best when your release branch is ready. Uncommitted work adds noise.
 
 2. **Provide the target version.** This enables version consistency checking against a known target, not just checking that versions agree with each other.
 
-3. **Fix blockers before execution checks.** If the static analysis finds obvious blockers, use the "Fix blockers first" option to save time.
+3. **Start from a clean state.** If you know there are obvious blockers (merge conflicts, tracked secrets), fix them before running the review to keep the report focused.
 
 4. **Run `/review-doc` for stale docs.** The release review only flags staleness — it doesn't fix documentation. Run `/review-doc` separately to update docs.
 
