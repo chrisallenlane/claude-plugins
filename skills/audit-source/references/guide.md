@@ -79,12 +79,12 @@ Findings can be routed to appropriate SME agents for implementation. Each fix is
 
 ## Agents Used
 
-| Agent | Role |
-|-------|------|
-| `sec-blue-teamer` | Defensive posture evaluation |
-| `sec-red-teamer` | Offensive reconnaissance and exploitation |
-| `swe-sme-*` | Implement remediation fixes (optional) |
-| `qa-engineer` | Verify fixes don't break functionality (optional) |
+ | Agent             | Role                                              |
+ | ----------------- | ------------------------------------------------- |
+ | `sec-blue-teamer` | Defensive posture evaluation                      |
+ | `sec-red-teamer`  | Offensive reconnaissance and exploitation         |
+ | `swe-sme-*`       | Implement remediation fixes (optional)            |
+ | `qa-engineer`     | Verify fixes don't break functionality (optional) |
 
 ## Resource Usage
 
