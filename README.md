@@ -241,6 +241,8 @@ gaps. Dedicated red-teamers investigate each attack vector in depth. Findings
 are synthesized, exploit chains are explored, and the process iterates until
 no new chains emerge. Heavy and thorough by design.
 
+[Detailed documentation](skills/audit-source/SKILL.md)
+
 ### Decision and Diagnosis
 
 #### /deliberate — Adversarial Decision Making

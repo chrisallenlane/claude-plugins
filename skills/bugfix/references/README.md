@@ -255,7 +255,7 @@ The `qa-engineer` performs practical verification:
 If verification fails, returns to step 4 (max 3 attempts before escalating).
 
 ### 6-12. Reviews, Documentation, Completion
-Identical to `/implement` steps 5-11. See the [/implement guide](../implement/references/guide.md) for details.
+Identical to `/implement` steps 5-11. See the [/implement guide](../implement/references/README.md) for details.
 
 ## Examples
 
